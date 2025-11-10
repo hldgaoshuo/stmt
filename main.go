@@ -1,0 +1,3 @@
+package stmt
+
+func main() {}
