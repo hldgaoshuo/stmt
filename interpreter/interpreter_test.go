@@ -22,6 +22,12 @@ func TestInterpreter(t *testing.T) {
 			want:   nil,
 			err:    ErrOperandMustBeFloat64,
 		},
+		{
+			name:   `1 + 1`,
+			source: `1 + 1`,
+			want:   2.0,
+			err:    nil,
+		},
 	}
 
 	// 自定义 ReplaceAttr 去除 time 字段
