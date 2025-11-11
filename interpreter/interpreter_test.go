@@ -29,8 +29,20 @@ func TestInterpreter(t *testing.T) {
 			err:    nil,
 		},
 		{
-			name:   "print 1;",
-			source: "print 1;",
+			name:   `print "one";`,
+			source: `print "one";`,
+			want:   nil,
+			err:    nil,
+		},
+		{
+			name:   "print true;",
+			source: "print true;",
+			want:   nil,
+			err:    nil,
+		},
+		{
+			name:   "print 2 + 1;",
+			source: "print 2 + 1;",
 			want:   nil,
 			err:    nil,
 		},
