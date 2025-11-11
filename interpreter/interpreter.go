@@ -2,10 +2,13 @@ package interpreter
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"reflect"
 	"stmt/ast"
 	"stmt/token"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 var (
@@ -18,47 +21,59 @@ var (
 	ErrOperandsMustBeTwoFloat64OrTwoString = errors.New("operand must be two float64 or two string")
 )
 
-func Interpreter(expression ast.Expr) (any, error) {
-	switch expr := expression.(type) {
+func Interpreter(stmts []ast.Stmt) (any, error) {
+	var result any
+	var err error
+	for _, stmt := range stmts {
+		result, err = interpreter(stmt)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
+}
+
+func interpreter(node ast.Node) (any, error) {
+	switch _node := node.(type) {
 	case *ast.Literal:
-		return expr.Value, nil
+		return _node.Value, nil
 	case *ast.Grouping:
-		return Interpreter(expr.Expression)
+		return interpreter(_node.Expression)
 	case *ast.Unary:
-		right, err := Interpreter(expr.Right)
+		right, err := interpreter(_node.Right)
 		if err != nil {
 			return nil, err
 		}
 		rightType := reflect.TypeOf(right)
-		switch expr.Operator.TokenType {
+		switch _node.Operator.TokenType {
 		case token.BANG:
 			if rightType.Kind() != reflect.Bool {
-				slog.Error("operand must be a bool", "right type", rightType, "line", expr.Operator.Line)
+				slog.Error("operand must be a bool", "right type", rightType, "line", _node.Operator.Line)
 				return nil, ErrOperandMustBeBool
 			}
 			return !right.(bool), nil
 		case token.MINUS:
 			if rightType.Kind() != reflect.Float64 {
-				slog.Error("operand must be a float64", "right type", rightType, "line", expr.Operator.Line)
+				slog.Error("operand must be a float64", "right type", rightType, "line", _node.Operator.Line)
 				return nil, ErrOperandMustBeFloat64
 			}
 			return -right.(float64), nil
 		default:
-			slog.Error("operator not support in unary", "operator", expr.Operator.TokenType, "line", expr.Operator.Line)
+			slog.Error("operator not support in unary", "operator", _node.Operator.TokenType, "line", _node.Operator.Line)
 			return nil, ErrOperatorNotSupportInUnary
 		}
 	case *ast.Binary:
-		left, err := Interpreter(expr.Left)
+		left, err := interpreter(_node.Left)
 		if err != nil {
 			return nil, err
 		}
-		right, err := Interpreter(expr.Right)
+		right, err := interpreter(_node.Right)
 		if err != nil {
 			return nil, err
 		}
 		leftType := reflect.TypeOf(left)
 		rightType := reflect.TypeOf(right)
-		switch expr.Operator.TokenType {
+		switch _node.Operator.TokenType {
 		case token.GREATER:
 			if leftType.Kind() == reflect.Float64 && rightType.Kind() == reflect.Float64 {
 				return left.(float64) > right.(float64), nil
@@ -118,11 +133,21 @@ func Interpreter(expression ast.Expr) (any, error) {
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		default:
-			slog.Error("operator not support in binary", "expr", expr)
+			slog.Error("operator not support in binary", "expr", _node)
 			return nil, ErrOperatorNotSupportInBinary
 		}
+	case *ast.Expression:
+		return interpreter(_node.Expression)
+	case *ast.Print:
+		value, err := interpreter(_node.Expression)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Printf("%#v\n", value)
+		return nil, nil
 	default:
-		slog.Error("expression type not support", "expression", expression)
+		slog.Error("node type not support")
+		spew.Dump(_node)
 		return nil, ErrExpressionTypeNotSupport
 	}
 }

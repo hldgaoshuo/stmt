@@ -17,15 +17,21 @@ func TestInterpreter(t *testing.T) {
 		err    error
 	}{
 		{
-			name:   `2 * (3 / -"muffin")`,
-			source: `2 * (3 / -"muffin")`,
+			name:   `2 * (3 / -"muffin");`,
+			source: `2 * (3 / -"muffin");`,
 			want:   nil,
 			err:    ErrOperandMustBeFloat64,
 		},
 		{
-			name:   `1 + 1`,
-			source: `1 + 1`,
+			name:   "1 + 1;",
+			source: "1 + 1;",
 			want:   2.0,
+			err:    nil,
+		},
+		{
+			name:   "print 1;",
+			source: "print 1;",
+			want:   nil,
 			err:    nil,
 		},
 	}

@@ -56,3 +56,41 @@ func TestParser_expression(t *testing.T) {
 		})
 	}
 }
+
+func TestParser_statement(t *testing.T) {
+	tests := []struct {
+		name   string
+		source string
+		want   ast.Expr
+		err    error
+	}{
+		{
+			name:   "print 1;",
+			source: "print 1;",
+			want: &ast.Print{
+				Expression: &ast.Literal{
+					Value: 1.0,
+				},
+			},
+			err: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := scanner.New(tt.source)
+			tokens := s.ScanTokens()
+			p := New(tokens)
+			got, err := p.statement()
+			if err != tt.err {
+				t.Errorf("statement() error = %v, want err %v", err, tt.err)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("statement() got = %v, want %v", got, tt.want)
+				spew.Dump(got)
+				spew.Dump(tt.want)
+				return
+			}
+		})
+	}
+}

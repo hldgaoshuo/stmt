@@ -3,6 +3,7 @@ package ast
 import "stmt/token"
 
 type Expr interface {
+	Node
 }
 
 type Binary struct {
