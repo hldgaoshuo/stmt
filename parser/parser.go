@@ -24,7 +24,7 @@ func New(tokens []*token.Token) *Parser {
 	}
 }
 
-func (p *Parser) parse() (ast.Expr, error) {
+func (p *Parser) Parse() (ast.Expr, error) {
 	return p.expression()
 }
 
