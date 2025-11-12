@@ -4,7 +4,7 @@ type Stmt interface {
 	Node
 }
 
-type Expression struct {
+type ExpressionStatement struct {
 	Expression Expr
 }
 

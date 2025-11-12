@@ -24,3 +24,12 @@ type Unary struct {
 	Operator *token.Token
 	Right    Expr
 }
+
+type Variable struct {
+	Name *token.Token
+}
+
+type Assign struct {
+	Name  *token.Token
+	Value Expr
+}

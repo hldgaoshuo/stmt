@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"bytes"
 	"log/slog"
 	"os"
 	"reflect"
@@ -11,40 +12,84 @@ import (
 
 func TestInterpreter(t *testing.T) {
 	tests := []struct {
-		name   string
-		source string
-		want   any
-		err    error
+		name       string
+		source     string
+		want       any
+		err        error
+		wantOutput string
 	}{
 		{
-			name:   `2 * (3 / -"muffin");`,
+			name:   "unary wrong type data",
 			source: `2 * (3 / -"muffin");`,
 			want:   nil,
 			err:    ErrOperandMustBeFloat64,
 		},
 		{
-			name:   "1 + 1;",
+			name:   "1 + 1",
 			source: "1 + 1;",
 			want:   2.0,
 			err:    nil,
 		},
 		{
-			name:   `print "one";`,
-			source: `print "one";`,
-			want:   nil,
-			err:    nil,
+			name:       "print string",
+			source:     `print "one";`,
+			want:       nil,
+			err:        nil,
+			wantOutput: `"one"` + "\n",
 		},
 		{
-			name:   "print true;",
-			source: "print true;",
-			want:   nil,
-			err:    nil,
+			name:       "print bool",
+			source:     "print true;",
+			want:       nil,
+			err:        nil,
+			wantOutput: `true` + "\n",
 		},
 		{
-			name:   "print 2 + 1;",
-			source: "print 2 + 1;",
-			want:   nil,
-			err:    nil,
+			name:       "print expr",
+			source:     "print 2 + 1;",
+			want:       nil,
+			err:        nil,
+			wantOutput: `3` + "\n",
+		},
+		{
+			name: "var after print",
+			source: `
+			print a;
+			var a = "too late!";
+			`,
+			want: nil,
+			err:  ErrUndefinedVariable,
+		},
+		{
+			name: "var nil",
+			source: `
+			var a;
+			print a; // "nil".
+			`,
+			want:       nil,
+			err:        nil,
+			wantOutput: `<nil>` + "\n",
+		},
+		{
+			name: "var",
+			source: `
+			var a = 1;
+			var b = 2;
+			print a + b;
+			`,
+			want:       nil,
+			err:        nil,
+			wantOutput: `3` + "\n",
+		},
+		{
+			name: "assign",
+			source: `
+			var a = 1;
+			print a = 2; // "2".
+			`,
+			want:       nil,
+			err:        nil,
+			wantOutput: `2` + "\n",
 		},
 	}
 
@@ -68,6 +113,10 @@ func TestInterpreter(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// 创建一个缓冲区来捕获输出
+			var buf bytes.Buffer
+			Output = &buf
+
 			s := scanner.New(tt.source)
 			tokens := s.ScanTokens()
 			p := parser.New(tokens)
@@ -83,6 +132,10 @@ func TestInterpreter(t *testing.T) {
 			}
 			if err != tt.err {
 				t.Errorf("Interpreter() got err = %v, want err = %v", err, tt.err)
+				return
+			}
+			if tt.wantOutput != "" && buf.String() != tt.wantOutput {
+				t.Errorf("Interpreter() output = %q, want %q", buf.String(), tt.wantOutput)
 				return
 			}
 		})

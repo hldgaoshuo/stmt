@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	ErrUnexpectedEof    = errors.New("unexpected end of file")
-	ErrExpectExpression = errors.New("expect expression")
+	ErrUnexpectedEof           = errors.New("unexpected end of file")
+	ErrExpectExpression        = errors.New("expect expression")
+	ErrInvalidAssignmentTarget = errors.New("invalid assignment target")
 )
 
 type Parser struct {
@@ -24,26 +25,56 @@ func New(tokens []*token.Token) *Parser {
 	}
 }
 
-func (p *Parser) Parse() ([]ast.Stmt, error) {
-	var stmts []ast.Stmt
+func (p *Parser) Parse() ([]ast.Decl, error) {
+	var decls []ast.Decl
 	for !p.isAtEnd() {
-		stmt, err := p.statement()
+		decl, err := p.declaration()
+		if err != nil {
+			// todo 可能需要打印一些东西
+			continue
+		}
+		decls = append(decls, decl)
+	}
+	return decls, nil
+}
+
+func (p *Parser) declaration() (ast.Decl, error) {
+	if p.match(token.VAR) {
+		return p.var_()
+	}
+	return p.statement()
+}
+
+func (p *Parser) var_() (ast.Decl, error) {
+	name, err := p.consume(token.IDENTIFIER, "Expect variable name.")
+	if err != nil {
+		return nil, err
+	}
+	var initializer ast.Expr
+	if p.match(token.EQUAL) {
+		initializer, err = p.expression()
 		if err != nil {
 			return nil, err
 		}
-		stmts = append(stmts, stmt)
 	}
-	return stmts, nil
+	_, err = p.consume(token.SEMICOLON, "Expect ';' after variable declaration.")
+	if err != nil {
+		return nil, err
+	}
+	return &ast.Var{
+		Name:        name,
+		Initializer: initializer,
+	}, nil
 }
 
 func (p *Parser) statement() (ast.Stmt, error) {
 	if p.match(token.PRINT) {
-		return p.printStatement()
+		return p.print()
 	}
 	return p.expressionStatement()
 }
 
-func (p *Parser) printStatement() (ast.Stmt, error) {
+func (p *Parser) print() (ast.Stmt, error) {
 	value, err := p.expression()
 	if err != nil {
 		return nil, err
@@ -66,13 +97,37 @@ func (p *Parser) expressionStatement() (ast.Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &ast.Expression{
+	return &ast.ExpressionStatement{
 		Expression: expr,
 	}, nil
 }
 
 func (p *Parser) expression() (ast.Expr, error) {
-	return p.equality()
+	return p.assignment()
+}
+
+func (p *Parser) assignment() (ast.Expr, error) {
+	expr, err := p.equality()
+	if err != nil {
+		return nil, err
+	}
+	if p.match(token.EQUAL) {
+		equals := p.previous()
+		value, err := p.expression()
+		if err != nil {
+			return nil, err
+		}
+		if variable, ok := expr.(*ast.Variable); ok {
+			return &ast.Assign{
+				Name:  variable.Name,
+				Value: value,
+			}, nil
+		} else {
+			slog.Error("Invalid assignment target.", "line", equals.Line, "equals", equals)
+			return nil, ErrInvalidAssignmentTarget
+		}
+	}
+	return expr, nil
 }
 
 func (p *Parser) equality() (ast.Expr, error) {
@@ -190,6 +245,12 @@ func (p *Parser) primary() (ast.Expr, error) {
 		token_ := p.previous()
 		return &ast.Literal{
 			Value: token_.Literal,
+		}, nil
+	}
+	if p.match(token.IDENTIFIER) {
+		token_ := p.previous()
+		return &ast.Variable{
+			Name: token_,
 		}, nil
 	}
 	if p.match(token.LEFT_PAREN) {
