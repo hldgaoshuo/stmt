@@ -250,6 +250,20 @@ func TestStmtAndDecl(t *testing.T) {
 			err:        nil,
 			wantOutput: `3` + "\n" + `1` + "\n",
 		},
+		{
+			name: "for",
+			source: `
+			var a = 0;
+			var temp;
+			for (var b = 1; a < 10; b = temp + b) {
+				print a;
+				temp = a;
+				a = b;
+			}
+			`,
+			err:        nil,
+			wantOutput: `0` + "\n" + `1` + "\n" + `1` + "\n" + `2` + "\n" + `3` + "\n" + `5` + "\n" + `8` + "\n",
+		},
 	}
 
 	// 自定义 ReplaceAttr 去除 time 字段

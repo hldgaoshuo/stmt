@@ -82,6 +82,9 @@ func (p *Parser) statement() (ast.Node, error) {
 	if p.match(token.WHILE) {
 		return p.while()
 	}
+	if p.match(token.FOR) {
+		return p.for_()
+	}
 	return p.expressionStatement()
 }
 
@@ -177,6 +180,79 @@ func (p *Parser) while() (ast.Node, error) {
 		Body:      body,
 		Condition: condition,
 	}, nil
+}
+
+func (p *Parser) for_() (ast.Node, error) {
+	kw := p.previous()
+	_, err := p.consume(token.LEFT_PAREN, "Expect '(' after 'for'.")
+	if err != nil {
+		return nil, err
+	}
+	var initializer ast.Node
+	if p.match(token.SEMICOLON) {
+		initializer = nil
+	} else if p.match(token.VAR) {
+		initializer, err = p.var_()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		initializer, err = p.expressionStatement()
+		if err != nil {
+			return nil, err
+		}
+	}
+	var condition ast.Node
+	if !p.match(token.SEMICOLON) {
+		condition, err = p.Expression()
+		if err != nil {
+			return nil, err
+		}
+	}
+	_, err = p.consume(token.SEMICOLON, "Expect ';' after loop condition.")
+	if err != nil {
+		return nil, err
+	}
+	var increment ast.Node
+	if !p.match(token.RIGHT_PAREN) {
+		increment, err = p.Expression()
+		if err != nil {
+			return nil, err
+		}
+	}
+	_, err = p.consume(token.RIGHT_PAREN, "Expect ')' after for clauses.")
+	if err != nil {
+		return nil, err
+	}
+	body, err := p.statement()
+	if err != nil {
+		return nil, err
+	}
+	if increment != nil {
+		body = &ast.Block{
+			Line: kw.Line,
+			Declarations: []ast.Node{body, &ast.ExpressionStatement{
+				Expression: increment,
+			}},
+		}
+	}
+	if condition == nil {
+		condition = &ast.Literal{
+			Value: true,
+		}
+	}
+	body = &ast.While{
+		Line:      kw.Line,
+		Body:      body,
+		Condition: condition,
+	}
+	if initializer != nil {
+		body = &ast.Block{
+			Line:         kw.Line,
+			Declarations: []ast.Node{initializer, body},
+		}
+	}
+	return body, nil
 }
 
 func (p *Parser) expressionStatement() (ast.Node, error) {
