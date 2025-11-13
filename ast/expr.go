@@ -2,18 +2,14 @@ package ast
 
 import "stmt/token"
 
-type Expr interface {
-	Node
-}
-
 type Binary struct {
-	Left     Expr
+	Left     Node
 	Operator *token.Token
-	Right    Expr
+	Right    Node
 }
 
 type Grouping struct {
-	Expression Expr
+	Expression Node
 }
 
 type Literal struct {
@@ -21,14 +17,14 @@ type Literal struct {
 }
 
 type Logical struct {
-	Left     Expr
+	Left     Node
 	Operator *token.Token
-	Right    Expr
+	Right    Node
 }
 
 type Unary struct {
 	Operator *token.Token
-	Right    Expr
+	Right    Node
 }
 
 type Variable struct {
@@ -37,5 +33,5 @@ type Variable struct {
 
 type Assign struct {
 	Name  *token.Token
-	Value Expr
+	Value Node
 }

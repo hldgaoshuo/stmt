@@ -15,7 +15,7 @@ import (
 // Output 是一个可自定义的输出接口，默认为 os.Stdout
 var Output io.Writer = os.Stdout
 
-func Interpreter(decls []ast.Decl) error {
+func Interpreter(decls []ast.Node) error {
 	env := newEnvironment(nil)
 	var err error
 	for _, decl := range decls {

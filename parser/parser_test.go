@@ -14,7 +14,7 @@ func TestParser_expression(t *testing.T) {
 	tests := []struct {
 		name   string
 		source string
-		want   ast.Expr
+		want   ast.Node
 		err    error
 	}{
 		{
@@ -79,7 +79,7 @@ func TestParser_statement(t *testing.T) {
 	tests := []struct {
 		name   string
 		source string
-		want   ast.Expr
+		want   ast.Node
 		err    error
 	}{
 		{
@@ -118,7 +118,7 @@ func TestParser_declaration(t *testing.T) {
 	tests := []struct {
 		name   string
 		source string
-		want   ast.Expr
+		want   ast.Node
 		err    error
 	}{
 		// todo

@@ -1,32 +1,28 @@
 package ast
 
-type Stmt interface {
-	Node
-}
-
 type ExpressionStatement struct {
-	Expression Expr
+	Expression Node
 }
 
 type If struct {
 	Line       int
-	Condition  Expr
-	ThenBranch Stmt
-	ElseBranch Stmt
+	Condition  Node
+	ThenBranch Node
+	ElseBranch Node
 }
 
 type Print struct {
 	Line       int
-	Expression Expr
+	Expression Node
 }
 
 type Block struct {
 	Line         int
-	Declarations []Decl
+	Declarations []Node
 }
 
 type While struct {
 	Line      int
-	Condition Expr
-	Body      Stmt
+	Condition Node
+	Body      Node
 }
