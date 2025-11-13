@@ -1,21 +1,18 @@
 package interpreter
 
 import (
-	"errors"
 	"stmt/token"
 )
 
-var (
-	ErrUndefinedVariable = errors.New("undefined variable")
-)
-
 type environment struct {
-	values map[string]any
+	enclosing *environment
+	values    map[string]any
 }
 
-func newEnvironment() *environment {
+func newEnvironment(enclosing *environment) *environment {
 	return &environment{
-		values: make(map[string]any),
+		enclosing: enclosing,
+		values:    make(map[string]any),
 	}
 }
 
@@ -26,16 +23,28 @@ func (e *environment) define(name string, value any) error {
 }
 
 func (e *environment) get(name *token.Token) (any, error) {
-	if value, ok := e.values[name.Lexeme]; ok {
+	value, ok := e.values[name.Lexeme]
+	if ok {
 		return value, nil
+	} else {
+		if e.enclosing != nil {
+			return e.enclosing.get(name)
+		} else {
+			return nil, ErrUndefinedVariable
+		}
 	}
-	return nil, ErrUndefinedVariable
 }
 
 func (e *environment) assign(name *token.Token, value any) error {
-	if _, ok := e.values[name.Lexeme]; ok {
+	_, ok := e.values[name.Lexeme]
+	if ok {
 		e.values[name.Lexeme] = value
 		return nil
+	} else {
+		if e.enclosing != nil {
+			return e.enclosing.assign(name, value)
+		} else {
+			return ErrUndefinedVariable
+		}
 	}
-	return ErrUndefinedVariable
 }

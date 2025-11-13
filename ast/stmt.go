@@ -11,3 +11,7 @@ type ExpressionStatement struct {
 type Print struct {
 	Expression Expr
 }
+
+type Block struct {
+	Declarations []Decl
+}

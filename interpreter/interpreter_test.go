@@ -10,44 +10,90 @@ import (
 	"testing"
 )
 
-func TestInterpreter(t *testing.T) {
+func TestExpr(t *testing.T) {
 	tests := []struct {
-		name       string
-		source     string
-		want       any
-		err        error
-		wantOutput string
+		name   string
+		source string
+		err    error
+		want   any
 	}{
 		{
 			name:   "unary wrong type data",
-			source: `2 * (3 / -"muffin");`,
-			want:   nil,
+			source: `2 * (3 / -"muffin")`,
 			err:    ErrOperandMustBeFloat64,
 		},
 		{
 			name:   "1 + 1",
-			source: "1 + 1;",
-			want:   2.0,
+			source: "1 + 1",
 			err:    nil,
+			want:   2.0,
 		},
+	}
+
+	// 自定义 ReplaceAttr 去除 time 字段
+	removeTime := func(groups []string, a slog.Attr) slog.Attr {
+		if a.Key == slog.TimeKey {
+			return slog.Attr{} // 返回空表示不输出
+		}
+		return a
+	}
+
+	// 创建 handler
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level:       slog.LevelDebug,
+		ReplaceAttr: removeTime,
+	})
+
+	// 设置全局 logger
+	logger := slog.New(handler)
+	slog.SetDefault(logger)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := scanner.New(tt.source)
+			tokens := s.ScanTokens()
+			p := parser.New(tokens)
+			tree, err := p.Expression()
+			if err != nil {
+				t.Errorf("Parse() err = %v", err)
+				return
+			}
+			env := newEnvironment(nil)
+			got, err := interpreter(tree, env)
+			if err != tt.err {
+				t.Errorf("Interpreter() got err = %v, want err = %v", err, tt.err)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Interpreter() = %v, want %v", got, tt.want)
+				return
+			}
+		})
+	}
+}
+
+func TestStmtAndDecl(t *testing.T) {
+	tests := []struct {
+		name       string
+		source     string
+		err        error
+		wantOutput string
+	}{
 		{
 			name:       "print string",
 			source:     `print "one";`,
-			want:       nil,
 			err:        nil,
 			wantOutput: `"one"` + "\n",
 		},
 		{
 			name:       "print bool",
 			source:     "print true;",
-			want:       nil,
 			err:        nil,
 			wantOutput: `true` + "\n",
 		},
 		{
 			name:       "print expr",
 			source:     "print 2 + 1;",
-			want:       nil,
 			err:        nil,
 			wantOutput: `3` + "\n",
 		},
@@ -57,8 +103,7 @@ func TestInterpreter(t *testing.T) {
 			print a;
 			var a = "too late!";
 			`,
-			want: nil,
-			err:  ErrUndefinedVariable,
+			err: ErrUndefinedVariable,
 		},
 		{
 			name: "var nil",
@@ -66,7 +111,6 @@ func TestInterpreter(t *testing.T) {
 			var a;
 			print a; // "nil".
 			`,
-			want:       nil,
 			err:        nil,
 			wantOutput: `<nil>` + "\n",
 		},
@@ -77,7 +121,6 @@ func TestInterpreter(t *testing.T) {
 			var b = 2;
 			print a + b;
 			`,
-			want:       nil,
 			err:        nil,
 			wantOutput: `3` + "\n",
 		},
@@ -87,9 +130,58 @@ func TestInterpreter(t *testing.T) {
 			var a = 1;
 			print a = 2; // "2".
 			`,
-			want:       nil,
 			err:        nil,
 			wantOutput: `2` + "\n",
+		},
+		{
+			name: "block",
+			source: `
+			{
+				var a = "first";
+				print a; // "first".
+			}
+			{
+				var a = "second";
+				print a; // "second".
+			}
+			`,
+			err:        nil,
+			wantOutput: `"first"` + "\n" + `"second"` + "\n",
+		},
+		{
+			name: "block 2",
+			source: `
+			{
+				var a = "in block";
+			}
+			print a;
+			`,
+			err: ErrUndefinedVariable,
+		},
+		{
+			name: "block 3",
+			source: `
+			var volume = 11;
+			volume = 0;
+			{
+				var volume = 3 * 4 * 5;
+				print volume;
+			}
+			`,
+			err:        nil,
+			wantOutput: `60` + "\n",
+		},
+		{
+			name: "block 4",
+			source: `
+			var global = "outside";
+			{
+				var local = "inside";
+				print global + local;
+			}
+			`,
+			err:        nil,
+			wantOutput: `"outsideinside"` + "\n",
 		},
 	}
 
@@ -125,11 +217,7 @@ func TestInterpreter(t *testing.T) {
 				t.Errorf("Parse() err = %v", err)
 				return
 			}
-			got, err := Interpreter(tree)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Interpreter() = %v, want %v", got, tt.want)
-				return
-			}
+			err = Interpreter(tree)
 			if err != tt.err {
 				t.Errorf("Interpreter() got err = %v, want err = %v", err, tt.err)
 				return

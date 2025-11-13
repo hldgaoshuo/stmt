@@ -1,7 +1,6 @@
 package interpreter
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -13,30 +12,19 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
-var (
-	ErrExpressionTypeNotSupport            = errors.New("expression type not support")
-	ErrOperatorNotSupportInUnary           = errors.New("operator not support in unary")
-	ErrOperatorNotSupportInBinary          = errors.New("operator not support in binary")
-	ErrOperandMustBeBool                   = errors.New("operand must be a bool")
-	ErrOperandMustBeFloat64                = errors.New("operand must be a float64")
-	ErrOperandsMustBeTwoFloat64            = errors.New("operand must be two float64")
-	ErrOperandsMustBeTwoFloat64OrTwoString = errors.New("operand must be two float64 or two string")
-)
-
 // Output 是一个可自定义的输出接口，默认为 os.Stdout
 var Output io.Writer = os.Stdout
 
-func Interpreter(decls []ast.Decl) (any, error) {
-	env := newEnvironment()
-	var result any
+func Interpreter(decls []ast.Decl) error {
+	env := newEnvironment(nil)
 	var err error
 	for _, decl := range decls {
-		result, err = interpreter(decl, env)
+		_, err = interpreter(decl, env)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
-	return result, nil
+	return nil
 }
 
 func interpreter(node ast.Node, env *environment) (any, error) {
@@ -160,6 +148,15 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			return nil, err
 		}
 		fmt.Fprintf(Output, "%#v\n", value)
+		return nil, nil
+	case *ast.Block:
+		_env := newEnvironment(env)
+		for _, decl := range _node.Declarations {
+			_, err := interpreter(decl, _env)
+			if err != nil {
+				return nil, err
+			}
+		}
 		return nil, nil
 	case *ast.Var:
 		var value any = nil

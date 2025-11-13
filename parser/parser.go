@@ -52,7 +52,7 @@ func (p *Parser) var_() (ast.Decl, error) {
 	}
 	var initializer ast.Expr
 	if p.match(token.EQUAL) {
-		initializer, err = p.expression()
+		initializer, err = p.Expression()
 		if err != nil {
 			return nil, err
 		}
@@ -71,11 +71,14 @@ func (p *Parser) statement() (ast.Stmt, error) {
 	if p.match(token.PRINT) {
 		return p.print()
 	}
+	if p.match(token.LEFT_BRACE) {
+		return p.block()
+	}
 	return p.expressionStatement()
 }
 
 func (p *Parser) print() (ast.Stmt, error) {
-	value, err := p.expression()
+	value, err := p.Expression()
 	if err != nil {
 		return nil, err
 	}
@@ -88,12 +91,30 @@ func (p *Parser) print() (ast.Stmt, error) {
 	}, nil
 }
 
-func (p *Parser) expressionStatement() (ast.Stmt, error) {
-	expr, err := p.expression()
+func (p *Parser) block() (ast.Stmt, error) {
+	var decls []ast.Decl
+	for !p.check(token.RIGHT_BRACE) && !p.isAtEnd() {
+		decl, err := p.declaration()
+		if err != nil {
+			return nil, err
+		}
+		decls = append(decls, decl)
+	}
+	_, err := p.consume(token.RIGHT_BRACE, "Expect '}' after block.")
 	if err != nil {
 		return nil, err
 	}
-	_, err = p.consume(token.SEMICOLON, "Expect ';' after expression.")
+	return &ast.Block{
+		Declarations: decls,
+	}, nil
+}
+
+func (p *Parser) expressionStatement() (ast.Stmt, error) {
+	expr, err := p.Expression()
+	if err != nil {
+		return nil, err
+	}
+	_, err = p.consume(token.SEMICOLON, "Expect ';' after Expression.")
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +123,7 @@ func (p *Parser) expressionStatement() (ast.Stmt, error) {
 	}, nil
 }
 
-func (p *Parser) expression() (ast.Expr, error) {
+func (p *Parser) Expression() (ast.Expr, error) {
 	return p.assignment()
 }
 
@@ -113,7 +134,7 @@ func (p *Parser) assignment() (ast.Expr, error) {
 	}
 	if p.match(token.EQUAL) {
 		equals := p.previous()
-		value, err := p.expression()
+		value, err := p.Expression()
 		if err != nil {
 			return nil, err
 		}
@@ -254,11 +275,11 @@ func (p *Parser) primary() (ast.Expr, error) {
 		}, nil
 	}
 	if p.match(token.LEFT_PAREN) {
-		expr, err := p.expression()
+		expr, err := p.Expression()
 		if err != nil {
 			return nil, err
 		}
-		_, err = p.consume(token.RIGHT_PAREN, "Expect ')' after expression.")
+		_, err = p.consume(token.RIGHT_PAREN, "Expect ')' after Expression.")
 		if err != nil {
 			return nil, err
 		}

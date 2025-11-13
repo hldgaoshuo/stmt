@@ -60,13 +60,13 @@ func TestParser_expression(t *testing.T) {
 			s := scanner.New(tt.source)
 			tokens := s.ScanTokens()
 			p := New(tokens)
-			got, err := p.expression()
+			got, err := p.Expression()
 			if err != tt.err {
-				t.Errorf("expression() error = %v, want err %v", err, tt.err)
+				t.Errorf("Expression() error = %v, want err %v", err, tt.err)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("expression() got = %v, want %v", got, tt.want)
+				t.Errorf("Expression() got = %v, want %v", got, tt.want)
 				spew.Dump(got)
 				spew.Dump(tt.want)
 				return
