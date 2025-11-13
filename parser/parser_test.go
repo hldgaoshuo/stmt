@@ -86,6 +86,7 @@ func TestParser_statement(t *testing.T) {
 			name:   "print 1;",
 			source: "print 1;",
 			want: &ast.Print{
+				Line: 1,
 				Expression: &ast.Literal{
 					Value: 1.0,
 				},

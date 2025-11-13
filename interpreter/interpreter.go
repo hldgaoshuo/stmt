@@ -58,6 +58,33 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			slog.Error("operator not support in unary", "operator", _node.Operator.TokenType, "line", _node.Operator.Line)
 			return nil, ErrOperatorNotSupportInUnary
 		}
+	case *ast.Logical:
+		left, err := interpreter(_node.Left, env)
+		if err != nil {
+			return nil, err
+		}
+		leftType := reflect.TypeOf(left)
+		if leftType.Kind() != reflect.Bool {
+			slog.Error("operand must be a bool", "left type", leftType, "line", _node.Operator.Line)
+			return nil, ErrOperandMustBeBool
+		}
+		switch _node.Operator.TokenType {
+		case token.AND:
+			if !left.(bool) {
+				return false, nil
+			} else {
+				return interpreter(_node.Right, env)
+			}
+		case token.OR:
+			if left.(bool) {
+				return true, nil
+			} else {
+				return interpreter(_node.Right, env)
+			}
+		default:
+			slog.Error("operator not support in logical", "operator", _node.Operator.TokenType, "line", _node.Operator.Line)
+			return nil, ErrOperatorNotSupportInUnary
+		}
 	case *ast.Binary:
 		left, err := interpreter(_node.Left, env)
 		if err != nil {
@@ -155,6 +182,51 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			_, err := interpreter(decl, _env)
 			if err != nil {
 				return nil, err
+			}
+		}
+		return nil, nil
+	case *ast.If:
+		condition, err := interpreter(_node.Condition, env)
+		if err != nil {
+			return nil, err
+		}
+		conditionType := reflect.TypeOf(condition)
+		if conditionType.Kind() != reflect.Bool {
+			slog.Error("condition result must be a bool", "condition type", conditionType, "line", _node.Line)
+			return nil, ErrOperandMustBeBool
+		}
+		if condition.(bool) {
+			return interpreter(_node.ThenBranch, env)
+		} else {
+			if _node.ElseBranch == nil {
+				return nil, nil
+			} else {
+				return interpreter(_node.ElseBranch, env)
+			}
+		}
+	case *ast.While:
+		condition, err := interpreter(_node.Condition, env)
+		if err != nil {
+			return nil, err
+		}
+		conditionType := reflect.TypeOf(condition)
+		if conditionType.Kind() != reflect.Bool {
+			slog.Error("condition result must be a bool", "condition type", conditionType, "line", _node.Line)
+			return nil, ErrOperandMustBeBool
+		}
+		for condition.(bool) {
+			_, err = interpreter(_node.Body, env)
+			if err != nil {
+				return nil, err
+			}
+			condition, err = interpreter(_node.Condition, env)
+			if err != nil {
+				return nil, err
+			}
+			conditionType = reflect.TypeOf(condition)
+			if conditionType.Kind() != reflect.Bool {
+				slog.Error("condition result must be a bool", "condition type", conditionType, "line", _node.Line)
+				return nil, ErrOperandMustBeBool
 			}
 		}
 		return nil, nil

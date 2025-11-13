@@ -46,6 +46,7 @@ func (p *Parser) declaration() (ast.Decl, error) {
 }
 
 func (p *Parser) var_() (ast.Decl, error) {
+	kw := p.previous()
 	name, err := p.consume(token.IDENTIFIER, "Expect variable name.")
 	if err != nil {
 		return nil, err
@@ -62,6 +63,7 @@ func (p *Parser) var_() (ast.Decl, error) {
 		return nil, err
 	}
 	return &ast.Var{
+		Line:        kw.Line,
 		Name:        name,
 		Initializer: initializer,
 	}, nil
@@ -74,10 +76,17 @@ func (p *Parser) statement() (ast.Stmt, error) {
 	if p.match(token.LEFT_BRACE) {
 		return p.block()
 	}
+	if p.match(token.IF) {
+		return p.if_()
+	}
+	if p.match(token.WHILE) {
+		return p.while()
+	}
 	return p.expressionStatement()
 }
 
 func (p *Parser) print() (ast.Stmt, error) {
+	kw := p.previous()
 	value, err := p.Expression()
 	if err != nil {
 		return nil, err
@@ -87,11 +96,13 @@ func (p *Parser) print() (ast.Stmt, error) {
 		return nil, err
 	}
 	return &ast.Print{
+		Line:       kw.Line,
 		Expression: value,
 	}, nil
 }
 
 func (p *Parser) block() (ast.Stmt, error) {
+	kw := p.previous()
 	var decls []ast.Decl
 	for !p.check(token.RIGHT_BRACE) && !p.isAtEnd() {
 		decl, err := p.declaration()
@@ -105,7 +116,66 @@ func (p *Parser) block() (ast.Stmt, error) {
 		return nil, err
 	}
 	return &ast.Block{
+		Line:         kw.Line,
 		Declarations: decls,
+	}, nil
+}
+
+func (p *Parser) if_() (ast.Stmt, error) {
+	kw := p.previous()
+	_, err := p.consume(token.LEFT_PAREN, "Expect '(' after 'if'.")
+	if err != nil {
+		return nil, err
+	}
+	condition, err := p.Expression()
+	if err != nil {
+		return nil, err
+	}
+	_, err = p.consume(token.RIGHT_PAREN, "Expect ')' after if condition.")
+	if err != nil {
+		return nil, err
+	}
+	thenBranch, err := p.statement()
+	if err != nil {
+		return nil, err
+	}
+	var elseBranch ast.Stmt
+	if p.match(token.ELSE) {
+		elseBranch, err = p.statement()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &ast.If{
+		Line:       kw.Line,
+		Condition:  condition,
+		ThenBranch: thenBranch,
+		ElseBranch: elseBranch,
+	}, nil
+}
+
+func (p *Parser) while() (ast.Stmt, error) {
+	kw := p.previous()
+	_, err := p.consume(token.LEFT_PAREN, "Expect '(' after 'while'.")
+	if err != nil {
+		return nil, err
+	}
+	condition, err := p.Expression()
+	if err != nil {
+		return nil, err
+	}
+	_, err = p.consume(token.RIGHT_PAREN, "Expect ')' after condition.")
+	if err != nil {
+		return nil, err
+	}
+	body, err := p.statement()
+	if err != nil {
+		return nil, err
+	}
+	return &ast.While{
+		Line:      kw.Line,
+		Body:      body,
+		Condition: condition,
 	}, nil
 }
 
@@ -128,7 +198,7 @@ func (p *Parser) Expression() (ast.Expr, error) {
 }
 
 func (p *Parser) assignment() (ast.Expr, error) {
-	expr, err := p.equality()
+	expr, err := p.or()
 	if err != nil {
 		return nil, err
 	}
@@ -149,6 +219,46 @@ func (p *Parser) assignment() (ast.Expr, error) {
 		}
 	}
 	return expr, nil
+}
+
+func (p *Parser) or() (ast.Expr, error) {
+	left, err := p.and()
+	if err != nil {
+		return nil, err
+	}
+	for p.match(token.OR) {
+		operator := p.previous()
+		right, err := p.and()
+		if err != nil {
+			return nil, err
+		}
+		left = &ast.Logical{
+			Left:     left,
+			Operator: operator,
+			Right:    right,
+		}
+	}
+	return left, nil
+}
+
+func (p *Parser) and() (ast.Expr, error) {
+	left, err := p.equality()
+	if err != nil {
+		return nil, err
+	}
+	for p.match(token.AND) {
+		operator := p.previous()
+		right, err := p.equality()
+		if err != nil {
+			return nil, err
+		}
+		left = &ast.Logical{
+			Left:     left,
+			Operator: operator,
+			Right:    right,
+		}
+	}
+	return left, nil
 }
 
 func (p *Parser) equality() (ast.Expr, error) {

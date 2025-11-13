@@ -7,6 +7,7 @@ type Decl interface {
 }
 
 type Var struct {
+	Line        int
 	Name        *token.Token
 	Initializer Expr
 }

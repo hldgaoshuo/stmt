@@ -28,6 +28,60 @@ func TestExpr(t *testing.T) {
 			err:    nil,
 			want:   2.0,
 		},
+		{
+			name:   "true and false",
+			source: "true and false",
+			err:    nil,
+			want:   false,
+		},
+		{
+			name:   "false and true",
+			source: "false and true",
+			err:    nil,
+			want:   false,
+		},
+		{
+			name:   "false and false",
+			source: "false and false",
+			err:    nil,
+			want:   false,
+		},
+		{
+			name:   "true and true",
+			source: "true and true",
+			err:    nil,
+			want:   true,
+		},
+		{
+			name:   "true or false",
+			source: "true or false",
+			err:    nil,
+			want:   true,
+		},
+		{
+			name:   "false or true",
+			source: "false or true",
+			err:    nil,
+			want:   true,
+		},
+		{
+			name:   "false or false",
+			source: "false or false",
+			err:    nil,
+			want:   false,
+		},
+		{
+			name:   "true or true",
+			source: "true or true",
+			err:    nil,
+			want:   true,
+		},
+		{
+			name:   "1 > 2 and true",
+			source: "1 > 2 and true",
+			err:    nil,
+			want:   false,
+		},
 	}
 
 	// 自定义 ReplaceAttr 去除 time 字段
