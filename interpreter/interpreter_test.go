@@ -183,6 +183,19 @@ func TestStmtAndDecl(t *testing.T) {
 			err:        nil,
 			wantOutput: `"outsideinside"` + "\n",
 		},
+		{
+			name: "block 5",
+			source: `
+			var a = 1;
+			{
+				var a = a + 2;
+				print a;
+			}
+			print a;
+			`,
+			err:        nil,
+			wantOutput: `3` + "\n" + `1` + "\n",
+		},
 	}
 
 	// 自定义 ReplaceAttr 去除 time 字段
