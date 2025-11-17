@@ -7,3 +7,10 @@ type Var struct {
 	Name        *token.Token
 	Initializer Node
 }
+
+type Function struct {
+	Line   int
+	Name   *token.Token
+	Params []*token.Token
+	Body   Node
+}

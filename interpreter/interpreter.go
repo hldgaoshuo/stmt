@@ -16,8 +16,14 @@ import (
 var Output io.Writer = os.Stdout
 
 func Interpreter(decls []ast.Node) error {
-	env := newEnvironment(nil)
 	var err error
+	env := newEnvironment(nil)
+	for funName, fun := range builtins {
+		err = env.define(funName, fun)
+		if err != nil {
+			return err
+		}
+	}
 	for _, decl := range decls {
 		_, err = interpreter(decl, env)
 		if err != nil {
@@ -58,6 +64,56 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			slog.Error("operator not support in unary", "operator", _node.Operator.TokenType, "line", _node.Operator.Line)
 			return nil, ErrOperatorNotSupportInUnary
 		}
+	case *ast.Call:
+		fun, err := interpreter(_node.Callee, env)
+		if err != nil {
+			return nil, err
+		}
+		switch _fun := fun.(type) {
+		case *ast.Function:
+			lenParams := len(_fun.Params)
+			lenArgs := len(_node.Arguments)
+			if lenParams != lenArgs {
+				slog.Error("function parameters num should equ to call arguments num", "function parameters num", lenParams, "call arguments num", lenArgs)
+				return nil, ErrNumParamsArgsNotMatch
+			}
+			_env := newEnvironment(env)
+			for i := 0; i < lenParams; i++ {
+				param := _fun.Params[i]
+				arg := _node.Arguments[i]
+				_arg, err := interpreter(arg, _env)
+				if err != nil {
+					return nil, err
+				}
+				err = _env.define(param.Lexeme, _arg)
+				if err != nil {
+					return nil, err
+				}
+			}
+			result, err := interpreter(_fun.Body, _env)
+			if err != nil {
+				return nil, err
+			}
+			return result, nil
+		case builtin:
+			var args []any
+			for _, arg := range _node.Arguments {
+				_arg, err := interpreter(arg, env)
+				if err != nil {
+					return nil, err
+				}
+				args = append(args, _arg)
+			}
+			result, err := _fun(args...)
+			if err != nil {
+				return nil, err
+			}
+			return result, nil
+		default:
+			slog.Error("function not declare", "callee", _node.Callee)
+			return nil, ErrFunctionNotDeclare
+		}
+
 	case *ast.Logical:
 		left, err := interpreter(_node.Left, env)
 		if err != nil {
@@ -240,6 +296,13 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			}
 		}
 		err = env.define(_node.Name.Lexeme, value)
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	case *ast.Function:
+		functionName := _node.Name.Lexeme
+		err := env.define(functionName, _node)
 		if err != nil {
 			return nil, err
 		}

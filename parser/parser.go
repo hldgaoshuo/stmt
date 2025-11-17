@@ -39,10 +39,65 @@ func (p *Parser) Parse() ([]ast.Node, error) {
 }
 
 func (p *Parser) declaration() (ast.Node, error) {
+	if p.match(token.FUN) {
+		return p.fun()
+	}
 	if p.match(token.VAR) {
 		return p.var_()
 	}
 	return p.statement()
+}
+
+func (p *Parser) fun() (ast.Node, error) {
+	kw := p.previous()
+	name, err := p.consume(token.IDENTIFIER, "Expect function name.")
+	if err != nil {
+		return nil, err
+	}
+	_, err = p.consume(token.LEFT_PAREN, "Expect '(' after function name.")
+	if err != nil {
+		return nil, err
+	}
+	var parameters []*token.Token
+	if !p.match(token.RIGHT_PAREN) {
+		parameters, err = p._parameters()
+		if err != nil {
+			return nil, err
+		}
+		_, err = p.consume(token.RIGHT_PAREN, "Expect ')' after parameters.")
+		if err != nil {
+			return nil, err
+		}
+	}
+	_, err = p.consume(token.LEFT_BRACE, "Expect '{' before function body.")
+	if err != nil {
+		return nil, err
+	}
+	body, err := p.block()
+	if err != nil {
+		return nil, err
+	}
+	return &ast.Function{
+		Line:   kw.Line,
+		Name:   name,
+		Params: parameters,
+		Body:   body,
+	}, nil
+}
+
+func (p *Parser) _parameters() ([]*token.Token, error) {
+	var parameters []*token.Token
+	for {
+		name, err := p.consume(token.IDENTIFIER, "Expect parameter name.")
+		if err != nil {
+			return nil, err
+		}
+		parameters = append(parameters, name)
+		if !p.match(token.COMMA) {
+			break
+		}
+	}
+	return parameters, nil
 }
 
 func (p *Parser) var_() (ast.Node, error) {
@@ -429,7 +484,51 @@ func (p *Parser) unary() (ast.Node, error) {
 			Right:    right,
 		}, nil
 	}
-	return p.primary()
+	return p.call()
+}
+
+func (p *Parser) call() (ast.Node, error) {
+	expr, err := p.primary()
+	if err != nil {
+		return nil, err
+	}
+	for {
+		if !p.match(token.LEFT_PAREN) {
+			break
+		}
+		var arguments []ast.Node
+		if !p.check(token.RIGHT_PAREN) {
+			arguments, err = p._arguments()
+			if err != nil {
+				return nil, err
+			}
+		}
+		paren, err := p.consume(token.RIGHT_PAREN, "Expect ')' after arguments.")
+		if err != nil {
+			return nil, err
+		}
+		expr = &ast.Call{
+			Arguments: arguments,
+			Callee:    expr,
+			Paren:     paren,
+		}
+	}
+	return expr, nil
+}
+
+func (p *Parser) _arguments() ([]ast.Node, error) {
+	var arguments []ast.Node
+	for {
+		argument, err := p.Expression()
+		if err != nil {
+			return nil, err
+		}
+		arguments = append(arguments, argument)
+		if !p.match(token.COMMA) {
+			break
+		}
+	}
+	return arguments, nil
 }
 
 func (p *Parser) primary() (ast.Node, error) {

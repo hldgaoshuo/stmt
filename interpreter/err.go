@@ -11,4 +11,6 @@ var (
 	ErrOperandMustBeFloat64                = errors.New("operand must be a float64")
 	ErrOperandsMustBeTwoFloat64            = errors.New("operand must be two float64")
 	ErrOperandsMustBeTwoFloat64OrTwoString = errors.New("operand must be two float64 or two string")
+	ErrFunctionNotDeclare                  = errors.New("function not declare")
+	ErrNumParamsArgsNotMatch               = errors.New("function parameters num should equ to call arguments num")
 )

@@ -264,6 +264,40 @@ func TestStmtAndDecl(t *testing.T) {
 			err:        nil,
 			wantOutput: `0` + "\n" + `1` + "\n" + `1` + "\n" + `2` + "\n" + `3` + "\n" + `5` + "\n" + `8` + "\n",
 		},
+		{
+			name: "call",
+			source: `
+			fun count(n) {
+				if (n > 1) count(n - 1);
+				print n;
+			}
+			count(3);
+			`,
+			err:        nil,
+			wantOutput: `1` + "\n" + `2` + "\n" + `3` + "\n",
+		},
+		{
+			name: "call 2",
+			source: `
+			fun add(a, b, c) {
+				print a + b + c;
+			}
+			add(1, 2, 3);
+			`,
+			err:        nil,
+			wantOutput: `6` + "\n",
+		},
+		{
+			name: "builtin",
+			source: `
+			fun time() {
+				print clock();
+			}
+			time();
+			`,
+			err:        nil,
+			wantOutput: `6` + "\n",
+		},
 	}
 
 	// 自定义 ReplaceAttr 去除 time 字段

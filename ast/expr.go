@@ -35,3 +35,9 @@ type Assign struct {
 	Name  *token.Token
 	Value Node
 }
+
+type Call struct {
+	Callee    Node
+	Paren     *token.Token
+	Arguments []Node
+}
