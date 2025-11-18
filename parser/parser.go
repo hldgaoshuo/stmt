@@ -140,6 +140,9 @@ func (p *Parser) statement() (ast.Node, error) {
 	if p.match(token.FOR) {
 		return p.for_()
 	}
+	if p.match(token.RETURN) {
+		return p.return_()
+	}
 	return p.expressionStatement()
 }
 
@@ -308,6 +311,26 @@ func (p *Parser) for_() (ast.Node, error) {
 		}
 	}
 	return body, nil
+}
+
+func (p *Parser) return_() (ast.Node, error) {
+	kw := p.previous()
+	var value ast.Node
+	var err error
+	if !p.check(token.SEMICOLON) {
+		value, err = p.Expression()
+		if err != nil {
+			return nil, err
+		}
+	}
+	_, err = p.consume(token.SEMICOLON, "Expect ';' after return value.")
+	if err != nil {
+		return nil, err
+	}
+	return &ast.Return{
+		Line:       kw.Line,
+		Expression: value,
+	}, nil
 }
 
 func (p *Parser) expressionStatement() (ast.Node, error) {

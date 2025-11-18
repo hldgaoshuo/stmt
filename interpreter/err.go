@@ -3,6 +3,7 @@ package interpreter
 import "errors"
 
 var (
+	ErrReturn                              = errors.New("return")
 	ErrUndefinedVariable                   = errors.New("undefined variable")
 	ErrExpressionTypeNotSupport            = errors.New("expression type not support")
 	ErrOperatorNotSupportInUnary           = errors.New("operator not support in unary")

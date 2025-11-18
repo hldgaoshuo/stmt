@@ -298,6 +298,20 @@ func TestStmtAndDecl(t *testing.T) {
 			err:        nil,
 			wantOutput: `6` + "\n",
 		},
+		{
+			name: "return",
+			source: `
+			fun fib(n) {
+				if (n <= 1) return n;
+				return fib(n - 2) + fib(n - 1);
+			}
+			for (var i = 0; i < 5; i = i + 1) {
+				print fib(i);
+			}
+			`,
+			err:        nil,
+			wantOutput: `0` + "\n" + `1` + "\n" + `1` + "\n" + `2` + "\n" + `3` + "\n",
+		},
 	}
 
 	// 自定义 ReplaceAttr 去除 time 字段

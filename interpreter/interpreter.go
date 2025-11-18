@@ -235,7 +235,10 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 	case *ast.Block:
 		_env := newEnvironment(env)
 		for _, decl := range _node.Declarations {
-			_, err := interpreter(decl, _env)
+			value, err := interpreter(decl, _env)
+			if err == ErrReturn {
+				return value, nil
+			}
 			if err != nil {
 				return nil, err
 			}
@@ -286,6 +289,12 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			}
 		}
 		return nil, nil
+	case *ast.Return:
+		value, err := interpreter(_node.Expression, env)
+		if err != nil {
+			return nil, err
+		}
+		return value, ErrReturn
 	case *ast.Var:
 		var value any = nil
 		var err error

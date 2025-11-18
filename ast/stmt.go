@@ -26,3 +26,8 @@ type While struct {
 	Condition Node
 	Body      Node
 }
+
+type Return struct {
+	Line       int
+	Expression Node
+}
