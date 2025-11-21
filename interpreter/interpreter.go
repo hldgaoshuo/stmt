@@ -301,11 +301,16 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		return nil, nil
 	case *ast.Function:
 		functionName := _node.Name.Lexeme
+		_env := env.copy()
 		clo := &closure{
 			Function: _node,
-			Env:      env,
+			Env:      _env,
 		}
 		err := env.define(functionName, clo)
+		if err != nil {
+			return nil, err
+		}
+		err = _env.define(functionName, clo)
 		if err != nil {
 			return nil, err
 		}

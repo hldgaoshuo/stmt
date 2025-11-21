@@ -310,6 +310,22 @@ func TestStmtAndDecl(t *testing.T) {
 			err:        nil,
 			wantOutput: `1` + "\n" + `2` + "\n",
 		},
+		{
+			name: "closure 2",
+			source: `
+			var a = "global";
+			{
+				fun showA() {
+					print a;
+				}
+				showA();
+				var a = "block";
+				showA();
+			}
+			`,
+			err:        nil,
+			wantOutput: `"global"` + "\n" + `"global"` + "\n",
+		},
 	}
 
 	for _, tt := range tests {

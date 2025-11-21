@@ -48,3 +48,14 @@ func (e *environment) assign(name *token.Token, value any) error {
 		}
 	}
 }
+
+func (e *environment) copy() *environment {
+	values := make(map[string]any)
+	for k, v := range e.Values {
+		values[k] = v
+	}
+	return &environment{
+		Enclosing: e.Enclosing,
+		Values:    values,
+	}
+}
