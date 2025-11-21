@@ -1,6 +1,9 @@
 package ast
 
-import "stmt/token"
+import (
+	"log/slog"
+	"stmt/token"
+)
 
 type Var struct {
 	Line        int
@@ -13,4 +16,10 @@ type Function struct {
 	Name   *token.Token
 	Params []*token.Token
 	Body   Node
+}
+
+func (f *Function) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.Int("Line", f.Line),
+	)
 }

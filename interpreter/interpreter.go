@@ -4,12 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log/slog"
 	"os"
 	"stmt/ast"
 	"stmt/token"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 // Output 是一个可自定义的输出接口，默认为 os.Stdout
@@ -50,37 +47,34 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		case token.BANG:
 			_right, ok := right.(bool)
 			if !ok {
-				slog.Error("operand must be a bool", "line", _node.Operator.Line)
 				return nil, ErrOperandMustBeBool
 			}
 			return !_right, nil
 		case token.MINUS:
 			_right, ok := right.(float64)
 			if !ok {
-				slog.Error("operand must be a float64", "line", _node.Operator.Line)
 				return nil, ErrOperandMustBeFloat64
 			}
 			return -_right, nil
 		default:
-			slog.Error("operator not support in unary", "operator", _node.Operator.TokenType, "line", _node.Operator.Line)
 			return nil, ErrOperatorNotSupportInUnary
 		}
 	case *ast.Call:
-		fun, err := interpreter(_node.Callee, env)
+		cloOrBuiltin, err := interpreter(_node.Callee, env)
 		if err != nil {
 			return nil, err
 		}
-		switch _fun := fun.(type) {
-		case *ast.Function:
-			lenParams := len(_fun.Params)
+		switch callable := cloOrBuiltin.(type) {
+		case *closure:
+			fun := callable.Function
+			lenParams := len(fun.Params)
 			lenArgs := len(_node.Arguments)
 			if lenParams != lenArgs {
-				slog.Error("function parameters num should equ to call arguments num", "function parameters num", lenParams, "call arguments num", lenArgs)
 				return nil, ErrNumParamsArgsNotMatch
 			}
-			_env := newEnvironment(env)
+			_env := newEnvironment(callable.Env)
 			for i := 0; i < lenParams; i++ {
-				param := _fun.Params[i]
+				param := fun.Params[i]
 				arg := _node.Arguments[i]
 				_arg, err := interpreter(arg, _env)
 				if err != nil {
@@ -91,7 +85,7 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 					return nil, err
 				}
 			}
-			result, err := interpreter(_fun.Body, _env)
+			result, err := interpreter(fun.Body, _env)
 			if err != nil {
 				return nil, err
 			}
@@ -105,13 +99,12 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 				}
 				args = append(args, _arg)
 			}
-			result, err := _fun(args...)
+			result, err := callable(args...)
 			if err != nil {
 				return nil, err
 			}
 			return result, nil
 		default:
-			slog.Error("function not declare", "callee", _node.Callee)
 			return nil, ErrFunctionNotDeclare
 		}
 	case *ast.Logical:
@@ -121,7 +114,6 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		}
 		_left, ok := left.(bool)
 		if !ok {
-			slog.Error("operand must be a bool", "line", _node.Operator.Line)
 			return nil, ErrOperandMustBeBool
 		}
 		switch _node.Operator.TokenType {
@@ -138,7 +130,6 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 				return interpreter(_node.Right, env)
 			}
 		default:
-			slog.Error("operator not support in logical", "operator", _node.Operator.TokenType, "line", _node.Operator.Line)
 			return nil, ErrOperatorNotSupportInUnary
 		}
 	case *ast.Binary:
@@ -157,7 +148,6 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			if isLeftFloat64 && isRightFloat64 {
 				return _left > _right, nil
 			} else {
-				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		case token.GREATER_EQUAL:
@@ -166,7 +156,6 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			if isLeftFloat64 && isRightFloat64 {
 				return _left >= _right, nil
 			} else {
-				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		case token.LESS:
@@ -175,7 +164,6 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			if isLeftFloat64 && isRightFloat64 {
 				return _left < _right, nil
 			} else {
-				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		case token.LESS_EQUAL:
@@ -184,7 +172,6 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			if isLeftFloat64 && isRightFloat64 {
 				return _left <= _right, nil
 			} else {
-				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		case token.PLUS:
@@ -197,7 +184,6 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			} else if isLeftFloat64 && isRightFloat64 {
 				return _leftFloat64 + _rightFloat64, nil
 			} else {
-				slog.Error("operand must be two float64 or two string", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64OrTwoString
 			}
 		case token.MINUS:
@@ -206,7 +192,6 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			if isLeftFloat64 && isRightFloat64 {
 				return _left - _right, nil
 			} else {
-				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		case token.STAR:
@@ -215,7 +200,6 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			if isLeftFloat64 && isRightFloat64 {
 				return _left * _right, nil
 			} else {
-				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		case token.SLASH:
@@ -224,11 +208,9 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			if isLeftFloat64 && isRightFloat64 {
 				return _left / _right, nil
 			} else {
-				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		default:
-			slog.Error("operator not support in binary", "expr", _node)
 			return nil, ErrOperatorNotSupportInBinary
 		}
 	case *ast.Assign:
@@ -267,7 +249,6 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		}
 		_condition, ok := condition.(bool)
 		if !ok {
-			slog.Error("condition result must be a bool", "line", _node.Line)
 			return nil, ErrOperandMustBeBool
 		}
 		if _condition {
@@ -287,7 +268,6 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			}
 			_condition, ok := condition.(bool)
 			if !ok {
-				slog.Error("condition result must be a bool", "line", _node.Line)
 				return nil, ErrOperandMustBeBool
 			}
 			if !_condition {
@@ -321,14 +301,16 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		return nil, nil
 	case *ast.Function:
 		functionName := _node.Name.Lexeme
-		err := env.define(functionName, _node)
+		clo := &closure{
+			Function: _node,
+			Env:      env,
+		}
+		err := env.define(functionName, clo)
 		if err != nil {
 			return nil, err
 		}
 		return nil, nil
 	default:
-		slog.Error("node type not support")
-		spew.Dump(_node)
 		return nil, ErrExpressionTypeNotSupport
 	}
 }

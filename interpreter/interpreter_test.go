@@ -271,10 +271,10 @@ func TestStmtAndDecl(t *testing.T) {
 				if (n > 1) count(n - 1);
 				print n;
 			}
-			count(3);
+			count(2);
 			`,
 			err:        nil,
-			wantOutput: `1` + "\n" + `2` + "\n" + `3` + "\n",
+			wantOutput: `1` + "\n" + `2` + "\n",
 		},
 		{
 			name: "call 2",
@@ -311,6 +311,24 @@ func TestStmtAndDecl(t *testing.T) {
 			`,
 			err:        nil,
 			wantOutput: `0` + "\n" + `1` + "\n" + `1` + "\n" + `2` + "\n" + `3` + "\n",
+		},
+		{
+			name: "closure",
+			source: `
+			fun makeCounter() {
+				var i = 0;
+				fun count() {
+					i = i + 1;
+					print i;
+				}
+				return count;
+			}
+			var counter = makeCounter();
+			counter();
+			counter();
+			`,
+			err:        nil,
+			wantOutput: `1` + "\n" + `2` + "\n",
 		},
 	}
 

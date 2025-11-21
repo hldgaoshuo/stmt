@@ -5,30 +5,30 @@ import (
 )
 
 type environment struct {
-	enclosing *environment
-	values    map[string]any
+	Enclosing *environment
+	Values    map[string]any
 }
 
 func newEnvironment(enclosing *environment) *environment {
 	return &environment{
-		enclosing: enclosing,
-		values:    make(map[string]any),
+		Enclosing: enclosing,
+		Values:    make(map[string]any),
 	}
 }
 
 func (e *environment) define(name string, value any) error {
-	e.values[name] = value
+	e.Values[name] = value
 	return nil
 	// todo 目前 define 是支持重复声明的。error 返回是为了之后升级到不支持重复声明可以返回错误
 }
 
 func (e *environment) get(name *token.Token) (any, error) {
-	value, ok := e.values[name.Lexeme]
+	value, ok := e.Values[name.Lexeme]
 	if ok {
 		return value, nil
 	} else {
-		if e.enclosing != nil {
-			return e.enclosing.get(name)
+		if e.Enclosing != nil {
+			return e.Enclosing.get(name)
 		} else {
 			return nil, ErrUndefinedVariable
 		}
@@ -36,13 +36,13 @@ func (e *environment) get(name *token.Token) (any, error) {
 }
 
 func (e *environment) assign(name *token.Token, value any) error {
-	_, ok := e.values[name.Lexeme]
+	_, ok := e.Values[name.Lexeme]
 	if ok {
-		e.values[name.Lexeme] = value
+		e.Values[name.Lexeme] = value
 		return nil
 	} else {
-		if e.enclosing != nil {
-			return e.enclosing.assign(name, value)
+		if e.Enclosing != nil {
+			return e.Enclosing.assign(name, value)
 		} else {
 			return ErrUndefinedVariable
 		}
