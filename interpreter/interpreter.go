@@ -6,7 +6,6 @@ import (
 	"io"
 	"log/slog"
 	"os"
-	"reflect"
 	"stmt/ast"
 	"stmt/token"
 
@@ -47,20 +46,21 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		if err != nil {
 			return nil, err
 		}
-		rightType := reflect.TypeOf(right)
 		switch _node.Operator.TokenType {
 		case token.BANG:
-			if rightType.Kind() != reflect.Bool {
-				slog.Error("operand must be a bool", "right type", rightType, "line", _node.Operator.Line)
+			_right, ok := right.(bool)
+			if !ok {
+				slog.Error("operand must be a bool", "line", _node.Operator.Line)
 				return nil, ErrOperandMustBeBool
 			}
-			return !right.(bool), nil
+			return !_right, nil
 		case token.MINUS:
-			if rightType.Kind() != reflect.Float64 {
-				slog.Error("operand must be a float64", "right type", rightType, "line", _node.Operator.Line)
+			_right, ok := right.(float64)
+			if !ok {
+				slog.Error("operand must be a float64", "line", _node.Operator.Line)
 				return nil, ErrOperandMustBeFloat64
 			}
-			return -right.(float64), nil
+			return -_right, nil
 		default:
 			slog.Error("operator not support in unary", "operator", _node.Operator.TokenType, "line", _node.Operator.Line)
 			return nil, ErrOperatorNotSupportInUnary
@@ -119,20 +119,20 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		if err != nil {
 			return nil, err
 		}
-		leftType := reflect.TypeOf(left)
-		if leftType.Kind() != reflect.Bool {
-			slog.Error("operand must be a bool", "left type", leftType, "line", _node.Operator.Line)
+		_left, ok := left.(bool)
+		if !ok {
+			slog.Error("operand must be a bool", "line", _node.Operator.Line)
 			return nil, ErrOperandMustBeBool
 		}
 		switch _node.Operator.TokenType {
 		case token.AND:
-			if !left.(bool) {
+			if !_left {
 				return false, nil
 			} else {
 				return interpreter(_node.Right, env)
 			}
 		case token.OR:
-			if left.(bool) {
+			if _left {
 				return true, nil
 			} else {
 				return interpreter(_node.Right, env)
@@ -150,63 +150,79 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		if err != nil {
 			return nil, err
 		}
-		leftType := reflect.TypeOf(left)
-		rightType := reflect.TypeOf(right)
 		switch _node.Operator.TokenType {
 		case token.GREATER:
-			if leftType.Kind() == reflect.Float64 && rightType.Kind() == reflect.Float64 {
-				return left.(float64) > right.(float64), nil
+			_left, isLeftFloat64 := left.(float64)
+			_right, isRightFloat64 := right.(float64)
+			if isLeftFloat64 && isRightFloat64 {
+				return _left > _right, nil
 			} else {
 				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		case token.GREATER_EQUAL:
-			if leftType.Kind() == reflect.Float64 && rightType.Kind() == reflect.Float64 {
-				return left.(float64) >= right.(float64), nil
+			_left, isLeftFloat64 := left.(float64)
+			_right, isRightFloat64 := right.(float64)
+			if isLeftFloat64 && isRightFloat64 {
+				return _left >= _right, nil
 			} else {
 				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		case token.LESS:
-			if leftType.Kind() == reflect.Float64 && rightType.Kind() == reflect.Float64 {
-				return left.(float64) < right.(float64), nil
+			_left, isLeftFloat64 := left.(float64)
+			_right, isRightFloat64 := right.(float64)
+			if isLeftFloat64 && isRightFloat64 {
+				return _left < _right, nil
 			} else {
 				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		case token.LESS_EQUAL:
-			if leftType.Kind() == reflect.Float64 && rightType.Kind() == reflect.Float64 {
-				return left.(float64) <= right.(float64), nil
+			_left, isLeftFloat64 := left.(float64)
+			_right, isRightFloat64 := right.(float64)
+			if isLeftFloat64 && isRightFloat64 {
+				return _left <= _right, nil
 			} else {
 				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		case token.PLUS:
-			if leftType.Kind() == reflect.String && rightType.Kind() == reflect.String {
-				return left.(string) + right.(string), nil
-			} else if leftType.Kind() == reflect.Float64 && rightType.Kind() == reflect.Float64 {
-				return left.(float64) + right.(float64), nil
+			_leftString, isLeftString := left.(string)
+			_rightString, isRightString := right.(string)
+			_leftFloat64, isLeftFloat64 := left.(float64)
+			_rightFloat64, isRightFloat64 := right.(float64)
+			if isLeftString && isRightString {
+				return _leftString + _rightString, nil
+			} else if isLeftFloat64 && isRightFloat64 {
+				return _leftFloat64 + _rightFloat64, nil
 			} else {
 				slog.Error("operand must be two float64 or two string", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64OrTwoString
 			}
 		case token.MINUS:
-			if leftType.Kind() == reflect.Float64 && rightType.Kind() == reflect.Float64 {
-				return left.(float64) - right.(float64), nil
+			_left, isLeftFloat64 := left.(float64)
+			_right, isRightFloat64 := right.(float64)
+			if isLeftFloat64 && isRightFloat64 {
+				return _left - _right, nil
 			} else {
 				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		case token.STAR:
-			if leftType.Kind() == reflect.Float64 && rightType.Kind() == reflect.Float64 {
-				return left.(float64) * right.(float64), nil
+			_left, isLeftFloat64 := left.(float64)
+			_right, isRightFloat64 := right.(float64)
+			if isLeftFloat64 && isRightFloat64 {
+				return _left * _right, nil
 			} else {
 				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
 			}
 		case token.SLASH:
-			if leftType.Kind() == reflect.Float64 && rightType.Kind() == reflect.Float64 {
-				return left.(float64) / right.(float64), nil
+			_left, isLeftFloat64 := left.(float64)
+			_right, isRightFloat64 := right.(float64)
+			if isLeftFloat64 && isRightFloat64 {
+				return _left / _right, nil
 			} else {
 				slog.Error("operand must be two float64", "left", left, "right", right)
 				return nil, ErrOperandsMustBeTwoFloat64
@@ -249,12 +265,12 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		if err != nil {
 			return nil, err
 		}
-		conditionType := reflect.TypeOf(condition)
-		if conditionType.Kind() != reflect.Bool {
-			slog.Error("condition result must be a bool", "condition type", conditionType, "line", _node.Line)
+		_condition, ok := condition.(bool)
+		if !ok {
+			slog.Error("condition result must be a bool", "line", _node.Line)
 			return nil, ErrOperandMustBeBool
 		}
-		if condition.(bool) {
+		if _condition {
 			return interpreter(_node.ThenBranch, env)
 		} else {
 			if _node.ElseBranch == nil {
@@ -264,28 +280,22 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			}
 		}
 	case *ast.While:
-		condition, err := interpreter(_node.Condition, env)
-		if err != nil {
-			return nil, err
-		}
-		conditionType := reflect.TypeOf(condition)
-		if conditionType.Kind() != reflect.Bool {
-			slog.Error("condition result must be a bool", "condition type", conditionType, "line", _node.Line)
-			return nil, ErrOperandMustBeBool
-		}
-		for condition.(bool) {
+		for {
+			condition, err := interpreter(_node.Condition, env)
+			if err != nil {
+				return nil, err
+			}
+			_condition, ok := condition.(bool)
+			if !ok {
+				slog.Error("condition result must be a bool", "line", _node.Line)
+				return nil, ErrOperandMustBeBool
+			}
+			if !_condition {
+				break
+			}
 			_, err = interpreter(_node.Body, env)
 			if err != nil {
 				return nil, err
-			}
-			condition, err = interpreter(_node.Condition, env)
-			if err != nil {
-				return nil, err
-			}
-			conditionType = reflect.TypeOf(condition)
-			if conditionType.Kind() != reflect.Bool {
-				slog.Error("condition result must be a bool", "condition type", conditionType, "line", _node.Line)
-				return nil, ErrOperandMustBeBool
 			}
 		}
 		return nil, nil
