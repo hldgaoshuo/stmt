@@ -76,7 +76,7 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			for i := 0; i < lenParams; i++ {
 				param := fun.Params[i]
 				arg := _node.Arguments[i]
-				_arg, err := interpreter(arg, _env)
+				_arg, err := interpreter(arg, env)
 				if err != nil {
 					return nil, err
 				}

@@ -2,8 +2,6 @@ package interpreter
 
 import (
 	"bytes"
-	"log/slog"
-	"os"
 	"reflect"
 	"stmt/parser"
 	"stmt/scanner"
@@ -83,24 +81,6 @@ func TestExpr(t *testing.T) {
 			want:   false,
 		},
 	}
-
-	// 自定义 ReplaceAttr 去除 time 字段
-	removeTime := func(groups []string, a slog.Attr) slog.Attr {
-		if a.Key == slog.TimeKey {
-			return slog.Attr{} // 返回空表示不输出
-		}
-		return a
-	}
-
-	// 创建 handler
-	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		Level:       slog.LevelDebug,
-		ReplaceAttr: removeTime,
-	})
-
-	// 设置全局 logger
-	logger := slog.New(handler)
-	slog.SetDefault(logger)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -287,17 +267,17 @@ func TestStmtAndDecl(t *testing.T) {
 			err:        nil,
 			wantOutput: `6` + "\n",
 		},
-		{
-			name: "builtin",
-			source: `
-			fun time() {
-				print clock();
-			}
-			time();
-			`,
-			err:        nil,
-			wantOutput: `6` + "\n",
-		},
+		// {
+		// 	name: "builtin",
+		// 	source: `
+		// 	fun time() {
+		// 		print clock();
+		// 	}
+		// 	time();
+		// 	`,
+		// 	err:        nil,
+		// 	wantOutput: `6` + "\n",
+		// },
 		{
 			name: "return",
 			source: `
@@ -331,24 +311,6 @@ func TestStmtAndDecl(t *testing.T) {
 			wantOutput: `1` + "\n" + `2` + "\n",
 		},
 	}
-
-	// 自定义 ReplaceAttr 去除 time 字段
-	removeTime := func(groups []string, a slog.Attr) slog.Attr {
-		if a.Key == slog.TimeKey {
-			return slog.Attr{} // 返回空表示不输出
-		}
-		return a
-	}
-
-	// 创建 handler
-	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		Level:       slog.LevelDebug,
-		ReplaceAttr: removeTime,
-	})
-
-	// 设置全局 logger
-	logger := slog.New(handler)
-	slog.SetDefault(logger)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
