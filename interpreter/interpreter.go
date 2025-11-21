@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -113,7 +114,6 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			slog.Error("function not declare", "callee", _node.Callee)
 			return nil, ErrFunctionNotDeclare
 		}
-
 	case *ast.Logical:
 		left, err := interpreter(_node.Left, env)
 		if err != nil {
@@ -230,13 +230,13 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		if err != nil {
 			return nil, err
 		}
-		fmt.Fprintf(Output, "%#v\n", value)
-		return nil, nil
+		_, err = fmt.Fprintf(Output, "%#v\n", value)
+		return nil, err
 	case *ast.Block:
 		_env := newEnvironment(env)
 		for _, decl := range _node.Declarations {
 			value, err := interpreter(decl, _env)
-			if err == ErrReturn {
+			if errors.Is(err, ErrReturn) {
 				return value, nil
 			}
 			if err != nil {
