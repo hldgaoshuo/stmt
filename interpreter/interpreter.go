@@ -65,7 +65,7 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			return nil, err
 		}
 		switch _callable := callable.(type) {
-		case *ast.Class:
+		case *class:
 			ins := newInstance(_callable)
 			return ins, nil
 		case *closure:
@@ -119,11 +119,11 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		if !ok {
 			return nil, ErrNotInstance
 		}
-		field, err := ins.get(_node.Name)
+		property, err := ins.get(_node.Name)
 		if err != nil {
 			return nil, err
 		}
-		return field, nil
+		return property, nil
 	case *ast.Set:
 		object, err := interpreter(_node.Object, env)
 		if err != nil {
@@ -140,6 +140,8 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		}
 		ins.set(_node.Name, value)
 		return value, nil
+	case *ast.This:
+		return env.get(_node.Keyword)
 	case *ast.Logical:
 		left, err := interpreter(_node.Left, env)
 		if err != nil {
@@ -350,7 +352,18 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		return nil, nil
 	case *ast.Class:
 		className := _node.Name.Lexeme
-		err := env.define(className, _node)
+		cls := &class{
+			Closures: []*closure{},
+		}
+		_env := env.copy()
+		for _, method := range _node.Methods {
+			clo := &closure{
+				Function: method,
+				Env:      _env,
+			}
+			cls.Closures = append(cls.Closures, clo)
+		}
+		err := env.define(className, cls)
 		if err != nil {
 			return nil, err
 		}

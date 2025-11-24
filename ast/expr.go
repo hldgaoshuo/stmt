@@ -52,3 +52,7 @@ type Set struct {
 	Name   *token.Token
 	Value  Node
 }
+
+type This struct {
+	Keyword *token.Token
+}

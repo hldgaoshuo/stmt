@@ -338,6 +338,42 @@ func TestStmtAndDecl(t *testing.T) {
 			err:        nil,
 			wantOutput: `"value"` + "\n",
 		},
+		{
+			name: "class method",
+			source: `
+			class Bacon {
+				eat() {
+					print "Crunch crunch crunch!";
+				}
+			}
+			var bacon = Bacon();
+			bacon.eat();
+			`,
+			err:        nil,
+			wantOutput: `"Crunch crunch crunch!"` + "\n",
+		},
+		{
+			name: "class this",
+			source: `
+			class Cake {
+				taste() {
+					var adjective = "delicious";
+					print "The " + this.flavor + " cake is " + adjective + "!";
+				}
+			}
+			var cake = Cake();
+			cake.flavor = "German chocolate";
+			cake.taste(); // Prints "The German chocolate cake is delicious!".
+			`,
+			err:        nil,
+			wantOutput: `"The German chocolate cake is delicious!"` + "\n",
+		},
+		{
+			name:       "class this 2",
+			source:     "print this;",
+			err:        ErrUndefinedVariable,
+			wantOutput: "",
+		},
 	}
 
 	for _, tt := range tests {

@@ -655,6 +655,11 @@ func (p *Parser) primary() (ast.Node, error) {
 			Value: nil,
 		}, nil
 	}
+	if p.match(token.THIS) {
+		return &ast.This{
+			Keyword: p.previous(),
+		}, nil
+	}
 	if p.match(token.NUMBER, token.STRING) {
 		token_ := p.previous()
 		return &ast.Literal{
