@@ -57,6 +57,16 @@ func (p *Parser) class() (ast.Node, error) {
 	if err != nil {
 		return nil, err
 	}
+	var superClass *ast.Variable
+	if p.match(token.LESS) {
+		superClassName, err := p.consume(token.IDENTIFIER, "Expect superclass name.")
+		if err != nil {
+			return nil, err
+		}
+		superClass = &ast.Variable{
+			Name: superClassName,
+		}
+	}
 	_, err = p.consume(token.LEFT_BRACE, "Expect '{' before class body.")
 	if err != nil {
 		return nil, err
@@ -74,9 +84,10 @@ func (p *Parser) class() (ast.Node, error) {
 		return nil, err
 	}
 	return &ast.Class{
-		Line:    kw.Line,
-		Name:    name,
-		Methods: methods,
+		Line:       kw.Line,
+		Name:       name,
+		Methods:    methods,
+		SuperClass: superClass,
 	}, nil
 }
 

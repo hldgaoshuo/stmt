@@ -332,6 +332,32 @@ func TestParser_declaration(t *testing.T) {
 			},
 			err: nil,
 		},
+		{
+			name: "class 4",
+			source: `
+			class BostonCream < Doughnut {
+			}
+			`,
+			want: &ast.Class{
+				Line: 2,
+				Name: &token.Token{
+					TokenType: token.IDENTIFIER,
+					Lexeme:    "BostonCream",
+					Line:      2,
+					Literal:   nil,
+				},
+				Methods: nil,
+				SuperClass: &ast.Variable{
+					Name: &token.Token{
+						TokenType: token.IDENTIFIER,
+						Lexeme:    "Doughnut",
+						Line:      2,
+						Literal:   nil,
+					},
+				},
+			},
+			err: nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
