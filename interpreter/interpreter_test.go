@@ -374,6 +374,21 @@ func TestStmtAndDecl(t *testing.T) {
 			err:        ErrUndefinedVariable,
 			wantOutput: "",
 		},
+		{
+			name: "class superclass",
+			source: `
+			class Doughnut {
+				cook() {
+					print "Fry until golden brown.";
+				}
+			}
+			class BostonCream < Doughnut {
+			}
+			BostonCream().cook();
+			`,
+			err:        nil,
+			wantOutput: `"Fry until golden brown."` + "\n",
+		},
 	}
 
 	for _, tt := range tests {

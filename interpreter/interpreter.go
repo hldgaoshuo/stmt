@@ -352,8 +352,21 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		return nil, nil
 	case *ast.Class:
 		className := _node.Name.Lexeme
+		var superClass *class
+		if _node.SuperClass != nil {
+			super, err := interpreter(_node.SuperClass, env)
+			if err != nil {
+				return nil, err
+			}
+			var ok bool
+			superClass, ok = super.(*class)
+			if !ok {
+				return nil, ErrNotClass
+			}
+		}
 		cls := &class{
-			Closures: []*closure{},
+			SuperClass: superClass,
+			Closures:   []*closure{},
 		}
 		_env := env.copy()
 		for _, method := range _node.Methods {

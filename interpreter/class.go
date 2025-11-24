@@ -3,7 +3,8 @@ package interpreter
 import "stmt/token"
 
 type class struct {
-	Closures []*closure
+	SuperClass *class
+	Closures   []*closure
 }
 
 func (c *class) get(name *token.Token) *closure {
@@ -12,5 +13,9 @@ func (c *class) get(name *token.Token) *closure {
 			return clo
 		}
 	}
-	return nil
+	if c.SuperClass != nil {
+		return c.SuperClass.get(name)
+	} else {
+		return nil
+	}
 }
