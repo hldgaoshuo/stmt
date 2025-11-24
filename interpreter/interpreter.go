@@ -124,6 +124,33 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			return nil, err
 		}
 		return property, nil
+	case *ast.Super:
+		// 特殊的 *ast.Get
+		super, err := env.get(_node.Keyword)
+		if err != nil {
+			return nil, err
+		}
+		superClass, ok := super.(*class)
+		if !ok {
+			return nil, ErrNotClass
+		}
+		clo := superClass.get(_node.Method)
+		if clo == nil {
+			return nil, ErrUndefinedProperty
+		}
+		ins, err := env.this()
+		if err != nil {
+			return nil, err
+		}
+		_ins, ok := ins.(*instance)
+		if !ok {
+			return nil, ErrNotInstance
+		}
+		_clo, err := clo.bind(_ins)
+		if err != nil {
+			return nil, err
+		}
+		return _clo, nil
 	case *ast.Set:
 		object, err := interpreter(_node.Object, env)
 		if err != nil {
@@ -369,6 +396,13 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			Closures:   []*closure{},
 		}
 		_env := env.copy()
+		if superClass != nil {
+			_env = newEnvironment(_env)
+			err := _env.define("super", superClass)
+			if err != nil {
+				return nil, err
+			}
+		}
 		for _, method := range _node.Methods {
 			clo := &closure{
 				Function: method,

@@ -56,3 +56,8 @@ type Set struct {
 type This struct {
 	Keyword *token.Token
 }
+
+type Super struct {
+	Keyword *token.Token
+	Method  *token.Token
+}

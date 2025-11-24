@@ -22,6 +22,23 @@ func (e *environment) define(name string, value any) error {
 	// todo 目前 define 是支持重复声明的。error 返回是为了之后升级到不支持重复声明可以返回错误
 }
 
+func (e *environment) find(name string) (any, error) {
+	value, ok := e.Values[name]
+	if ok {
+		return value, nil
+	} else {
+		if e.Enclosing != nil {
+			return e.Enclosing.find(name)
+		} else {
+			return nil, ErrUndefinedVariable
+		}
+	}
+}
+
+func (e *environment) this() (any, error) {
+	return e.find("this")
+}
+
 func (e *environment) get(name *token.Token) (any, error) {
 	value, ok := e.Values[name.Lexeme]
 	if ok {

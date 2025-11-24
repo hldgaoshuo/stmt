@@ -696,6 +696,21 @@ func (p *Parser) primary() (ast.Node, error) {
 			Expression: expr,
 		}, nil
 	}
+	if p.match(token.SUPER) {
+		keyword := p.previous()
+		_, err := p.consume(token.DOT, "Expect '.' after 'super'.")
+		if err != nil {
+			return nil, err
+		}
+		method, err := p.consume(token.IDENTIFIER, "Expect superclass method name.")
+		if err != nil {
+			return nil, err
+		}
+		return &ast.Super{
+			Keyword: keyword,
+			Method:  method,
+		}, nil
+	}
 	return nil, ErrExpectExpression
 }
 

@@ -389,6 +389,32 @@ func TestStmtAndDecl(t *testing.T) {
 			err:        nil,
 			wantOutput: `"Fry until golden brown."` + "\n",
 		},
+		{
+			name: "class super",
+			source: `
+			class A {
+				method() {
+					print "A method";
+				}
+			}
+			
+			class B < A {
+				method() {
+					print "B method";
+				}
+				test() {
+					super.method();
+				}
+			}
+			
+			class C < B {
+			}
+			
+			C().test();
+			`,
+			err:        nil,
+			wantOutput: `"A method"` + "\n",
+		},
 	}
 
 	for _, tt := range tests {
