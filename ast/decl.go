@@ -17,8 +17,10 @@ type Function struct {
 	Body   Node
 }
 
+// Class 这个节点真的很另类
 type Class struct {
-	Line    int
-	Name    *token.Token
-	Methods []*Function
+	Line       int
+	Name       *token.Token
+	Methods    []*Function
+	SuperClass *Variable
 }
