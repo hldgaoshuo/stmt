@@ -41,3 +41,14 @@ type Call struct {
 	Paren     *token.Token
 	Arguments []Node
 }
+
+type Get struct {
+	Object Node
+	Name   *token.Token
+}
+
+type Set struct {
+	Object Node
+	Name   *token.Token
+	Value  Node
+}

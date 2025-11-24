@@ -39,6 +39,9 @@ func (p *Parser) Parse() ([]ast.Node, error) {
 }
 
 func (p *Parser) declaration() (ast.Node, error) {
+	if p.match(token.CLASS) {
+		return p.class()
+	}
 	if p.match(token.FUN) {
 		return p.fun()
 	}
@@ -46,6 +49,71 @@ func (p *Parser) declaration() (ast.Node, error) {
 		return p.var_()
 	}
 	return p.statement()
+}
+
+func (p *Parser) class() (ast.Node, error) {
+	kw := p.previous()
+	name, err := p.consume(token.IDENTIFIER, "Expect class name.")
+	if err != nil {
+		return nil, err
+	}
+	_, err = p.consume(token.LEFT_BRACE, "Expect '{' before class body.")
+	if err != nil {
+		return nil, err
+	}
+	var methods []*ast.Function
+	for !p.check(token.RIGHT_BRACE) && !p.isAtEnd() {
+		method, err := p._method()
+		if err != nil {
+			return nil, err
+		}
+		methods = append(methods, method)
+	}
+	_, err = p.consume(token.RIGHT_BRACE, "Expect '}' after class body.")
+	if err != nil {
+		return nil, err
+	}
+	return &ast.Class{
+		Line:    kw.Line,
+		Name:    name,
+		Methods: methods,
+	}, nil
+}
+
+func (p *Parser) _method() (*ast.Function, error) {
+	name, err := p.consume(token.IDENTIFIER, "Expect method name.")
+	if err != nil {
+		return nil, err
+	}
+	_, err = p.consume(token.LEFT_PAREN, "Expect '(' after method name.")
+	if err != nil {
+		return nil, err
+	}
+	var parameters []*token.Token
+	if !p.match(token.RIGHT_PAREN) {
+		parameters, err = p._parameters()
+		if err != nil {
+			return nil, err
+		}
+		_, err = p.consume(token.RIGHT_PAREN, "Expect ')' after parameters.")
+		if err != nil {
+			return nil, err
+		}
+	}
+	_, err = p.consume(token.LEFT_BRACE, "Expect '{' before method body.")
+	if err != nil {
+		return nil, err
+	}
+	body, err := p.block()
+	if err != nil {
+		return nil, err
+	}
+	return &ast.Function{
+		Line:   name.Line,
+		Name:   name,
+		Params: parameters,
+		Body:   body,
+	}, nil
 }
 
 func (p *Parser) fun() (ast.Node, error) {
@@ -362,12 +430,19 @@ func (p *Parser) assignment() (ast.Node, error) {
 		if err != nil {
 			return nil, err
 		}
-		if variable, ok := expr.(*ast.Variable); ok {
+		switch _expr := expr.(type) {
+		case *ast.Variable:
 			return &ast.Assign{
-				Name:  variable.Name,
+				Name:  _expr.Name,
 				Value: value,
 			}, nil
-		} else {
+		case *ast.Get:
+			return &ast.Set{
+				Name:   _expr.Name,
+				Object: _expr.Object,
+				Value:  value,
+			}, nil
+		default:
 			slog.Error("Invalid assignment target.", "line", equals.Line, "equals", equals)
 			return nil, ErrInvalidAssignmentTarget
 		}
@@ -516,24 +591,34 @@ func (p *Parser) call() (ast.Node, error) {
 		return nil, err
 	}
 	for {
-		if !p.match(token.LEFT_PAREN) {
-			break
-		}
-		var arguments []ast.Node
-		if !p.check(token.RIGHT_PAREN) {
-			arguments, err = p._arguments()
+		if p.match(token.LEFT_PAREN) {
+			var arguments []ast.Node
+			if !p.check(token.RIGHT_PAREN) {
+				arguments, err = p._arguments()
+				if err != nil {
+					return nil, err
+				}
+			}
+			paren, err := p.consume(token.RIGHT_PAREN, "Expect ')' after arguments.")
 			if err != nil {
 				return nil, err
 			}
-		}
-		paren, err := p.consume(token.RIGHT_PAREN, "Expect ')' after arguments.")
-		if err != nil {
-			return nil, err
-		}
-		expr = &ast.Call{
-			Arguments: arguments,
-			Callee:    expr,
-			Paren:     paren,
+			expr = &ast.Call{
+				Arguments: arguments,
+				Callee:    expr,
+				Paren:     paren,
+			}
+		} else if p.match(token.DOT) {
+			name, err := p.consume(token.IDENTIFIER, "Expect property name after '.'.")
+			if err != nil {
+				return nil, err
+			}
+			expr = &ast.Get{
+				Name:   name,
+				Object: expr,
+			}
+		} else {
+			break
 		}
 	}
 	return expr, nil

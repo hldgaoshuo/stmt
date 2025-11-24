@@ -60,19 +60,22 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			return nil, ErrOperatorNotSupportInUnary
 		}
 	case *ast.Call:
-		cloOrBuiltin, err := interpreter(_node.Callee, env)
+		callable, err := interpreter(_node.Callee, env)
 		if err != nil {
 			return nil, err
 		}
-		switch callable := cloOrBuiltin.(type) {
+		switch _callable := callable.(type) {
+		case *ast.Class:
+			ins := newInstance(_callable)
+			return ins, nil
 		case *closure:
-			fun := callable.Function
+			fun := _callable.Function
 			lenParams := len(fun.Params)
 			lenArgs := len(_node.Arguments)
 			if lenParams != lenArgs {
 				return nil, ErrNumParamsArgsNotMatch
 			}
-			_env := newEnvironment(callable.Env)
+			_env := newEnvironment(_callable.Env)
 			for i := 0; i < lenParams; i++ {
 				param := fun.Params[i]
 				arg := _node.Arguments[i]
@@ -99,7 +102,7 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 				}
 				args = append(args, _arg)
 			}
-			result, err := callable(args...)
+			result, err := _callable(args...)
 			if err != nil {
 				return nil, err
 			}
@@ -107,6 +110,36 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		default:
 			return nil, ErrFunctionNotDeclare
 		}
+	case *ast.Get:
+		object, err := interpreter(_node.Object, env)
+		if err != nil {
+			return nil, err
+		}
+		ins, ok := object.(*instance)
+		if !ok {
+			return nil, ErrNotInstance
+		}
+		field, err := ins.get(_node.Name)
+		if err != nil {
+			return nil, err
+		}
+		return field, nil
+	case *ast.Set:
+		object, err := interpreter(_node.Object, env)
+		if err != nil {
+			return nil, err
+		}
+		ins, ok := object.(*instance)
+		if !ok {
+			print("Only instances have fields.")
+			return nil, ErrOnlyInstanceHaveFields
+		}
+		value, err := interpreter(_node.Value, env)
+		if err != nil {
+			return nil, err
+		}
+		ins.set(_node.Name, value)
+		return value, nil
 	case *ast.Logical:
 		left, err := interpreter(_node.Left, env)
 		if err != nil {
@@ -311,6 +344,13 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			return nil, err
 		}
 		err = _env.define(functionName, clo)
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	case *ast.Class:
+		className := _node.Name.Lexeme
+		err := env.define(className, _node)
 		if err != nil {
 			return nil, err
 		}

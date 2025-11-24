@@ -16,3 +16,9 @@ type Function struct {
 	Params []*token.Token
 	Body   Node
 }
+
+type Class struct {
+	Line    int
+	Name    *token.Token
+	Methods []*Function
+}

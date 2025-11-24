@@ -326,6 +326,18 @@ func TestStmtAndDecl(t *testing.T) {
 			err:        nil,
 			wantOutput: `"global"` + "\n" + `"global"` + "\n",
 		},
+		{
+			name: "class field",
+			source: `
+			class SomeObject {
+			}
+			var someObject = SomeObject();
+			someObject.someProperty = "value";
+			print someObject.someProperty;
+			`,
+			err:        nil,
+			wantOutput: `"value"` + "\n",
+		},
 	}
 
 	for _, tt := range tests {

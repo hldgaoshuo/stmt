@@ -14,4 +14,7 @@ var (
 	ErrOperandsMustBeTwoFloat64OrTwoString = errors.New("operand must be two float64 or two string")
 	ErrFunctionNotDeclare                  = errors.New("function not declare")
 	ErrNumParamsArgsNotMatch               = errors.New("function parameters num should equ to call arguments num")
+	ErrNotInstance                         = errors.New("only instances have properties")
+	ErrOnlyInstanceHaveFields              = errors.New("only instances have fields")
+	ErrUndefinedProperty                   = errors.New("undefined property")
 )
