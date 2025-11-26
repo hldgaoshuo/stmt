@@ -2,21 +2,24 @@ package ast
 
 import "stmt/token"
 
-type Binary struct {
+type Set struct {
+	Object Node
+	Name   *token.Token
+	Value  Node
+}
+
+type Assign struct {
+	Name  *token.Token
+	Value Node
+}
+
+type Logical struct {
 	Left     Node
 	Operator *token.Token
 	Right    Node
 }
 
-type Grouping struct {
-	Expression Node
-}
-
-type Literal struct {
-	Value any
-}
-
-type Logical struct {
+type Binary struct {
 	Left     Node
 	Operator *token.Token
 	Right    Node
@@ -27,30 +30,15 @@ type Unary struct {
 	Right    Node
 }
 
-type Variable struct {
-	Name *token.Token
-}
-
-type Assign struct {
-	Name  *token.Token
-	Value Node
+type Get struct {
+	Object Node
+	Name   *token.Token
 }
 
 type Call struct {
 	Callee    Node
 	Paren     *token.Token
 	Arguments []Node
-}
-
-type Get struct {
-	Object Node
-	Name   *token.Token
-}
-
-type Set struct {
-	Object Node
-	Name   *token.Token
-	Value  Node
 }
 
 type This struct {
@@ -60,4 +48,16 @@ type This struct {
 type Super struct {
 	Keyword *token.Token
 	Method  *token.Token
+}
+
+type Grouping struct {
+	Expression Node
+}
+
+type Variable struct {
+	Name *token.Token
+}
+
+type Literal struct {
+	Value any
 }

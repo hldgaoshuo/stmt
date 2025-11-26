@@ -38,27 +38,35 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		return env.get(_node.Name)
 	case *ast.Grouping:
 		return interpreter(_node.Expression, env)
-	case *ast.Unary:
-		right, err := interpreter(_node.Right, env)
+	case *ast.Super:
+		// 特殊的 *ast.Get
+		super, err := env.get(_node.Keyword)
 		if err != nil {
 			return nil, err
 		}
-		switch _node.Operator.TokenType {
-		case token.BANG:
-			_right, ok := right.(bool)
-			if !ok {
-				return nil, ErrOperandMustBeBool
-			}
-			return !_right, nil
-		case token.MINUS:
-			_right, ok := right.(float64)
-			if !ok {
-				return nil, ErrOperandMustBeFloat64
-			}
-			return -_right, nil
-		default:
-			return nil, ErrOperatorNotSupportInUnary
+		superClass, ok := super.(*class)
+		if !ok {
+			return nil, ErrNotClass
 		}
+		clo := superClass.get(_node.Method)
+		if clo == nil {
+			return nil, ErrUndefinedProperty
+		}
+		ins, err := env.this()
+		if err != nil {
+			return nil, err
+		}
+		_ins, ok := ins.(*instance)
+		if !ok {
+			return nil, ErrNotInstance
+		}
+		_clo, err := clo.bind(_ins)
+		if err != nil {
+			return nil, err
+		}
+		return _clo, nil
+	case *ast.This:
+		return env.get(_node.Keyword)
 	case *ast.Call:
 		callable, err := interpreter(_node.Callee, env)
 		if err != nil {
@@ -124,73 +132,24 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			return nil, err
 		}
 		return property, nil
-	case *ast.Super:
-		// 特殊的 *ast.Get
-		super, err := env.get(_node.Keyword)
+	case *ast.Unary:
+		right, err := interpreter(_node.Right, env)
 		if err != nil {
 			return nil, err
-		}
-		superClass, ok := super.(*class)
-		if !ok {
-			return nil, ErrNotClass
-		}
-		clo := superClass.get(_node.Method)
-		if clo == nil {
-			return nil, ErrUndefinedProperty
-		}
-		ins, err := env.this()
-		if err != nil {
-			return nil, err
-		}
-		_ins, ok := ins.(*instance)
-		if !ok {
-			return nil, ErrNotInstance
-		}
-		_clo, err := clo.bind(_ins)
-		if err != nil {
-			return nil, err
-		}
-		return _clo, nil
-	case *ast.Set:
-		object, err := interpreter(_node.Object, env)
-		if err != nil {
-			return nil, err
-		}
-		ins, ok := object.(*instance)
-		if !ok {
-			print("Only instances have fields.")
-			return nil, ErrOnlyInstanceHaveFields
-		}
-		value, err := interpreter(_node.Value, env)
-		if err != nil {
-			return nil, err
-		}
-		ins.set(_node.Name, value)
-		return value, nil
-	case *ast.This:
-		return env.get(_node.Keyword)
-	case *ast.Logical:
-		left, err := interpreter(_node.Left, env)
-		if err != nil {
-			return nil, err
-		}
-		_left, ok := left.(bool)
-		if !ok {
-			return nil, ErrOperandMustBeBool
 		}
 		switch _node.Operator.TokenType {
-		case token.AND:
-			if !_left {
-				return false, nil
-			} else {
-				return interpreter(_node.Right, env)
+		case token.BANG:
+			_right, ok := right.(bool)
+			if !ok {
+				return nil, ErrOperandMustBeBool
 			}
-		case token.OR:
-			if _left {
-				return true, nil
-			} else {
-				return interpreter(_node.Right, env)
+			return !_right, nil
+		case token.MINUS:
+			_right, ok := right.(float64)
+			if !ok {
+				return nil, ErrOperandMustBeFloat64
 			}
+			return -_right, nil
 		default:
 			return nil, ErrOperatorNotSupportInUnary
 		}
@@ -275,6 +234,31 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		default:
 			return nil, ErrOperatorNotSupportInBinary
 		}
+	case *ast.Logical:
+		left, err := interpreter(_node.Left, env)
+		if err != nil {
+			return nil, err
+		}
+		_left, ok := left.(bool)
+		if !ok {
+			return nil, ErrOperandMustBeBool
+		}
+		switch _node.Operator.TokenType {
+		case token.AND:
+			if !_left {
+				return false, nil
+			} else {
+				return interpreter(_node.Right, env)
+			}
+		case token.OR:
+			if _left {
+				return true, nil
+			} else {
+				return interpreter(_node.Right, env)
+			}
+		default:
+			return nil, ErrOperatorNotSupportInUnary
+		}
 	case *ast.Assign:
 		value, err := interpreter(_node.Value, env)
 		if err != nil {
@@ -282,23 +266,45 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		}
 		err = env.assign(_node.Name, value)
 		return value, err
+	case *ast.Set:
+		object, err := interpreter(_node.Object, env)
+		if err != nil {
+			return nil, err
+		}
+		ins, ok := object.(*instance)
+		if !ok {
+			print("Only instances have fields.")
+			return nil, ErrOnlyInstanceHaveFields
+		}
+		value, err := interpreter(_node.Value, env)
+		if err != nil {
+			return nil, err
+		}
+		ins.set(_node.Name, value)
+		return value, nil
 	case *ast.ExpressionStatement:
 		_, err := interpreter(_node.Expression, env)
 		return nil, err
-	case *ast.Print:
+	case *ast.Return:
 		value, err := interpreter(_node.Expression, env)
 		if err != nil {
 			return nil, err
 		}
-		_, err = fmt.Fprintf(Output, "%#v\n", value)
-		return nil, err
-	case *ast.Block:
-		_env := newEnvironment(env)
-		for _, decl := range _node.Declarations {
-			value, err := interpreter(decl, _env)
-			if errors.Is(err, ErrReturn) {
-				return value, nil
+		return value, ErrReturn
+	case *ast.While:
+		for {
+			condition, err := interpreter(_node.Condition, env)
+			if err != nil {
+				return nil, err
 			}
+			_condition, ok := condition.(bool)
+			if !ok {
+				return nil, ErrOperandMustBeBool
+			}
+			if !_condition {
+				break
+			}
+			_, err = interpreter(_node.Body, env)
 			if err != nil {
 				return nil, err
 			}
@@ -322,31 +328,25 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 				return interpreter(_node.ElseBranch, env)
 			}
 		}
-	case *ast.While:
-		for {
-			condition, err := interpreter(_node.Condition, env)
-			if err != nil {
-				return nil, err
+	case *ast.Block:
+		_env := newEnvironment(env)
+		for _, decl := range _node.Declarations {
+			value, err := interpreter(decl, _env)
+			if errors.Is(err, ErrReturn) {
+				return value, nil
 			}
-			_condition, ok := condition.(bool)
-			if !ok {
-				return nil, ErrOperandMustBeBool
-			}
-			if !_condition {
-				break
-			}
-			_, err = interpreter(_node.Body, env)
 			if err != nil {
 				return nil, err
 			}
 		}
 		return nil, nil
-	case *ast.Return:
+	case *ast.Print:
 		value, err := interpreter(_node.Expression, env)
 		if err != nil {
 			return nil, err
 		}
-		return value, ErrReturn
+		_, err = fmt.Fprintf(Output, "%#v\n", value)
+		return nil, err
 	case *ast.Var:
 		var value any = nil
 		var err error
