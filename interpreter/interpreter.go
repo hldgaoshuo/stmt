@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
+	"reflect"
 	"stmt/ast"
 	"stmt/token"
 )
@@ -137,21 +139,30 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		if err != nil {
 			return nil, err
 		}
-		switch _node.Operator.TokenType {
-		case token.BANG:
-			_right, ok := right.(bool)
-			if !ok {
-				return nil, ErrOperandMustBeBool
+		switch rightValue := right.(type) {
+		case int64:
+			switch _node.Operator.TokenType {
+			case token.MINUS:
+				return -rightValue, nil
+			default:
+				return nil, ErrInvalidOperatorType
 			}
-			return !_right, nil
-		case token.MINUS:
-			_right, ok := right.(float64)
-			if !ok {
-				return nil, ErrOperandMustBeFloat64
+		case float64:
+			switch _node.Operator.TokenType {
+			case token.MINUS:
+				return -rightValue, nil
+			default:
+				return nil, ErrInvalidOperatorType
 			}
-			return -_right, nil
+		case bool:
+			switch _node.Operator.TokenType {
+			case token.BANG:
+				return !rightValue, nil
+			default:
+				return nil, ErrInvalidOperatorType
+			}
 		default:
-			return nil, ErrOperatorNotSupportInUnary
+			return nil, ErrInvalidOperandType
 		}
 	case *ast.Binary:
 		left, err := interpreter(_node.Left, env)
@@ -162,102 +173,183 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		if err != nil {
 			return nil, err
 		}
-		switch _node.Operator.TokenType {
-		case token.GREATER:
-			_left, isLeftFloat64 := left.(float64)
-			_right, isRightFloat64 := right.(float64)
-			if isLeftFloat64 && isRightFloat64 {
-				return _left > _right, nil
-			} else {
-				return nil, ErrOperandsMustBeTwoFloat64
+		leftType := reflect.TypeOf(left).Kind()
+		rightType := reflect.TypeOf(right).Kind()
+		if leftType == reflect.Int64 && rightType == reflect.Int64 {
+			leftValue := left.(int64)
+			rightValue := right.(int64)
+			switch _node.Operator.TokenType {
+			case token.PLUS:
+				return leftValue + rightValue, nil
+			case token.MINUS:
+				return leftValue - rightValue, nil
+			case token.STAR:
+				return leftValue * rightValue, nil
+			case token.SLASH:
+				return leftValue / rightValue, nil
+			case token.PERCENTAGE:
+				return leftValue % rightValue, nil
+			case token.EQUAL_EQUAL:
+				return leftValue == rightValue, nil
+			case token.BANG_EQUAL:
+				return leftValue != rightValue, nil
+			case token.GREATER:
+				return leftValue > rightValue, nil
+			case token.GREATER_EQUAL:
+				return leftValue >= rightValue, nil
+			case token.LESS:
+				return leftValue < rightValue, nil
+			case token.LESS_EQUAL:
+				return leftValue <= rightValue, nil
+			default:
+				return nil, ErrInvalidOperatorType
 			}
-		case token.GREATER_EQUAL:
-			_left, isLeftFloat64 := left.(float64)
-			_right, isRightFloat64 := right.(float64)
-			if isLeftFloat64 && isRightFloat64 {
-				return _left >= _right, nil
-			} else {
-				return nil, ErrOperandsMustBeTwoFloat64
+		} else if leftType == reflect.Float64 && rightType == reflect.Float64 {
+			leftValue := left.(float64)
+			rightValue := right.(float64)
+			switch _node.Operator.TokenType {
+			case token.PLUS:
+				return leftValue + rightValue, nil
+			case token.MINUS:
+				return leftValue - rightValue, nil
+			case token.STAR:
+				return leftValue * rightValue, nil
+			case token.SLASH:
+				return leftValue / rightValue, nil
+			case token.PERCENTAGE:
+				return math.Mod(leftValue, rightValue), nil
+			case token.EQUAL_EQUAL:
+				return leftValue == rightValue, nil
+			case token.BANG_EQUAL:
+				return leftValue != rightValue, nil
+			case token.GREATER:
+				return leftValue > rightValue, nil
+			case token.GREATER_EQUAL:
+				return leftValue >= rightValue, nil
+			case token.LESS:
+				return leftValue < rightValue, nil
+			case token.LESS_EQUAL:
+				return leftValue <= rightValue, nil
+			default:
+				return nil, ErrInvalidOperatorType
 			}
-		case token.LESS:
-			_left, isLeftFloat64 := left.(float64)
-			_right, isRightFloat64 := right.(float64)
-			if isLeftFloat64 && isRightFloat64 {
-				return _left < _right, nil
-			} else {
-				return nil, ErrOperandsMustBeTwoFloat64
+		} else if leftType == reflect.Int64 && rightType == reflect.Float64 {
+			leftValue := float64(left.(int64))
+			rightValue := right.(float64)
+			switch _node.Operator.TokenType {
+			case token.PLUS:
+				return leftValue + rightValue, nil
+			case token.MINUS:
+				return leftValue - rightValue, nil
+			case token.STAR:
+				return leftValue * rightValue, nil
+			case token.SLASH:
+				return leftValue / rightValue, nil
+			case token.PERCENTAGE:
+				return math.Mod(leftValue, rightValue), nil
+			case token.EQUAL_EQUAL:
+				return leftValue == rightValue, nil
+			case token.BANG_EQUAL:
+				return leftValue != rightValue, nil
+			case token.GREATER:
+				return leftValue > rightValue, nil
+			case token.GREATER_EQUAL:
+				return leftValue >= rightValue, nil
+			case token.LESS:
+				return leftValue < rightValue, nil
+			case token.LESS_EQUAL:
+				return leftValue <= rightValue, nil
+			default:
+				return nil, ErrInvalidOperatorType
 			}
-		case token.LESS_EQUAL:
-			_left, isLeftFloat64 := left.(float64)
-			_right, isRightFloat64 := right.(float64)
-			if isLeftFloat64 && isRightFloat64 {
-				return _left <= _right, nil
-			} else {
-				return nil, ErrOperandsMustBeTwoFloat64
+		} else if leftType == reflect.Float64 && rightType == reflect.Int64 {
+			leftValue := left.(float64)
+			rightValue := float64(right.(int64))
+			switch _node.Operator.TokenType {
+			case token.PLUS:
+				return leftValue + rightValue, nil
+			case token.MINUS:
+				return leftValue - rightValue, nil
+			case token.STAR:
+				return leftValue * rightValue, nil
+			case token.SLASH:
+				return leftValue / rightValue, nil
+			case token.PERCENTAGE:
+				return math.Mod(leftValue, rightValue), nil
+			case token.EQUAL_EQUAL:
+				return leftValue == rightValue, nil
+			case token.BANG_EQUAL:
+				return leftValue != rightValue, nil
+			case token.GREATER:
+				return leftValue > rightValue, nil
+			case token.GREATER_EQUAL:
+				return leftValue >= rightValue, nil
+			case token.LESS:
+				return leftValue < rightValue, nil
+			case token.LESS_EQUAL:
+				return leftValue <= rightValue, nil
+			default:
+				return nil, ErrInvalidOperatorType
 			}
-		case token.PLUS:
-			_leftString, isLeftString := left.(string)
-			_rightString, isRightString := right.(string)
-			_leftFloat64, isLeftFloat64 := left.(float64)
-			_rightFloat64, isRightFloat64 := right.(float64)
-			if isLeftString && isRightString {
-				return _leftString + _rightString, nil
-			} else if isLeftFloat64 && isRightFloat64 {
-				return _leftFloat64 + _rightFloat64, nil
-			} else {
-				return nil, ErrOperandsMustBeTwoFloat64OrTwoString
+		} else if leftType == reflect.Bool && rightType == reflect.Bool {
+			leftValue := left.(bool)
+			rightValue := right.(bool)
+			switch _node.Operator.TokenType {
+			case token.EQUAL_EQUAL:
+				return leftValue == rightValue, nil
+			case token.BANG_EQUAL:
+				return leftValue != rightValue, nil
+			default:
+				return nil, ErrInvalidOperatorType
 			}
-		case token.MINUS:
-			_left, isLeftFloat64 := left.(float64)
-			_right, isRightFloat64 := right.(float64)
-			if isLeftFloat64 && isRightFloat64 {
-				return _left - _right, nil
-			} else {
-				return nil, ErrOperandsMustBeTwoFloat64
+		} else if leftType == reflect.String && rightType == reflect.String {
+			leftValue := left.(string)
+			rightValue := right.(string)
+			switch _node.Operator.TokenType {
+			case token.PLUS:
+				return leftValue + rightValue, nil
+			case token.EQUAL_EQUAL:
+				return leftValue == rightValue, nil
+			case token.BANG_EQUAL:
+				return leftValue != rightValue, nil
+			case token.GREATER:
+				return leftValue > rightValue, nil
+			case token.GREATER_EQUAL:
+				return leftValue >= rightValue, nil
+			case token.LESS:
+				return leftValue < rightValue, nil
+			case token.LESS_EQUAL:
+				return leftValue <= rightValue, nil
+			default:
+				return nil, ErrInvalidOperatorType
 			}
-		case token.STAR:
-			_left, isLeftFloat64 := left.(float64)
-			_right, isRightFloat64 := right.(float64)
-			if isLeftFloat64 && isRightFloat64 {
-				return _left * _right, nil
-			} else {
-				return nil, ErrOperandsMustBeTwoFloat64
-			}
-		case token.SLASH:
-			_left, isLeftFloat64 := left.(float64)
-			_right, isRightFloat64 := right.(float64)
-			if isLeftFloat64 && isRightFloat64 {
-				return _left / _right, nil
-			} else {
-				return nil, ErrOperandsMustBeTwoFloat64
-			}
-		default:
-			return nil, ErrOperatorNotSupportInBinary
+		} else {
+			return nil, ErrInvalidOperandUnion
 		}
 	case *ast.Logical:
 		left, err := interpreter(_node.Left, env)
 		if err != nil {
 			return nil, err
 		}
-		_left, ok := left.(bool)
+		right, err := interpreter(_node.Right, env)
+		if err != nil {
+			return nil, err
+		}
+		leftValue, ok := left.(bool)
 		if !ok {
-			return nil, ErrOperandMustBeBool
+			return nil, ErrInvalidOperandType
+		}
+		rightValue, ok := right.(bool)
+		if !ok {
+			return nil, ErrInvalidOperandType
 		}
 		switch _node.Operator.TokenType {
 		case token.AND:
-			if !_left {
-				return false, nil
-			} else {
-				return interpreter(_node.Right, env)
-			}
+			return leftValue && rightValue, nil
 		case token.OR:
-			if _left {
-				return true, nil
-			} else {
-				return interpreter(_node.Right, env)
-			}
+			return leftValue || rightValue, nil
 		default:
-			return nil, ErrOperatorNotSupportInUnary
+			return nil, ErrInvalidOperatorType
 		}
 	case *ast.Assign:
 		value, err := interpreter(_node.Value, env)
@@ -299,7 +391,7 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 			}
 			_condition, ok := condition.(bool)
 			if !ok {
-				return nil, ErrOperandMustBeBool
+				return nil, ErrInvalidOperandType
 			}
 			if !_condition {
 				break
@@ -317,7 +409,7 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 		}
 		_condition, ok := condition.(bool)
 		if !ok {
-			return nil, ErrOperandMustBeBool
+			return nil, ErrInvalidOperandType
 		}
 		if _condition {
 			return interpreter(_node.ThenBranch, env)

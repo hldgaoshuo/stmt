@@ -566,7 +566,7 @@ func (p *Parser) factor() (ast.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	for p.match(token.SLASH, token.STAR) {
+	for p.match(token.SLASH, token.STAR, token.PERCENTAGE) {
 		operator := p.previous()
 		right, err := p.unary()
 		if err != nil {
@@ -610,14 +610,13 @@ func (p *Parser) call() (ast.Node, error) {
 					return nil, err
 				}
 			}
-			paren, err := p.consume(token.RIGHT_PAREN, "Expect ')' after arguments.")
+			_, err = p.consume(token.RIGHT_PAREN, "Expect ')' after arguments.")
 			if err != nil {
 				return nil, err
 			}
 			expr = &ast.Call{
 				Arguments: arguments,
 				Callee:    expr,
-				Paren:     paren,
 			}
 		} else if p.match(token.DOT) {
 			name, err := p.consume(token.IDENTIFIER, "Expect property name after '.'.")
@@ -671,7 +670,7 @@ func (p *Parser) primary() (ast.Node, error) {
 			Keyword: p.previous(),
 		}, nil
 	}
-	if p.match(token.NUMBER, token.STRING) {
+	if p.match(token.INT_LITERAL, token.FLOAT_LITERAL, token.STRING_LITERAL) {
 		token_ := p.previous()
 		return &ast.Literal{
 			Value: token_.Literal,

@@ -16,15 +16,100 @@ func TestExpr(t *testing.T) {
 		want   any
 	}{
 		{
-			name:   "unary wrong type data",
-			source: `2 * (3 / -"muffin")`,
-			err:    ErrOperandMustBeFloat64,
+			name:   "123",
+			source: "123",
+			want:   int64(123),
+			err:    nil,
 		},
 		{
-			name:   "1 + 1",
-			source: "1 + 1",
+			name:   "12.3",
+			source: "12.3",
+			want:   12.3,
 			err:    nil,
-			want:   2.0,
+		},
+		{
+			name:   `"abc"`,
+			source: `"abc"`,
+			want:   "abc",
+			err:    nil,
+		},
+		{
+			name:   "true",
+			source: "true",
+			want:   true,
+			err:    nil,
+		},
+		{
+			name:   "false",
+			source: "false",
+			want:   false,
+			err:    nil,
+		},
+		{
+			name:   "nil",
+			source: "nil",
+			want:   nil,
+			err:    nil,
+		},
+		{
+			name:   "-123",
+			source: "-123",
+			want:   int64(-123),
+			err:    nil,
+		},
+		{
+			name:   "-12.3",
+			source: "-12.3",
+			want:   -12.3,
+			err:    nil,
+		},
+		{
+			name:   "4+2",
+			source: "4+2",
+			want:   int64(6),
+			err:    nil,
+		},
+		{
+			name:   "4.5+2.5",
+			source: "4.5+2.5",
+			want:   7.0,
+			err:    nil,
+		},
+		{
+			name:   "4+2.5",
+			source: "4+2.5",
+			want:   6.5,
+			err:    nil,
+		},
+		{
+			name:   "4.5+2",
+			source: "4.5+2",
+			want:   6.5,
+			err:    nil,
+		},
+		{
+			name:   "true==false",
+			source: "true==false",
+			want:   false,
+			err:    nil,
+		},
+		{
+			name:   "true!=false",
+			source: "true!=false",
+			want:   true,
+			err:    nil,
+		},
+		{
+			name:   `"ab"+"c"`,
+			source: `"ab"+"c"`,
+			want:   "abc",
+			err:    nil,
+		},
+		{
+			name:   `"ab"=="c"`,
+			source: `"ab"=="c"`,
+			want:   false,
+			err:    nil,
 		},
 		{
 			name:   "true and false",
@@ -79,6 +164,12 @@ func TestExpr(t *testing.T) {
 			source: "1 > 2 and true",
 			err:    nil,
 			want:   false,
+		},
+		{
+			name:   "a",
+			source: "a",
+			want:   nil,
+			err:    ErrUndefinedVariable,
 		},
 	}
 

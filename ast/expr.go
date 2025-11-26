@@ -37,7 +37,6 @@ type Get struct {
 
 type Call struct {
 	Callee    Node
-	Paren     *token.Token
 	Arguments []Node
 }
 

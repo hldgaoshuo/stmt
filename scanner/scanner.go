@@ -1,7 +1,6 @@
 package scanner
 
 import (
-	"log/slog"
 	"stmt/token"
 	"strconv"
 )
@@ -62,6 +61,8 @@ func (s *Scanner) ScanToken() {
 		s.AddToken(token.MINUS, nil)
 	case '*':
 		s.AddToken(token.STAR, nil)
+	case '%':
+		s.AddToken(token.PERCENTAGE, nil)
 	case '/':
 		if s.Match('/') {
 			for s.Peek() != '\n' && !s.IsAtEnd() {
@@ -102,7 +103,7 @@ func (s *Scanner) ScanToken() {
 		} else if s.IsAlpha(char) {
 			s.Identifier()
 		} else {
-			slog.Error("Unexpected character.", "line", s.line)
+			print("Invalid character.")
 		}
 	}
 }
@@ -160,7 +161,7 @@ func (s *Scanner) String() {
 		s.Advance()
 	}
 	if s.IsAtEnd() {
-		slog.Error("Unterminated string.", "line", s.line)
+		print("Unterminated string.")
 		return
 	}
 
@@ -170,7 +171,7 @@ func (s *Scanner) String() {
 	// Trim the surrounding quotes.
 	literal := s.source[s.start+1 : s.current-1]
 
-	s.AddToken(token.STRING, literal)
+	s.AddToken(token.STRING_LITERAL, literal)
 }
 
 func (s *Scanner) IsDigit(char byte) bool {
@@ -178,22 +179,35 @@ func (s *Scanner) IsDigit(char byte) bool {
 }
 
 func (s *Scanner) Number() {
+	tokenType := token.INT_LITERAL
 	for s.IsDigit(s.Peek()) {
 		s.Advance()
 	}
 	if s.Peek() == '.' && s.IsDigit(s.PeekNext()) {
+		tokenType = token.FLOAT_LITERAL
 		s.Advance()
 		for s.IsDigit(s.Peek()) {
 			s.Advance()
 		}
 	}
 	literalStr := s.source[s.start:s.current]
-	literalFloat, err := strconv.ParseFloat(literalStr, 64)
-	if err != nil {
-		slog.Error("Invalid number format.", "value", literalStr, "line", s.line)
+	if tokenType == token.INT_LITERAL {
+		literalInt, err := strconv.ParseInt(literalStr, 10, 64)
+		if err != nil {
+			print("Invalid number format.")
+			return
+		}
+		s.AddToken(tokenType, literalInt)
+		return
+	} else { // else if tokenType == token.FLOAT_LITERAL
+		literalFloat, err := strconv.ParseFloat(literalStr, 64)
+		if err != nil {
+			print("Invalid number format.")
+			return
+		}
+		s.AddToken(tokenType, literalFloat)
 		return
 	}
-	s.AddToken(token.NUMBER, literalFloat)
 }
 
 func (s *Scanner) IsAlpha(char byte) bool {

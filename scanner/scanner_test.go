@@ -83,23 +83,39 @@ func TestScanner_ScanTokens(t *testing.T) {
 			},
 		},
 		{
-			name:   "number literal: 1234",
+			name:   "identifier",
+			source: "gaoshuo",
+			want: []*token.Token{
+				token.New(token.IDENTIFIER, "gaoshuo", nil, 1),
+				token.New(token.EOF, "", nil, 1),
+			},
+		},
+		{
+			name:   "int literal",
 			source: "1234",
 			want: []*token.Token{
-				token.New(token.NUMBER, "1234", 1234.0, 1),
+				token.New(token.INT_LITERAL, "1234", int64(1234), 1),
 				token.New(token.EOF, "", nil, 1),
 			},
 		},
 		{
-			name:   "number literal: 12.34",
+			name:   "float literal",
 			source: "12.34",
 			want: []*token.Token{
-				token.New(token.NUMBER, "12.34", 12.34, 1),
+				token.New(token.FLOAT_LITERAL, "12.34", 12.34, 1),
 				token.New(token.EOF, "", nil, 1),
 			},
 		},
 		{
-			name:   "keyword: and",
+			name:   "string literal",
+			source: `"abc"`,
+			want: []*token.Token{
+				token.New(token.STRING_LITERAL, `"abc"`, "abc", 1),
+				token.New(token.EOF, "", nil, 1),
+			},
+		},
+		{
+			name:   "keyword and",
 			source: "and",
 			want: []*token.Token{
 				token.New(token.AND, "and", nil, 1),

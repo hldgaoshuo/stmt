@@ -15,6 +15,7 @@ const (
 	SEMICOLON   = "SEMICOLON"
 	SLASH       = "SLASH"
 	STAR        = "STAR"
+	PERCENTAGE  = "PERCENTAGE"
 
 	// One or two character tokens.
 	BANG          = "BANG"
@@ -26,10 +27,12 @@ const (
 	LESS          = "LESS"
 	LESS_EQUAL    = "LESS_EQUAL"
 
-	// Literals.
 	IDENTIFIER = "IDENTIFIER"
-	STRING     = "STRING"
-	NUMBER     = "NUMBER"
+
+	// Literals.
+	STRING_LITERAL = "STRING_LITERAL"
+	INT_LITERAL    = "INT_LITERAL"
+	FLOAT_LITERAL  = "FLOAT_LITERAL"
 
 	// Keywords.
 	AND    = "AND"
