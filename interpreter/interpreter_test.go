@@ -384,6 +384,50 @@ func TestStmtAndDecl(t *testing.T) {
 			wantOutput: `0` + "\n" + `1` + "\n" + `1` + "\n" + `2` + "\n" + `3` + "\n",
 		},
 		{
+			name: "while",
+			source: `
+			var i = 5;
+			while (i > 0) {
+				print i;
+				i = i - 1;
+			}
+			`,
+			err:        nil,
+			wantOutput: `5` + "\n" + `4` + "\n" + `3` + "\n" + `2` + "\n" + `1` + "\n",
+		},
+		{
+			name: "break",
+			source: `
+			var i = 5;
+			while (i > 0) {
+				print i;
+				i = i - 1;
+				if (i == 3) {
+					break;
+				}
+			}
+			`,
+			err:        nil,
+			wantOutput: `5` + "\n" + `4` + "\n",
+		},
+		{
+			name: "continue",
+			source: `
+			var i = 5;
+			while (i > 0) {
+				i = i - 1;
+				if (i == 3) {
+					print i;
+				} else {
+					continue;
+				}
+			}
+			print "end";
+			`,
+			err:        nil,
+			wantOutput: `3` + "\n" + `"end"` + "\n",
+		},
+		{
 			name: "closure",
 			source: `
 			fun makeCounter() {

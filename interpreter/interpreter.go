@@ -377,6 +377,10 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 	case *ast.ExpressionStatement:
 		_, err := interpreter(_node.Expression, env)
 		return nil, err
+	case *ast.Break:
+		return nil, ErrBreak
+	case *ast.Continue:
+		return nil, ErrContinue
 	case *ast.Return:
 		value, err := interpreter(_node.Expression, env)
 		if err != nil {
@@ -397,6 +401,12 @@ func interpreter(node ast.Node, env *environment) (any, error) {
 				break
 			}
 			_, err = interpreter(_node.Body, env)
+			if errors.Is(err, ErrBreak) {
+				return nil, nil
+			}
+			if errors.Is(err, ErrContinue) {
+				continue
+			}
 			if err != nil {
 				return nil, err
 			}

@@ -222,6 +222,12 @@ func (p *Parser) statement() (ast.Node, error) {
 	if p.match(token.RETURN) {
 		return p.return_()
 	}
+	if p.match(token.BREAK) {
+		return p.break_()
+	}
+	if p.match(token.CONTINUE) {
+		return p.continue_()
+	}
 	return p.expressionStatement()
 }
 
@@ -409,6 +415,28 @@ func (p *Parser) return_() (ast.Node, error) {
 	return &ast.Return{
 		Line:       kw.Line,
 		Expression: value,
+	}, nil
+}
+
+func (p *Parser) break_() (ast.Node, error) {
+	kw := p.previous()
+	_, err := p.consume(token.SEMICOLON, "Expect ';' after 'break'.")
+	if err != nil {
+		return nil, err
+	}
+	return &ast.Break{
+		Line: kw.Line,
+	}, nil
+}
+
+func (p *Parser) continue_() (ast.Node, error) {
+	kw := p.previous()
+	_, err := p.consume(token.SEMICOLON, "Expect ';' after 'continue'.")
+	if err != nil {
+		return nil, err
+	}
+	return &ast.Continue{
+		Line: kw.Line,
 	}, nil
 }
 

@@ -27,6 +27,14 @@ type Return struct {
 	Expression Node
 }
 
+type Break struct {
+	Line int
+}
+
+type Continue struct {
+	Line int
+}
+
 type ExpressionStatement struct {
 	Expression Node
 }
