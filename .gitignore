@@ -46,3 +46,21 @@ go.work
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Visual Studio
+.vs/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio 2015+ cache/options
+*.vcxproj.filters
+*.vcxproj.user
+
+# MSBuild
+[Bb]uild/
