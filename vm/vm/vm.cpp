@@ -17,7 +17,7 @@ public:
 	// code
     std::vector<uint8_t> code;
     std::size_t ip = 0;
-    void _code_write(uint8_t byte) {
+    void _code_emit(uint8_t byte) {
         code.push_back(byte);
     }
     uint8_t code_next() {
@@ -99,12 +99,12 @@ public:
 
 int main() {
     VM vm;
-    vm._code_write(OP_CONSTANT);
-    vm._code_write(0);
-    vm._code_write(OP_CONSTANT);
-    vm._code_write(1);
-	vm._code_write(OP_SUBTRACT);
-    vm._code_write(OP_RETURN);
+    vm._code_emit(OP_CONSTANT);
+    vm._code_emit(0);
+    vm._code_emit(OP_CONSTANT);
+    vm._code_emit(1);
+	vm._code_emit(OP_SUBTRACT);
+    vm._code_emit(OP_RETURN);
     
     vm._constant_add(3);
     vm._constant_add(2);
