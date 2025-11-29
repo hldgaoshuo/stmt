@@ -14,19 +14,40 @@ func TestCompiler_Compile(t *testing.T) {
 		source    string
 		err       error
 		code      []uint8
-		constants []int64
+		constants []*Object
 	}{
 		{
-			name:      "1",
-			source:    "1",
-			code:      []uint8{OP_CONSTANT, 0},
-			constants: []int64{1},
+			name:   "1",
+			source: "1",
+			code:   []uint8{OP_CONSTANT, 0},
+			constants: []*Object{
+				{
+					Literal:    int64(1),
+					ObjectType: INT,
+				},
+			},
 		},
 		{
-			name:      "(1)",
-			source:    "(1)",
-			code:      []uint8{OP_CONSTANT, 0},
-			constants: []int64{1},
+			name:   "1.2",
+			source: "1.2",
+			code:   []uint8{OP_CONSTANT, 0},
+			constants: []*Object{
+				{
+					Literal:    1.2,
+					ObjectType: FLOAT,
+				},
+			},
+		},
+		{
+			name:   "(1)",
+			source: "(1)",
+			code:   []uint8{OP_CONSTANT, 0},
+			constants: []*Object{
+				{
+					Literal:    int64(1),
+					ObjectType: INT,
+				},
+			},
 		},
 		{
 			name:   "-1",
@@ -35,7 +56,12 @@ func TestCompiler_Compile(t *testing.T) {
 				OP_CONSTANT, 0,
 				OP_NEGATE,
 			},
-			constants: []int64{1},
+			constants: []*Object{
+				{
+					Literal:    int64(1),
+					ObjectType: INT,
+				},
+			},
 		},
 		{
 			name:   "1+2",
@@ -45,7 +71,16 @@ func TestCompiler_Compile(t *testing.T) {
 				OP_CONSTANT, 1,
 				OP_ADD,
 			},
-			constants: []int64{1, 2},
+			constants: []*Object{
+				{
+					Literal:    int64(1),
+					ObjectType: INT,
+				},
+				{
+					Literal:    int64(2),
+					ObjectType: INT,
+				},
+			},
 		},
 	}
 	for _, tt := range tests {

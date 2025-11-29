@@ -18,18 +18,18 @@ type Compiler struct {
 	ast []ast.Node
 	// out
 	code      []uint8
-	constants []int64
+	constants []*Object
 }
 
 func New(ast []ast.Node) *Compiler {
 	return &Compiler{
 		ast:       ast,
 		code:      []uint8{},
-		constants: []int64{},
+		constants: []*Object{},
 	}
 }
 
-func (c *Compiler) Compile() ([]uint8, []int64, error) {
+func (c *Compiler) Compile() ([]uint8, []*Object, error) {
 	for _, node := range c.ast {
 		err := c.compile(node)
 		if err != nil {
@@ -44,7 +44,19 @@ func (c *Compiler) compile(node ast.Node) error {
 	case *ast.Literal:
 		switch value := _node.Value.(type) {
 		case int64:
-			index := c.constantAdd(value)
+			obj := &Object{
+				Literal:    value,
+				ObjectType: INT,
+			}
+			index := c.constantAdd(obj)
+			c.codeEmit(OP_CONSTANT, index)
+			return nil
+		case float64:
+			obj := &Object{
+				Literal:    value,
+				ObjectType: FLOAT,
+			}
+			index := c.constantAdd(obj)
 			c.codeEmit(OP_CONSTANT, index)
 			return nil
 		default:
@@ -133,7 +145,7 @@ func (c *Compiler) codeMake(op byte, operands ...int) []byte {
 }
 
 // constants
-func (c *Compiler) constantAdd(obj int64) int {
+func (c *Compiler) constantAdd(obj *Object) int {
 	c.constants = append(c.constants, obj)
 	index := len(c.constants) - 1
 	return index
