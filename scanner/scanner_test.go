@@ -126,8 +126,8 @@ func TestScanner_ScanTokens(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := New(tt.source)
-			if got := s.ScanTokens(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf(" \n ScanTokens() \n %v \n want \n %v \n", formatTokens(got), formatTokens(tt.want))
+			if got := s.Scan(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf(" \n Scan() \n %v \n want \n %v \n", formatTokens(got), formatTokens(tt.want))
 			}
 		})
 	}

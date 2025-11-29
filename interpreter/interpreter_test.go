@@ -176,7 +176,7 @@ func TestExpr(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := scanner.New(tt.source)
-			tokens := s.ScanTokens()
+			tokens := s.Scan()
 			p := parser.New(tokens)
 			tree, err := p.Expression()
 			if err != nil {
@@ -559,7 +559,7 @@ func TestStmtAndDecl(t *testing.T) {
 			Output = &buf
 
 			s := scanner.New(tt.source)
-			tokens := s.ScanTokens()
+			tokens := s.Scan()
 			p := parser.New(tokens)
 			tree, err := p.Parse()
 			if err != nil {

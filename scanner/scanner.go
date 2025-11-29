@@ -23,17 +23,17 @@ func New(source string) *Scanner {
 	}
 }
 
-func (s *Scanner) ScanTokens() []*token.Token {
+func (s *Scanner) Scan() []*token.Token {
 	for !s.IsAtEnd() {
 		s.start = s.current
-		s.ScanToken()
+		s.scan()
 	}
 	tokenEof := token.New(token.EOF, "", nil, s.line)
 	s.tokens = append(s.tokens, tokenEof)
 	return s.tokens
 }
 
-func (s *Scanner) ScanToken() {
+func (s *Scanner) scan() {
 	char := s.Advance()
 	switch char {
 	case ' ':

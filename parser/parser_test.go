@@ -462,7 +462,7 @@ func TestParser_Expression(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := scanner.New(tt.source)
-			tokens := s.ScanTokens()
+			tokens := s.Scan()
 			p := New(tokens)
 			got, err := p.Expression()
 			if !errors.Is(err, tt.err) {
@@ -647,7 +647,7 @@ func TestParser_statement(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := scanner.New(tt.source)
-			tokens := s.ScanTokens()
+			tokens := s.Scan()
 			p := New(tokens)
 			got, err := p.statement()
 			if !errors.Is(err, tt.err) {
@@ -860,7 +860,7 @@ func TestParser_declaration(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := scanner.New(tt.source)
-			tokens := s.ScanTokens()
+			tokens := s.Scan()
 			p := New(tokens)
 			got, err := p.declaration()
 			if !errors.Is(err, tt.err) {
