@@ -3,6 +3,7 @@ package compiler
 import (
 	"reflect"
 	"stmt/ast"
+	object "stmt/object"
 	"stmt/parser"
 	"stmt/scanner"
 	"testing"
@@ -14,16 +15,18 @@ func TestCompiler_Compile(t *testing.T) {
 		source    string
 		err       error
 		code      []uint8
-		constants []*Object
+		constants []*object.Object
 	}{
 		{
 			name:   "1",
 			source: "1",
 			code:   []uint8{OP_CONSTANT, 0},
-			constants: []*Object{
+			constants: []*object.Object{
 				{
-					Literal:    int64(1),
-					ObjectType: OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -31,10 +34,12 @@ func TestCompiler_Compile(t *testing.T) {
 			name:   "1.2",
 			source: "1.2",
 			code:   []uint8{OP_CONSTANT, 0},
-			constants: []*Object{
+			constants: []*object.Object{
 				{
-					Literal:    1.2,
-					ObjectType: OBJ_FLOAT,
+					Literal: &object.Object_LiteralFloat{
+						LiteralFloat: 1.2,
+					},
+					ObjectType: object.ObjectType_OBJ_FLOAT,
 				},
 			},
 		},
@@ -42,10 +47,12 @@ func TestCompiler_Compile(t *testing.T) {
 			name:   "(1)",
 			source: "(1)",
 			code:   []uint8{OP_CONSTANT, 0},
-			constants: []*Object{
+			constants: []*object.Object{
 				{
-					Literal:    int64(1),
-					ObjectType: OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -56,10 +63,12 @@ func TestCompiler_Compile(t *testing.T) {
 				OP_CONSTANT, 0,
 				OP_NEGATE,
 			},
-			constants: []*Object{
+			constants: []*object.Object{
 				{
-					Literal:    int64(1),
-					ObjectType: OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -71,14 +80,18 @@ func TestCompiler_Compile(t *testing.T) {
 				OP_CONSTANT, 1,
 				OP_ADD,
 			},
-			constants: []*Object{
+			constants: []*object.Object{
 				{
-					Literal:    int64(1),
-					ObjectType: OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
 				},
 				{
-					Literal:    int64(2),
-					ObjectType: OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 2,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -95,11 +108,22 @@ func TestCompiler_Compile(t *testing.T) {
 			}
 			compiler_ := New([]ast.Node{node})
 			code, constants, err := compiler_.Compile()
+			if err != nil {
+				t.Errorf("Compile() err = %v", err)
+				return
+			}
 			if !reflect.DeepEqual(code, tt.code) {
 				t.Errorf("Compile() got = %v, want %v", code, tt.code)
+				return
 			}
 			if !reflect.DeepEqual(constants, tt.constants) {
 				t.Errorf("Compile() got1 = %v, want %v", constants, tt.constants)
+				return
+			}
+			err = compiler_.chunk(tt.name)
+			if err != nil {
+				t.Errorf("chunk() err = %v", err)
+				return
 			}
 		})
 	}

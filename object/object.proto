@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package compiler;
+package Object;
 
 option go_package = "./";
 
@@ -15,4 +15,9 @@ message Object {
     int64 literal_int = 2;
     double literal_float = 3;
   }
+}
+
+message Chunk {
+  bytes code = 1;
+  repeated Object constants = 2;
 }

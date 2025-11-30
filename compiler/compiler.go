@@ -3,8 +3,12 @@ package compiler
 import (
 	"encoding/binary"
 	"errors"
+	"os"
 	"stmt/ast"
+	object "stmt/object"
 	"stmt/token"
+
+	"google.golang.org/protobuf/proto"
 )
 
 var (
@@ -18,18 +22,18 @@ type Compiler struct {
 	ast []ast.Node
 	// out
 	code      []uint8
-	constants []*Object
+	constants []*object.Object
 }
 
 func New(ast []ast.Node) *Compiler {
 	return &Compiler{
 		ast:       ast,
 		code:      []uint8{},
-		constants: []*Object{},
+		constants: []*object.Object{},
 	}
 }
 
-func (c *Compiler) Compile() ([]uint8, []*Object, error) {
+func (c *Compiler) Compile() ([]uint8, []*object.Object, error) {
 	for _, node := range c.ast {
 		err := c.compile(node)
 		if err != nil {
@@ -44,17 +48,21 @@ func (c *Compiler) compile(node ast.Node) error {
 	case *ast.Literal:
 		switch value := _node.Value.(type) {
 		case int64:
-			obj := &Object{
-				Literal:    value,
-				ObjectType: OBJ_INT,
+			obj := &object.Object{
+				Literal: &object.Object_LiteralInt{
+					LiteralInt: value,
+				},
+				ObjectType: object.ObjectType_OBJ_INT,
 			}
 			index := c.constantAdd(obj)
 			c.codeEmit(OP_CONSTANT, index)
 			return nil
 		case float64:
-			obj := &Object{
-				Literal:    value,
-				ObjectType: OBJ_FLOAT,
+			obj := &object.Object{
+				Literal: &object.Object_LiteralFloat{
+					LiteralFloat: value,
+				},
+				ObjectType: object.ObjectType_OBJ_FLOAT,
 			}
 			index := c.constantAdd(obj)
 			c.codeEmit(OP_CONSTANT, index)
@@ -145,8 +153,30 @@ func (c *Compiler) codeMake(op byte, operands ...int) []byte {
 }
 
 // constants
-func (c *Compiler) constantAdd(obj *Object) int {
+func (c *Compiler) constantAdd(obj *object.Object) int {
 	c.constants = append(c.constants, obj)
 	index := len(c.constants) - 1
 	return index
+}
+
+// chunk
+func (c *Compiler) chunk(name string) error {
+	chunk := &object.Chunk{
+		Code:      c.code,
+		Constants: c.constants,
+	}
+
+	row, err := proto.Marshal(chunk)
+	if err != nil {
+		return err
+	}
+
+	path := "../vm/vm/" + name + ".bin"
+
+	err = os.WriteFile(path, row, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
