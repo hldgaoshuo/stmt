@@ -46,7 +46,7 @@ func (c *Compiler) compile(node ast.Node) error {
 		case int64:
 			obj := &Object{
 				Literal:    value,
-				ObjectType: INT,
+				ObjectType: OBJ_INT,
 			}
 			index := c.constantAdd(obj)
 			c.codeEmit(OP_CONSTANT, index)
@@ -54,7 +54,7 @@ func (c *Compiler) compile(node ast.Node) error {
 		case float64:
 			obj := &Object{
 				Literal:    value,
-				ObjectType: FLOAT,
+				ObjectType: OBJ_FLOAT,
 			}
 			index := c.constantAdd(obj)
 			c.codeEmit(OP_CONSTANT, index)

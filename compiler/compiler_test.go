@@ -23,7 +23,7 @@ func TestCompiler_Compile(t *testing.T) {
 			constants: []*Object{
 				{
 					Literal:    int64(1),
-					ObjectType: INT,
+					ObjectType: OBJ_INT,
 				},
 			},
 		},
@@ -34,7 +34,7 @@ func TestCompiler_Compile(t *testing.T) {
 			constants: []*Object{
 				{
 					Literal:    1.2,
-					ObjectType: FLOAT,
+					ObjectType: OBJ_FLOAT,
 				},
 			},
 		},
@@ -45,7 +45,7 @@ func TestCompiler_Compile(t *testing.T) {
 			constants: []*Object{
 				{
 					Literal:    int64(1),
-					ObjectType: INT,
+					ObjectType: OBJ_INT,
 				},
 			},
 		},
@@ -59,7 +59,7 @@ func TestCompiler_Compile(t *testing.T) {
 			constants: []*Object{
 				{
 					Literal:    int64(1),
-					ObjectType: INT,
+					ObjectType: OBJ_INT,
 				},
 			},
 		},
@@ -74,11 +74,11 @@ func TestCompiler_Compile(t *testing.T) {
 			constants: []*Object{
 				{
 					Literal:    int64(1),
-					ObjectType: INT,
+					ObjectType: OBJ_INT,
 				},
 				{
 					Literal:    int64(2),
-					ObjectType: INT,
+					ObjectType: OBJ_INT,
 				},
 			},
 		},

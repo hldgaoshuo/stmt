@@ -12,11 +12,11 @@ func Test_objectsEmit(t *testing.T) {
 			objects: []*Object{
 				{
 					Literal:    int64(1),
-					ObjectType: INT,
+					ObjectType: OBJ_INT,
 				},
 				{
 					Literal:    int64(2),
-					ObjectType: INT,
+					ObjectType: OBJ_INT,
 				},
 			},
 		},
