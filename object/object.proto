@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package compiler;
+
+option go_package = "./";
+
+enum ObjectType {
+  OBJ_INT = 0;
+  OBJ_FLOAT = 1;
+}
+
+message Object {
+  ObjectType object_type = 1;
+  oneof literal {
+    int64 literal_int = 2;
+    double literal_float = 3;
+  }
+}
