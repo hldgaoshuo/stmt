@@ -37,7 +37,7 @@ enum class Error {
 
 class VM {
 public:
-    explicit VM(const Object::Chunk& chunk);
+    explicit VM(Object::Chunk* chunk);
 
     // code
     std::vector<uint8_t> code;
@@ -46,16 +46,16 @@ public:
     uint8_t code_next();
 
     // constants
-    std::vector<Object::Object> constants;
-    void _constant_add(const Object::Object& value);
-    Object::Object constant_get(uint8_t index);
+    std::vector<Object::Object*> constants;
+    void _constant_add(Object::Object* value);
+    Object::Object* constant_get(uint8_t index) const;
 
     // stack
-    std::vector<Object::Object> stack;
-    void stack_push(const Object::Object& value);
-    Object::Object stack_pop();
+    std::vector<Object::Object*> stack;
+    void stack_push(Object::Object* value);
+    Object::Object* stack_pop();
 
-    std::pair<Object::Object, Error> run();
+    std::pair<Object::Object*, Error> run();
 };
 
 #endif //VM2_VM_H

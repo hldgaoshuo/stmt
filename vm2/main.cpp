@@ -4,12 +4,12 @@
 #include "vm.h"
 
 static bool test_literal_int() {
-    Object::Chunk chunk;
+    const auto chunk = new Object::Chunk();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
-    chunk.set_code(code);
+    chunk->set_code(code);
 
-    const auto c1 = chunk.add_constants();
+    const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
 
     VM vm(chunk);
@@ -17,22 +17,22 @@ static bool test_literal_int() {
     if (err != Error::SUCCESS) {
         return false;
     }
-    if (!result.has_literal_int()) {
+    if (!result->has_literal_int()) {
         return false;
     }
-    if (result.literal_int() != 1) {
+    if (result->literal_int() != 1) {
         return false;
     }
     return true;
 }
 
 static bool test_literal_float() {
-    Object::Chunk chunk;
+    const auto chunk = new Object::Chunk();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
-    chunk.set_code(code);
+    chunk->set_code(code);
 
-    const auto c1 = chunk.add_constants();
+    const auto c1 = chunk->add_constants();
     c1->set_literal_float(1.5);
 
     VM vm(chunk);
@@ -40,23 +40,23 @@ static bool test_literal_float() {
     if (err != Error::SUCCESS) {
         return false;
     }
-    if (!result.has_literal_float()) {
+    if (!result->has_literal_float()) {
         return false;
     }
-    if (result.literal_float() != 1.5) {
+    if (result->literal_float() != 1.5) {
         return false;
     }
     return true;
 }
 
 static bool test_negate() {
-    Object::Chunk chunk;
+    const auto chunk = new Object::Chunk();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_NEGATE);
-    chunk.set_code(code);
+    chunk->set_code(code);
 
-    const auto c1 = chunk.add_constants();
+    const auto c1 = chunk->add_constants();
     c1->set_literal_int(5);
 
     VM vm(chunk);
@@ -64,26 +64,26 @@ static bool test_negate() {
     if (err != Error::SUCCESS) {
         return false;
     }
-    if (!result.has_literal_int()) {
+    if (!result->has_literal_int()) {
         return false;
     }
-    if (result.literal_int() != -5) {
+    if (result->literal_int() != -5) {
         return false;
     }
     return true;
 }
 
 static bool test_add() {
-    Object::Chunk chunk;
+    const auto chunk = new Object::Chunk();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_ADD);
-    chunk.set_code(code);
+    chunk->set_code(code);
 
-    const auto c1 = chunk.add_constants();
+    const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
-    const auto c2 = chunk.add_constants();
+    const auto c2 = chunk->add_constants();
     c2->set_literal_int(2);
 
     VM vm(chunk);
@@ -91,83 +91,83 @@ static bool test_add() {
     if (err != Error::SUCCESS) {
         return false;
     }
-    if (!result.has_literal_int()) {
+    if (!result->has_literal_int()) {
         return false;
     }
-    if (result.literal_int() != 3) {
+    if (result->literal_int() != 3) {
         return false;
     }
     return true;
 }
 
 static bool test_literal_true() {
-    Object::Chunk chunk;
+    const auto chunk = new Object::Chunk();
     std::string code;
     code.push_back(OP_TRUE);
-    chunk.set_code(code);
+    chunk->set_code(code);
 
     VM vm(chunk);
     auto [result, err] = vm.run();
     if (err != Error::SUCCESS) {
         return false;
     }
-    if (!result.has_literal_bool()) {
+    if (!result->has_literal_bool()) {
         return false;
     }
-    if (result.literal_bool() != true) {
+    if (result->literal_bool() != true) {
         return false;
     }
     return true;
 }
 
 static bool test_literal_false() {
-    Object::Chunk chunk;
+    const auto chunk = new Object::Chunk();
     std::string code;
     code.push_back(OP_FALSE);
-    chunk.set_code(code);
+    chunk->set_code(code);
 
     VM vm(chunk);
     auto [result, err] = vm.run();
     if (err != Error::SUCCESS) {
         return false;
     }
-    if (!result.has_literal_bool()) {
+    if (!result->has_literal_bool()) {
         return false;
     }
-    if (result.literal_bool() != false) {
+    if (result->literal_bool() != false) {
         return false;
     }
     return true;
 }
 
 static bool test_literal_nil() {
-    Object::Chunk chunk;
+    const auto chunk = new Object::Chunk();
     std::string code;
     code.push_back(OP_NIL);
-    chunk.set_code(code);
+    chunk->set_code(code);
 
     VM vm(chunk);
     auto [result, err] = vm.run();
     if (err != Error::SUCCESS) {
         return false;
     }
-    if (!result.has_literal_nil()) {
+    if (!result->has_literal_nil()) {
         return false;
     }
-    if (result.literal_nil() != "") {
+    if (result->literal_nil() != "") {
         return false;
     }
     return true;
 }
 
 static bool test_not() {
-    Object::Chunk chunk;
+    const auto chunk = new Object::Chunk();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_NOT);
-    chunk.set_code(code);
+    chunk->set_code(code);
 
-    const auto c1 = chunk.add_constants();
+    const auto c1 = chunk->add_constants();
     c1->set_literal_bool(true);
 
     VM vm(chunk);
@@ -175,26 +175,26 @@ static bool test_not() {
     if (err != Error::SUCCESS) {
         return false;
     }
-    if (!result.has_literal_bool()) {
+    if (!result->has_literal_bool()) {
         return false;
     }
-    if (result.literal_bool() != false) {
+    if (result->literal_bool() != false) {
         return false;
     }
     return true;
 }
 
 static bool test_eq() {
-    Object::Chunk chunk;
+    const auto chunk = new Object::Chunk();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_EQ);
-    chunk.set_code(code);
+    chunk->set_code(code);
 
-    const auto c1 = chunk.add_constants();
+    const auto c1 = chunk->add_constants();
     c1->set_literal_bool(true);
-    const auto c2 = chunk.add_constants();
+    const auto c2 = chunk->add_constants();
     c2->set_literal_bool(true);
 
     VM vm(chunk);
@@ -202,26 +202,26 @@ static bool test_eq() {
     if (err != Error::SUCCESS) {
         return false;
     }
-    if (!result.has_literal_bool()) {
+    if (!result->has_literal_bool()) {
         return false;
     }
-    if (result.literal_bool() != true) {
+    if (result->literal_bool() != true) {
         return false;
     }
     return true;
 }
 
 static bool test_gt() {
-    Object::Chunk chunk;
+    const auto chunk = new Object::Chunk();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_GT);
-    chunk.set_code(code);
+    chunk->set_code(code);
 
-    const auto c1 = chunk.add_constants();
+    const auto c1 = chunk->add_constants();
     c1->set_literal_int(2);
-    const auto c2 = chunk.add_constants();
+    const auto c2 = chunk->add_constants();
     c2->set_literal_int(1);
 
     VM vm(chunk);
@@ -229,10 +229,10 @@ static bool test_gt() {
     if (err != Error::SUCCESS) {
         return false;
     }
-    if (!result.has_literal_bool()) {
+    if (!result->has_literal_bool()) {
         return false;
     }
-    if (result.literal_bool() != true) {
+    if (result->literal_bool() != true) {
         return false;
     }
     return true;

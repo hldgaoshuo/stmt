@@ -122,6 +122,29 @@ func TestCompiler_Compile(t *testing.T) {
 			},
 			constants: []*object.Object{},
 		},
+		{
+			name:   "1<2",
+			source: "1<2",
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_CONSTANT, 1,
+				OP_LT,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 2,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

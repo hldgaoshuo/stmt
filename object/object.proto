@@ -11,6 +11,7 @@ enum ObjectType {
   OBJ_FLOAT = 1;
   OBJ_BOOL = 2;
   OBJ_NIL = 3;
+  OBJ_STRING = 4;
 }
 
 message Object {
@@ -20,6 +21,7 @@ message Object {
     double literal_float = 3;
     bool literal_bool = 4;
     string literal_nil = 5;
+    string literal_string = 6;
   }
 }
 
