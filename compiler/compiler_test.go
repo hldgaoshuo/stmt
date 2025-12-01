@@ -113,6 +113,15 @@ func TestCompiler_Compile(t *testing.T) {
 			code:      []uint8{OP_NIL},
 			constants: []*object.Object{},
 		},
+		{
+			name:   "!true",
+			source: "!true",
+			code: []uint8{
+				OP_TRUE,
+				OP_NOT,
+			},
+			constants: []*object.Object{},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

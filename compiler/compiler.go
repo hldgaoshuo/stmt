@@ -95,6 +95,9 @@ func (c *Compiler) compile(node ast.Node) error {
 		case token.MINUS:
 			c.codeEmit(OP_NEGATE)
 			return nil
+		case token.BANG:
+			c.codeEmit(OP_NOT)
+			return nil
 		default:
 			return ErrInvalidOperatorType
 		}
@@ -119,6 +122,24 @@ func (c *Compiler) compile(node ast.Node) error {
 			return nil
 		case token.SLASH:
 			c.codeEmit(OP_DIVIDE)
+			return nil
+		case token.PERCENTAGE:
+			c.codeEmit(OP_MODULO)
+			return nil
+		case token.GREATER:
+			c.codeEmit(OP_GT)
+			return nil
+		case token.LESS:
+			c.codeEmit(OP_LT)
+			return nil
+		case token.EQUAL_EQUAL:
+			c.codeEmit(OP_EQ)
+			return nil
+		case token.GREATER_EQUAL:
+			c.codeEmit(OP_GE)
+			return nil
+		case token.LESS_EQUAL:
+			c.codeEmit(OP_LE)
 			return nil
 		default:
 			return ErrInvalidOperatorType

@@ -3,6 +3,7 @@
 //
 
 #include "vm.h"
+#include <cmath>
 #include <fmt/core.h>
 
 VM::VM(const Object::Chunk& chunk) {
@@ -62,7 +63,7 @@ std::pair<Object::Object, Error> VM::run() {
                     result.set_literal_float(-value.literal_float());
                 }
                 else {
-                    fmt::print("Invalid operand for NEGATE\n");
+                    fmt::print("Invalid operand for OP_NEGATE\n");
                     return {{}, Error::ERROR};
                 }
                 stack_push(result);
@@ -79,7 +80,7 @@ std::pair<Object::Object, Error> VM::run() {
                     result.set_literal_float(a.literal_float() + b.literal_float());
                 }
                 else {
-                    fmt::print("Invalid operands for ADD\n");
+                    fmt::print("Invalid operands for OP_ADD\n");
                     return {{}, Error::ERROR};
                 }
                 stack_push(result);
@@ -96,7 +97,7 @@ std::pair<Object::Object, Error> VM::run() {
                     result.set_literal_float(a.literal_float() - b.literal_float());
                 }
                 else {
-                    fmt::print("Invalid operands for SUBTRACT\n");
+                    fmt::print("Invalid operands for OP_SUBTRACT\n");
                     return {{}, Error::ERROR};
                 }
                 stack_push(result);
@@ -113,7 +114,7 @@ std::pair<Object::Object, Error> VM::run() {
                     result.set_literal_float(a.literal_float() * b.literal_float());
                 }
                 else {
-                    fmt::print("Invalid operands for MULTIPLY\n");
+                    fmt::print("Invalid operands for OP_MULTIPLY\n");
                     return {{}, Error::ERROR};
                 }
                 stack_push(result);
@@ -130,7 +131,24 @@ std::pair<Object::Object, Error> VM::run() {
                     result.set_literal_float(a.literal_float() / b.literal_float());
                 }
                 else {
-                    fmt::print("Invalid operands for DIVIDE\n");
+                    fmt::print("Invalid operands for OP_DIVIDE\n");
+                    return {{}, Error::ERROR};
+                }
+                stack_push(result);
+                break;
+            }
+            case OP_MODULO: {
+                Object::Object b = stack_pop();
+                Object::Object a = stack_pop();
+                Object::Object result;
+                if (a.has_literal_int() && b.has_literal_int()) {
+                    result.set_literal_int(a.literal_int() % b.literal_int());
+                }
+                else if (a.has_literal_float() && b.has_literal_float()) {
+                    result.set_literal_float(fmod(a.literal_float(), b.literal_float()));
+                }
+                else {
+                    fmt::print("Invalid operands for OP_MODULO\n");
                     return {{}, Error::ERROR};
                 }
                 stack_push(result);
@@ -151,6 +169,111 @@ std::pair<Object::Object, Error> VM::run() {
             case OP_NIL: {
                 Object::Object result;
                 result.set_literal_nil("");
+                stack_push(result);
+                break;
+            }
+            case OP_NOT: {
+                Object::Object value = stack_pop();
+                Object::Object result;
+                if (value.has_literal_bool()) {
+                    result.set_literal_bool(!value.literal_bool());
+                }
+                else {
+                    fmt::print("Invalid operand for OP_NOT\n");
+                    return {{}, Error::ERROR};
+                }
+                stack_push(result);
+                break;
+            }
+            case OP_EQ: {
+                Object::Object b = stack_pop();
+                Object::Object a = stack_pop();
+                Object::Object result;
+                if (a.has_literal_int() && b.has_literal_int()) {
+                    result.set_literal_bool(a.literal_int() == b.literal_int());
+                }
+                else if (a.has_literal_float() && b.has_literal_float()) {
+                    result.set_literal_bool(a.literal_float() == b.literal_float());
+                }
+                else if (a.has_literal_bool() && b.has_literal_bool()) {
+                    result.set_literal_bool(a.literal_bool() == b.literal_bool());
+                }
+                else if (a.has_literal_nil() && b.has_literal_nil()) {
+                    result.set_literal_bool(true);
+
+                }
+                else {
+                    fmt::print("Invalid operands for OP_EQ\n");
+                    return {{}, Error::ERROR};
+                }
+                stack_push(result);
+                break;
+            }
+            case OP_GT: {
+                Object::Object b = stack_pop();
+                Object::Object a = stack_pop();
+                Object::Object result;
+                if (a.has_literal_int() && b.has_literal_int()) {
+                    result.set_literal_bool(a.literal_int() > b.literal_int());
+                }
+                else if (a.has_literal_float() && b.has_literal_float()) {
+                    result.set_literal_bool(a.literal_float() > b.literal_float());
+                }
+                else {
+                    fmt::print("Invalid operands for OP_GT\n");
+                    return {{}, Error::ERROR};
+                }
+                stack_push(result);
+                break;
+            }
+            case OP_LT: {
+                Object::Object b = stack_pop();
+                Object::Object a = stack_pop();
+                Object::Object result;
+                if (a.has_literal_int() && b.has_literal_int()) {
+                    result.set_literal_bool(a.literal_int() < b.literal_int());
+                }
+                else if (a.has_literal_float() && b.has_literal_float()) {
+                    result.set_literal_bool(a.literal_float() < b.literal_float());
+                }
+                else {
+                    fmt::print("Invalid operands for OP_LT\n");
+                    return {{}, Error::ERROR};
+                }
+                stack_push(result);
+                break;
+            }
+            case OP_GE: {
+                Object::Object b = stack_pop();
+                Object::Object a = stack_pop();
+                Object::Object result;
+                if (a.has_literal_int() && b.has_literal_int()) {
+                    result.set_literal_bool(a.literal_int() >= b.literal_int());
+                }
+                else if (a.has_literal_float() && b.has_literal_float()) {
+                    result.set_literal_bool(a.literal_float() >= b.literal_float());
+                }
+                else {
+                    fmt::print("Invalid operands for OP_GE\n");
+                    return {{}, Error::ERROR};
+                }
+                stack_push(result);
+                break;
+            }
+            case OP_LE: {
+                Object::Object b = stack_pop();
+                Object::Object a = stack_pop();
+                Object::Object result;
+                if (a.has_literal_int() && b.has_literal_int()) {
+                    result.set_literal_bool(a.literal_int() <= b.literal_int());
+                }
+                else if (a.has_literal_float() && b.has_literal_float()) {
+                    result.set_literal_bool(a.literal_float() <= b.literal_float());
+                }
+                else {
+                    fmt::print("Invalid operands for OP_LE\n");
+                    return {{}, Error::ERROR};
+                }
                 stack_push(result);
                 break;
             }

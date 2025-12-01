@@ -18,9 +18,16 @@ typedef enum {
     OP_SUBTRACT,
     OP_MULTIPLY,
     OP_DIVIDE,
+    OP_MODULO,
     OP_TRUE,
     OP_FALSE,
     OP_NIL,
+    OP_NOT,
+    OP_EQ,
+    OP_GT,
+    OP_LT,
+    OP_GE,
+    OP_LE,
 } OpCode;
 
 enum class Error {
