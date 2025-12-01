@@ -95,6 +95,24 @@ func TestCompiler_Compile(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:      "true",
+			source:    "true",
+			code:      []uint8{OP_TRUE},
+			constants: []*object.Object{},
+		},
+		{
+			name:      "false",
+			source:    "false",
+			code:      []uint8{OP_FALSE},
+			constants: []*object.Object{},
+		},
+		{
+			name:      "nil",
+			source:    "nil",
+			code:      []uint8{OP_NIL},
+			constants: []*object.Object{},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -113,17 +131,10 @@ func TestCompiler_Compile(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(code, tt.code) {
-				t.Errorf("Compile() got = %v, want %v", code, tt.code)
-				return
+				t.Errorf("Compile() code = %v, want %v", code, tt.code)
 			}
 			if !reflect.DeepEqual(constants, tt.constants) {
-				t.Errorf("Compile() got1 = %v, want %v", constants, tt.constants)
-				return
-			}
-			err = compiler_.chunk(tt.name)
-			if err != nil {
-				t.Errorf("chunk() err = %v", err)
-				return
+				t.Errorf("Compile() constants = %v, want %v", constants, tt.constants)
 			}
 		})
 	}

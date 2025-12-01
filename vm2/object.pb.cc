@@ -98,6 +98,8 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::Object::Object, _impl_.object_type_),
         ::_pbi::kInvalidFieldOffsetTag,
         ::_pbi::kInvalidFieldOffsetTag,
+        ::_pbi::kInvalidFieldOffsetTag,
+        ::_pbi::kInvalidFieldOffsetTag,
         PROTOBUF_FIELD_OFFSET(::Object::Object, _impl_.literal_),
         ~0u,  // no _has_bits_
         PROTOBUF_FIELD_OFFSET(::Object::Chunk, _internal_metadata_),
@@ -114,7 +116,7 @@ const ::uint32_t
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
         {0, -1, -1, sizeof(::Object::Object)},
-        {12, -1, -1, sizeof(::Object::Chunk)},
+        {14, -1, -1, sizeof(::Object::Chunk)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::Object::_Object_default_instance_._instance,
@@ -122,19 +124,21 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 const char descriptor_table_protodef_object_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\014object.proto\022\006Object\"l\n\006Object\022\'\n\013obje"
-    "ct_type\030\001 \001(\0162\022.Object.ObjectType\022\025\n\013lit"
-    "eral_int\030\002 \001(\003H\000\022\027\n\rliteral_float\030\003 \001(\001H"
-    "\000B\t\n\007literal\"8\n\005Chunk\022\014\n\004code\030\001 \001(\014\022!\n\tc"
-    "onstants\030\002 \003(\0132\016.Object.Object*(\n\nObject"
-    "Type\022\013\n\007OBJ_INT\020\000\022\r\n\tOBJ_FLOAT\020\001B\004Z\002./b\006"
-    "proto3"
+    "\n\014object.proto\022\006Object\"\233\001\n\006Object\022\'\n\013obj"
+    "ect_type\030\001 \001(\0162\022.Object.ObjectType\022\025\n\013li"
+    "teral_int\030\002 \001(\003H\000\022\027\n\rliteral_float\030\003 \001(\001"
+    "H\000\022\026\n\014literal_bool\030\004 \001(\010H\000\022\025\n\013literal_ni"
+    "l\030\005 \001(\tH\000B\t\n\007literal\"8\n\005Chunk\022\014\n\004code\030\001 "
+    "\001(\014\022!\n\tconstants\030\002 \003(\0132\016.Object.Object*C"
+    "\n\nObjectType\022\013\n\007OBJ_INT\020\000\022\r\n\tOBJ_FLOAT\020\001"
+    "\022\014\n\010OBJ_BOOL\020\002\022\013\n\007OBJ_NIL\020\003B\004Z\002./b\006proto"
+    "3"
 };
 static ::absl::once_flag descriptor_table_object_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_object_2eproto = {
     false,
     false,
-    246,
+    321,
     descriptor_table_protodef_object_2eproto,
     "object.proto",
     &descriptor_table_object_2eproto_once,
@@ -153,9 +157,9 @@ const ::google::protobuf::EnumDescriptor* ObjectType_descriptor() {
   return file_level_enum_descriptors_object_2eproto[0];
 }
 PROTOBUF_CONSTINIT const uint32_t ObjectType_internal_data_[] = {
-    131072u, 0u, };
+    262144u, 0u, };
 bool ObjectType_IsValid(int value) {
-  return 0 <= value && value <= 1;
+  return 0 <= value && value <= 3;
 }
 // ===================================================================
 
@@ -204,6 +208,12 @@ Object::Object(
       case kLiteralFloat:
         _impl_.literal_.literal_float_ = from._impl_.literal_.literal_float_;
         break;
+      case kLiteralBool:
+        _impl_.literal_.literal_bool_ = from._impl_.literal_.literal_bool_;
+        break;
+      case kLiteralNil:
+        new (&_impl_.literal_.literal_nil_) decltype(_impl_.literal_.literal_nil_){arena, from._impl_.literal_.literal_nil_};
+        break;
   }
 
   // @@protoc_insertion_point(copy_constructor:Object.Object)
@@ -243,6 +253,14 @@ void Object::clear_literal() {
     }
     case kLiteralFloat: {
       // No need to clear
+      break;
+    }
+    case kLiteralBool: {
+      // No need to clear
+      break;
+    }
+    case kLiteralNil: {
+      _impl_.literal_.literal_nil_.Destroy();
       break;
     }
     case LITERAL_NOT_SET: {
@@ -289,15 +307,15 @@ const ::google::protobuf::internal::ClassData* Object::GetClassData() const {
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 3, 0, 0, 2> Object::_table_ = {
+const ::_pbi::TcParseTable<0, 5, 0, 33, 2> Object::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    3, 0,  // max_field_number, fast_idx_mask
+    5, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967288,  // skipmap
+    4294967264,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    3,  // num_field_entries
+    5,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     _class_data_.base(),
@@ -322,9 +340,18 @@ const ::_pbi::TcParseTable<0, 3, 0, 0, 2> Object::_table_ = {
     // double literal_float = 3;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_float_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kDouble)},
+    // bool literal_bool = 4;
+    {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_bool_), _Internal::kOneofCaseOffset + 0, 0,
+    (0 | ::_fl::kFcOneof | ::_fl::kBool)},
+    // string literal_nil = 5;
+    {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_nil_), _Internal::kOneofCaseOffset + 0, 0,
+    (0 | ::_fl::kFcOneof | ::_fl::kUtf8String | ::_fl::kRepAString)},
   }},
   // no aux_entries
   {{
+    "\15\0\0\0\0\13\0\0"
+    "Object.Object"
+    "literal_nil"
   }},
 };
 
@@ -375,6 +402,19 @@ PROTOBUF_NOINLINE void Object::Clear() {
                   3, this_._internal_literal_float(), target);
               break;
             }
+            case kLiteralBool: {
+              target = stream->EnsureSpace(target);
+              target = ::_pbi::WireFormatLite::WriteBoolToArray(
+                  4, this_._internal_literal_bool(), target);
+              break;
+            }
+            case kLiteralNil: {
+              const std::string& _s = this_._internal_literal_nil();
+              ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+                  _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "Object.Object.literal_nil");
+              target = stream->WriteStringMaybeAliased(5, _s, target);
+              break;
+            }
             default:
               break;
           }
@@ -420,6 +460,17 @@ PROTOBUF_NOINLINE void Object::Clear() {
               total_size += 9;
               break;
             }
+            // bool literal_bool = 4;
+            case kLiteralBool: {
+              total_size += 2;
+              break;
+            }
+            // string literal_nil = 5;
+            case kLiteralNil: {
+              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                              this_._internal_literal_nil());
+              break;
+            }
             case LITERAL_NOT_SET: {
               break;
             }
@@ -431,6 +482,7 @@ PROTOBUF_NOINLINE void Object::Clear() {
 void Object::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<Object*>(&to_msg);
   auto& from = static_cast<const Object&>(from_msg);
+  ::google::protobuf::Arena* arena = _this->GetArena();
   // @@protoc_insertion_point(class_specific_merge_from_start:Object.Object)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
@@ -456,6 +508,17 @@ void Object::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::
       }
       case kLiteralFloat: {
         _this->_impl_.literal_.literal_float_ = from._impl_.literal_.literal_float_;
+        break;
+      }
+      case kLiteralBool: {
+        _this->_impl_.literal_.literal_bool_ = from._impl_.literal_.literal_bool_;
+        break;
+      }
+      case kLiteralNil: {
+        if (oneof_needs_init) {
+          _this->_impl_.literal_.literal_nil_.InitDefault();
+        }
+        _this->_impl_.literal_.literal_nil_.Set(from._internal_literal_nil(), arena);
         break;
       }
       case LITERAL_NOT_SET:

@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <utility>
 #include "object.pb.h"
 
 typedef enum {
@@ -17,7 +18,15 @@ typedef enum {
     OP_SUBTRACT,
     OP_MULTIPLY,
     OP_DIVIDE,
+    OP_TRUE,
+    OP_FALSE,
+    OP_NIL,
 } OpCode;
+
+enum class Error {
+    SUCCESS = 0,
+    ERROR = 1,
+};
 
 class VM {
 public:
@@ -39,7 +48,7 @@ public:
     void stack_push(const Object::Object& value);
     Object::Object stack_pop();
 
-    Object::Object run();
+    std::pair<Object::Object, Error> run();
 };
 
 #endif //VM2_VM_H

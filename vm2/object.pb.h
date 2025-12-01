@@ -69,6 +69,8 @@ namespace Object {
 enum ObjectType : int {
   OBJ_INT = 0,
   OBJ_FLOAT = 1,
+  OBJ_BOOL = 2,
+  OBJ_NIL = 3,
   ObjectType_INT_MIN_SENTINEL_DO_NOT_USE_ =
       std::numeric_limits<::int32_t>::min(),
   ObjectType_INT_MAX_SENTINEL_DO_NOT_USE_ =
@@ -78,8 +80,8 @@ enum ObjectType : int {
 bool ObjectType_IsValid(int value);
 extern const uint32_t ObjectType_internal_data_[];
 constexpr ObjectType ObjectType_MIN = static_cast<ObjectType>(0);
-constexpr ObjectType ObjectType_MAX = static_cast<ObjectType>(1);
-constexpr int ObjectType_ARRAYSIZE = 1 + 1;
+constexpr ObjectType ObjectType_MAX = static_cast<ObjectType>(3);
+constexpr int ObjectType_ARRAYSIZE = 3 + 1;
 const ::google::protobuf::EnumDescriptor*
 ObjectType_descriptor();
 template <typename T>
@@ -92,7 +94,7 @@ const std::string& ObjectType_Name(T value) {
 template <>
 inline const std::string& ObjectType_Name(ObjectType value) {
   return ::google::protobuf::internal::NameOfDenseEnum<ObjectType_descriptor,
-                                                 0, 1>(
+                                                 0, 3>(
       static_cast<int>(value));
 }
 inline bool ObjectType_Parse(absl::string_view name, ObjectType* value) {
@@ -163,6 +165,8 @@ class Object final : public ::google::protobuf::Message
   enum LiteralCase {
     kLiteralInt = 2,
     kLiteralFloat = 3,
+    kLiteralBool = 4,
+    kLiteralNil = 5,
     LITERAL_NOT_SET = 0,
   };
   static inline const Object* internal_default_instance() {
@@ -259,6 +263,8 @@ class Object final : public ::google::protobuf::Message
     kObjectTypeFieldNumber = 1,
     kLiteralIntFieldNumber = 2,
     kLiteralFloatFieldNumber = 3,
+    kLiteralBoolFieldNumber = 4,
+    kLiteralNilFieldNumber = 5,
   };
   // .Object.ObjectType object_type = 1;
   void clear_object_type() ;
@@ -292,6 +298,34 @@ class Object final : public ::google::protobuf::Message
   void _internal_set_literal_float(double value);
 
   public:
+  // bool literal_bool = 4;
+  bool has_literal_bool() const;
+  void clear_literal_bool() ;
+  bool literal_bool() const;
+  void set_literal_bool(bool value);
+
+  private:
+  bool _internal_literal_bool() const;
+  void _internal_set_literal_bool(bool value);
+
+  public:
+  // string literal_nil = 5;
+  bool has_literal_nil() const;
+  void clear_literal_nil() ;
+  const std::string& literal_nil() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_literal_nil(Arg_&& arg, Args_... args);
+  std::string* mutable_literal_nil();
+  PROTOBUF_NODISCARD std::string* release_literal_nil();
+  void set_allocated_literal_nil(std::string* value);
+
+  private:
+  const std::string& _internal_literal_nil() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_literal_nil(
+      const std::string& value);
+  std::string* _internal_mutable_literal_nil();
+
+  public:
   void clear_literal();
   LiteralCase literal_case() const;
   // @@protoc_insertion_point(class_scope:Object.Object)
@@ -299,12 +333,14 @@ class Object final : public ::google::protobuf::Message
   class _Internal;
   void set_has_literal_int();
   void set_has_literal_float();
+  void set_has_literal_bool();
+  void set_has_literal_nil();
   inline bool has_literal() const;
   inline void clear_has_literal();
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 3, 0,
-      0, 2>
+      0, 5, 0,
+      33, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -327,6 +363,8 @@ class Object final : public ::google::protobuf::Message
       ::google::protobuf::internal::ConstantInitialized _constinit_;
       ::int64_t literal_int_;
       double literal_float_;
+      bool literal_bool_;
+      ::google::protobuf::internal::ArenaStringPtr literal_nil_;
     } literal_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t _oneof_case_[1];
@@ -653,6 +691,124 @@ inline double Object::_internal_literal_float() const {
     return _impl_.literal_.literal_float_;
   }
   return 0;
+}
+
+// bool literal_bool = 4;
+inline bool Object::has_literal_bool() const {
+  return literal_case() == kLiteralBool;
+}
+inline void Object::set_has_literal_bool() {
+  _impl_._oneof_case_[0] = kLiteralBool;
+}
+inline void Object::clear_literal_bool() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (literal_case() == kLiteralBool) {
+    _impl_.literal_.literal_bool_ = false;
+    clear_has_literal();
+  }
+}
+inline bool Object::literal_bool() const {
+  // @@protoc_insertion_point(field_get:Object.Object.literal_bool)
+  return _internal_literal_bool();
+}
+inline void Object::set_literal_bool(bool value) {
+  if (literal_case() != kLiteralBool) {
+    clear_literal();
+    set_has_literal_bool();
+  }
+  _impl_.literal_.literal_bool_ = value;
+  // @@protoc_insertion_point(field_set:Object.Object.literal_bool)
+}
+inline bool Object::_internal_literal_bool() const {
+  if (literal_case() == kLiteralBool) {
+    return _impl_.literal_.literal_bool_;
+  }
+  return false;
+}
+
+// string literal_nil = 5;
+inline bool Object::has_literal_nil() const {
+  return literal_case() == kLiteralNil;
+}
+inline void Object::set_has_literal_nil() {
+  _impl_._oneof_case_[0] = kLiteralNil;
+}
+inline void Object::clear_literal_nil() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (literal_case() == kLiteralNil) {
+    _impl_.literal_.literal_nil_.Destroy();
+    clear_has_literal();
+  }
+}
+inline const std::string& Object::literal_nil() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:Object.Object.literal_nil)
+  return _internal_literal_nil();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void Object::set_literal_nil(Arg_&& arg,
+                                                     Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (literal_case() != kLiteralNil) {
+    clear_literal();
+
+    set_has_literal_nil();
+    _impl_.literal_.literal_nil_.InitDefault();
+  }
+  _impl_.literal_.literal_nil_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:Object.Object.literal_nil)
+}
+inline std::string* Object::mutable_literal_nil() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_literal_nil();
+  // @@protoc_insertion_point(field_mutable:Object.Object.literal_nil)
+  return _s;
+}
+inline const std::string& Object::_internal_literal_nil() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  if (literal_case() != kLiteralNil) {
+    return ::google::protobuf::internal::GetEmptyStringAlreadyInited();
+  }
+  return _impl_.literal_.literal_nil_.Get();
+}
+inline void Object::_internal_set_literal_nil(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (literal_case() != kLiteralNil) {
+    clear_literal();
+
+    set_has_literal_nil();
+    _impl_.literal_.literal_nil_.InitDefault();
+  }
+  _impl_.literal_.literal_nil_.Set(value, GetArena());
+}
+inline std::string* Object::_internal_mutable_literal_nil() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (literal_case() != kLiteralNil) {
+    clear_literal();
+
+    set_has_literal_nil();
+    _impl_.literal_.literal_nil_.InitDefault();
+  }
+  return _impl_.literal_.literal_nil_.Mutable( GetArena());
+}
+inline std::string* Object::release_literal_nil() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:Object.Object.literal_nil)
+  if (literal_case() != kLiteralNil) {
+    return nullptr;
+  }
+  clear_has_literal();
+  return _impl_.literal_.literal_nil_.Release();
+}
+inline void Object::set_allocated_literal_nil(std::string* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (has_literal()) {
+    clear_literal();
+  }
+  if (value != nullptr) {
+    set_has_literal_nil();
+    _impl_.literal_.literal_nil_.InitAllocated(value, GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:Object.Object.literal_nil)
 }
 
 inline bool Object::has_literal() const {

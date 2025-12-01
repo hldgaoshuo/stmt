@@ -8,6 +8,9 @@ const (
 	OP_SUBTRACT
 	OP_MULTIPLY
 	OP_DIVIDE
+	OP_TRUE
+	OP_FALSE
+	OP_NIL
 )
 
 // op 可能有多个操作数
@@ -19,4 +22,7 @@ var operandWidths = map[uint8][]int{
 	OP_SUBTRACT: {},
 	OP_MULTIPLY: {},
 	OP_DIVIDE:   {},
+	OP_TRUE:     {},
+	OP_FALSE:    {},
+	OP_NIL:      {},
 }

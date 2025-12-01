@@ -67,6 +67,16 @@ func (c *Compiler) compile(node ast.Node) error {
 			index := c.constantAdd(obj)
 			c.codeEmit(OP_CONSTANT, index)
 			return nil
+		case bool:
+			if value {
+				c.codeEmit(OP_TRUE)
+			} else {
+				c.codeEmit(OP_FALSE)
+			}
+			return nil
+		case nil:
+			c.codeEmit(OP_NIL)
+			return nil
 		default:
 			return ErrInvalidOperandType
 		}
@@ -171,7 +181,7 @@ func (c *Compiler) chunk(name string) error {
 		return err
 	}
 
-	path := "../vm/vm/" + name + ".bin"
+	path := "../vm2" + name + ".bin"
 
 	err = os.WriteFile(path, row, 0644)
 	if err != nil {

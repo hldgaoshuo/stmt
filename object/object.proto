@@ -4,9 +4,13 @@ package Object;
 
 option go_package = "./";
 
+// todo 目前这个包的代码，既是 IR，也是值系统
+
 enum ObjectType {
   OBJ_INT = 0;
   OBJ_FLOAT = 1;
+  OBJ_BOOL = 2;
+  OBJ_NIL = 3;
 }
 
 message Object {
@@ -14,6 +18,8 @@ message Object {
   oneof literal {
     int64 literal_int = 2;
     double literal_float = 3;
+    bool literal_bool = 4;
+    string literal_nil = 5;
   }
 }
 

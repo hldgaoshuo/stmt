@@ -4,7 +4,7 @@ project(vm2)
 set(CMAKE_CXX_STANDARD 26)
 
 find_package(fmt CONFIG REQUIRED)
-find_package(Protobuf REQUIRED)
+find_package(protobuf REQUIRED)
 
 add_executable(vm2
         main.cpp
