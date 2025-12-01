@@ -24,10 +24,11 @@ const (
 type ObjectType int32
 
 const (
-	ObjectType_OBJ_INT   ObjectType = 0
-	ObjectType_OBJ_FLOAT ObjectType = 1
-	ObjectType_OBJ_BOOL  ObjectType = 2
-	ObjectType_OBJ_NIL   ObjectType = 3
+	ObjectType_OBJ_INT    ObjectType = 0
+	ObjectType_OBJ_FLOAT  ObjectType = 1
+	ObjectType_OBJ_BOOL   ObjectType = 2
+	ObjectType_OBJ_NIL    ObjectType = 3
+	ObjectType_OBJ_STRING ObjectType = 4
 )
 
 // Enum value maps for ObjectType.
@@ -37,12 +38,14 @@ var (
 		1: "OBJ_FLOAT",
 		2: "OBJ_BOOL",
 		3: "OBJ_NIL",
+		4: "OBJ_STRING",
 	}
 	ObjectType_value = map[string]int32{
-		"OBJ_INT":   0,
-		"OBJ_FLOAT": 1,
-		"OBJ_BOOL":  2,
-		"OBJ_NIL":   3,
+		"OBJ_INT":    0,
+		"OBJ_FLOAT":  1,
+		"OBJ_BOOL":   2,
+		"OBJ_NIL":    3,
+		"OBJ_STRING": 4,
 	}
 )
 
@@ -82,6 +85,7 @@ type Object struct {
 	//	*Object_LiteralFloat
 	//	*Object_LiteralBool
 	//	*Object_LiteralNil
+	//	*Object_LiteralString
 	Literal       isObject_Literal `protobuf_oneof:"literal"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -167,6 +171,15 @@ func (x *Object) GetLiteralNil() string {
 	return ""
 }
 
+func (x *Object) GetLiteralString() string {
+	if x != nil {
+		if x, ok := x.Literal.(*Object_LiteralString); ok {
+			return x.LiteralString
+		}
+	}
+	return ""
+}
+
 type isObject_Literal interface {
 	isObject_Literal()
 }
@@ -187,6 +200,10 @@ type Object_LiteralNil struct {
 	LiteralNil string `protobuf:"bytes,5,opt,name=literal_nil,json=literalNil,proto3,oneof"`
 }
 
+type Object_LiteralString struct {
+	LiteralString string `protobuf:"bytes,6,opt,name=literal_string,json=literalString,proto3,oneof"`
+}
+
 func (*Object_LiteralInt) isObject_Literal() {}
 
 func (*Object_LiteralFloat) isObject_Literal() {}
@@ -194,6 +211,8 @@ func (*Object_LiteralFloat) isObject_Literal() {}
 func (*Object_LiteralBool) isObject_Literal() {}
 
 func (*Object_LiteralNil) isObject_Literal() {}
+
+func (*Object_LiteralString) isObject_Literal() {}
 
 type Chunk struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -251,7 +270,7 @@ var File_object_proto protoreflect.FileDescriptor
 
 const file_object_proto_rawDesc = "" +
 	"\n" +
-	"\fobject.proto\x12\x06Object\"\xda\x01\n" +
+	"\fobject.proto\x12\x06Object\"\x83\x02\n" +
 	"\x06Object\x123\n" +
 	"\vobject_type\x18\x01 \x01(\x0e2\x12.Object.ObjectTypeR\n" +
 	"objectType\x12!\n" +
@@ -260,17 +279,20 @@ const file_object_proto_rawDesc = "" +
 	"\rliteral_float\x18\x03 \x01(\x01H\x00R\fliteralFloat\x12#\n" +
 	"\fliteral_bool\x18\x04 \x01(\bH\x00R\vliteralBool\x12!\n" +
 	"\vliteral_nil\x18\x05 \x01(\tH\x00R\n" +
-	"literalNilB\t\n" +
+	"literalNil\x12'\n" +
+	"\x0eliteral_string\x18\x06 \x01(\tH\x00R\rliteralStringB\t\n" +
 	"\aliteral\"I\n" +
 	"\x05Chunk\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\fR\x04code\x12,\n" +
-	"\tconstants\x18\x02 \x03(\v2\x0e.Object.ObjectR\tconstants*C\n" +
+	"\tconstants\x18\x02 \x03(\v2\x0e.Object.ObjectR\tconstants*S\n" +
 	"\n" +
 	"ObjectType\x12\v\n" +
 	"\aOBJ_INT\x10\x00\x12\r\n" +
 	"\tOBJ_FLOAT\x10\x01\x12\f\n" +
 	"\bOBJ_BOOL\x10\x02\x12\v\n" +
-	"\aOBJ_NIL\x10\x03B\x04Z\x02./b\x06proto3"
+	"\aOBJ_NIL\x10\x03\x12\x0e\n" +
+	"\n" +
+	"OBJ_STRING\x10\x04B\x04Z\x02./b\x06proto3"
 
 var (
 	file_object_proto_rawDescOnce sync.Once
@@ -311,6 +333,7 @@ func file_object_proto_init() {
 		(*Object_LiteralFloat)(nil),
 		(*Object_LiteralBool)(nil),
 		(*Object_LiteralNil)(nil),
+		(*Object_LiteralString)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

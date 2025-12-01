@@ -81,6 +81,7 @@ std::pair<Object::Object*, Error> VM::run() {
                 else if (a->has_literal_float() && b->has_literal_float()) {
                     result->set_literal_float(a->literal_float() + b->literal_float());
                 }
+                // todo 还要考虑 int 和 float 混合的场景
                 else {
                     fmt::print("Invalid operands for OP_ADD\n");
                     return {nullptr, Error::ERROR};
