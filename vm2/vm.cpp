@@ -81,7 +81,12 @@ std::pair<Object::Object*, Error> VM::run() {
                 else if (a->has_literal_float() && b->has_literal_float()) {
                     result->set_literal_float(a->literal_float() + b->literal_float());
                 }
-                // todo 还要考虑 int 和 float 混合的场景
+                else if (a->has_literal_int() && b->has_literal_float()) {
+                    result->set_literal_float(static_cast<double>(a->literal_int()) + b->literal_float());
+                }
+                else if (a->has_literal_float() && b->has_literal_int()) {
+                    result->set_literal_float(a->literal_float() + static_cast<double>(b->literal_int()));
+                }
                 else {
                     fmt::print("Invalid operands for OP_ADD\n");
                     return {nullptr, Error::ERROR};
@@ -100,6 +105,12 @@ std::pair<Object::Object*, Error> VM::run() {
                 }
                 else if (a->has_literal_float() && b->has_literal_float()) {
                     result->set_literal_float(a->literal_float() - b->literal_float());
+                }
+                else if (a->has_literal_int() && b->has_literal_float()) {
+                    result->set_literal_float(static_cast<double>(a->literal_int()) - b->literal_float());
+                }
+                else if (a->has_literal_float() && b->has_literal_int()) {
+                    result->set_literal_float(a->literal_float() - static_cast<double>(b->literal_int()));
                 }
                 else {
                     fmt::print("Invalid operands for OP_SUBTRACT\n");
@@ -120,6 +131,12 @@ std::pair<Object::Object*, Error> VM::run() {
                 else if (a->has_literal_float() && b->has_literal_float()) {
                     result->set_literal_float(a->literal_float() * b->literal_float());
                 }
+                else if (a->has_literal_int() && b->has_literal_float()) {
+                    result->set_literal_float(static_cast<double>(a->literal_int()) * b->literal_float());
+                }
+                else if (a->has_literal_float() && b->has_literal_int()) {
+                    result->set_literal_float(a->literal_float() * static_cast<double>(b->literal_int()));
+                }
                 else {
                     fmt::print("Invalid operands for OP_MULTIPLY\n");
                     return {nullptr, Error::ERROR};
@@ -139,6 +156,12 @@ std::pair<Object::Object*, Error> VM::run() {
                 else if (a->has_literal_float() && b->has_literal_float()) {
                     result->set_literal_float(a->literal_float() / b->literal_float());
                 }
+                else if (a->has_literal_int() && b->has_literal_float()) {
+                    result->set_literal_float(static_cast<double>(a->literal_int()) / b->literal_float());
+                }
+                else if (a->has_literal_float() && b->has_literal_int()) {
+                    result->set_literal_float(a->literal_float() / static_cast<double>(b->literal_int()));
+                }
                 else {
                     fmt::print("Invalid operands for OP_DIVIDE\n");
                     return {nullptr, Error::ERROR};
@@ -157,6 +180,12 @@ std::pair<Object::Object*, Error> VM::run() {
                 }
                 else if (a->has_literal_float() && b->has_literal_float()) {
                     result->set_literal_float(fmod(a->literal_float(), b->literal_float()));
+                }
+                else if (a->has_literal_int() && b->has_literal_float()) {
+                    result->set_literal_float(fmod(static_cast<double>(a->literal_int()), b->literal_float()));
+                }
+                else if (a->has_literal_float() && b->has_literal_int()) {
+                    result->set_literal_float(fmod(a->literal_float(), static_cast<double>(b->literal_int())));
                 }
                 else {
                     fmt::print("Invalid operands for OP_MODULO\n");
@@ -209,12 +238,17 @@ std::pair<Object::Object*, Error> VM::run() {
                 else if (a->has_literal_float() && b->has_literal_float()) {
                     result->set_literal_bool(a->literal_float() == b->literal_float());
                 }
+                else if (a->has_literal_int() && b->has_literal_float()) {
+                    result->set_literal_float(static_cast<double>(a->literal_int()) == b->literal_float());
+                }
+                else if (a->has_literal_float() && b->has_literal_int()) {
+                    result->set_literal_float(a->literal_float() == static_cast<double>(b->literal_int()));
+                }
                 else if (a->has_literal_bool() && b->has_literal_bool()) {
                     result->set_literal_bool(a->literal_bool() == b->literal_bool());
                 }
                 else if (a->has_literal_nil() && b->has_literal_nil()) {
                     result->set_literal_bool(true);
-
                 }
                 else {
                     fmt::print("Invalid operands for OP_EQ\n");
@@ -235,6 +269,12 @@ std::pair<Object::Object*, Error> VM::run() {
                 else if (a->has_literal_float() && b->has_literal_float()) {
                     result->set_literal_bool(a->literal_float() > b->literal_float());
                 }
+                else if (a->has_literal_int() && b->has_literal_float()) {
+                    result->set_literal_float(static_cast<double>(a->literal_int()) > b->literal_float());
+                }
+                else if (a->has_literal_float() && b->has_literal_int()) {
+                    result->set_literal_float(a->literal_float() > static_cast<double>(b->literal_int()));
+                }
                 else {
                     fmt::print("Invalid operands for OP_GT\n");
                     return {nullptr, Error::ERROR};
@@ -253,6 +293,12 @@ std::pair<Object::Object*, Error> VM::run() {
                 }
                 else if (a->has_literal_float() && b->has_literal_float()) {
                     result->set_literal_bool(a->literal_float() < b->literal_float());
+                }
+                else if (a->has_literal_int() && b->has_literal_float()) {
+                    result->set_literal_float(static_cast<double>(a->literal_int()) < b->literal_float());
+                }
+                else if (a->has_literal_float() && b->has_literal_int()) {
+                    result->set_literal_float(a->literal_float() < static_cast<double>(b->literal_int()));
                 }
                 else {
                     fmt::print("Invalid operands for OP_LT\n");
@@ -273,6 +319,12 @@ std::pair<Object::Object*, Error> VM::run() {
                 else if (a->has_literal_float() && b->has_literal_float()) {
                     result->set_literal_bool(a->literal_float() >= b->literal_float());
                 }
+                else if (a->has_literal_int() && b->has_literal_float()) {
+                    result->set_literal_float(static_cast<double>(a->literal_int()) >= b->literal_float());
+                }
+                else if (a->has_literal_float() && b->has_literal_int()) {
+                    result->set_literal_float(a->literal_float() >= static_cast<double>(b->literal_int()));
+                }
                 else {
                     fmt::print("Invalid operands for OP_GE\n");
                     return {nullptr, Error::ERROR};
@@ -291,6 +343,12 @@ std::pair<Object::Object*, Error> VM::run() {
                 }
                 else if (a->has_literal_float() && b->has_literal_float()) {
                     result->set_literal_bool(a->literal_float() <= b->literal_float());
+                }
+                else if (a->has_literal_int() && b->has_literal_float()) {
+                    result->set_literal_float(static_cast<double>(a->literal_int()) <= b->literal_float());
+                }
+                else if (a->has_literal_float() && b->has_literal_int()) {
+                    result->set_literal_float(a->literal_float() <= static_cast<double>(b->literal_int()));
                 }
                 else {
                     fmt::print("Invalid operands for OP_LE\n");
