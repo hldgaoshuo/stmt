@@ -145,6 +145,19 @@ func TestCompiler_Compile(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:   `"abc"`,
+			source: `"abc"`,
+			code:   []uint8{OP_CONSTANT, 0},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralString{
+						LiteralString: "abc",
+					},
+					ObjectType: object.ObjectType_OBJ_STRING,
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

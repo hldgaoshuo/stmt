@@ -16,12 +16,13 @@ enum ObjectType {
 
 message Object {
   ObjectType object_type = 1;
+  uint64 ref_count = 2;
   oneof literal {
-    int64 literal_int = 2;
-    double literal_float = 3;
-    bool literal_bool = 4;
-    string literal_nil = 5;
-    string literal_string = 6;
+    int64 literal_int = 3;
+    double literal_float = 4;
+    bool literal_bool = 5;
+    string literal_nil = 6;
+    string literal_string = 7;
   }
 }
 

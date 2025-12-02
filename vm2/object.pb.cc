@@ -28,7 +28,8 @@ namespace Object {
 
 inline constexpr Object::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
-      : object_type_{static_cast< ::Object::ObjectType >(0)},
+      : ref_count_{::uint64_t{0u}},
+        object_type_{static_cast< ::Object::ObjectType >(0)},
         literal_{},
         _cached_size_{0},
         _oneof_case_{} {}
@@ -96,6 +97,7 @@ const ::uint32_t
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::Object::Object, _impl_.object_type_),
+        PROTOBUF_FIELD_OFFSET(::Object::Object, _impl_.ref_count_),
         ::_pbi::kInvalidFieldOffsetTag,
         ::_pbi::kInvalidFieldOffsetTag,
         ::_pbi::kInvalidFieldOffsetTag,
@@ -117,7 +119,7 @@ const ::uint32_t
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
         {0, -1, -1, sizeof(::Object::Object)},
-        {15, -1, -1, sizeof(::Object::Chunk)},
+        {16, -1, -1, sizeof(::Object::Chunk)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::Object::_Object_default_instance_._instance,
@@ -125,22 +127,22 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 const char descriptor_table_protodef_object_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\014object.proto\022\006Object\"\265\001\n\006Object\022\'\n\013obj"
-    "ect_type\030\001 \001(\0162\022.Object.ObjectType\022\025\n\013li"
-    "teral_int\030\002 \001(\003H\000\022\027\n\rliteral_float\030\003 \001(\001"
-    "H\000\022\026\n\014literal_bool\030\004 \001(\010H\000\022\025\n\013literal_ni"
-    "l\030\005 \001(\tH\000\022\030\n\016literal_string\030\006 \001(\tH\000B\t\n\007l"
-    "iteral\"8\n\005Chunk\022\014\n\004code\030\001 \001(\014\022!\n\tconstan"
-    "ts\030\002 \003(\0132\016.Object.Object*S\n\nObjectType\022\013"
-    "\n\007OBJ_INT\020\000\022\r\n\tOBJ_FLOAT\020\001\022\014\n\010OBJ_BOOL\020\002"
-    "\022\013\n\007OBJ_NIL\020\003\022\016\n\nOBJ_STRING\020\004B\004Z\002./b\006pro"
-    "to3"
+    "\n\014object.proto\022\006Object\"\310\001\n\006Object\022\'\n\013obj"
+    "ect_type\030\001 \001(\0162\022.Object.ObjectType\022\021\n\tre"
+    "f_count\030\002 \001(\004\022\025\n\013literal_int\030\003 \001(\003H\000\022\027\n\r"
+    "literal_float\030\004 \001(\001H\000\022\026\n\014literal_bool\030\005 "
+    "\001(\010H\000\022\025\n\013literal_nil\030\006 \001(\tH\000\022\030\n\016literal_"
+    "string\030\007 \001(\tH\000B\t\n\007literal\"8\n\005Chunk\022\014\n\004co"
+    "de\030\001 \001(\014\022!\n\tconstants\030\002 \003(\0132\016.Object.Obj"
+    "ect*S\n\nObjectType\022\013\n\007OBJ_INT\020\000\022\r\n\tOBJ_FL"
+    "OAT\020\001\022\014\n\010OBJ_BOOL\020\002\022\013\n\007OBJ_NIL\020\003\022\016\n\nOBJ_"
+    "STRING\020\004B\004Z\002./b\006proto3"
 };
 static ::absl::once_flag descriptor_table_object_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_object_2eproto = {
     false,
     false,
-    363,
+    382,
     descriptor_table_protodef_object_2eproto,
     "object.proto",
     &descriptor_table_object_2eproto_once,
@@ -200,7 +202,13 @@ Object::Object(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
-  _impl_.object_type_ = from._impl_.object_type_;
+  ::memcpy(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, ref_count_),
+           reinterpret_cast<const char *>(&from._impl_) +
+               offsetof(Impl_, ref_count_),
+           offsetof(Impl_, object_type_) -
+               offsetof(Impl_, ref_count_) +
+               sizeof(Impl_::object_type_));
   switch (literal_case()) {
     case LITERAL_NOT_SET:
       break;
@@ -232,7 +240,12 @@ inline PROTOBUF_NDEBUG_INLINE Object::Impl_::Impl_(
 
 inline void Object::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.object_type_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, ref_count_),
+           0,
+           offsetof(Impl_, object_type_) -
+               offsetof(Impl_, ref_count_) +
+               sizeof(Impl_::object_type_));
 }
 Object::~Object() {
   // @@protoc_insertion_point(destructor:Object.Object)
@@ -316,15 +329,15 @@ const ::google::protobuf::internal::ClassData* Object::GetClassData() const {
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 6, 0, 47, 2> Object::_table_ = {
+const ::_pbi::TcParseTable<1, 7, 0, 47, 2> Object::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    6, 0,  // max_field_number, fast_idx_mask
+    7, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967232,  // skipmap
+    4294967168,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    6,  // num_field_entries
+    7,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     _class_data_.base(),
@@ -334,6 +347,9 @@ const ::_pbi::TcParseTable<0, 6, 0, 47, 2> Object::_table_ = {
     ::_pbi::TcParser::GetTable<::Object::Object>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
+    // uint64 ref_count = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(Object, _impl_.ref_count_), 63>(),
+     {16, 63, 0, PROTOBUF_FIELD_OFFSET(Object, _impl_.ref_count_)}},
     // .Object.ObjectType object_type = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Object, _impl_.object_type_), 63>(),
      {8, 63, 0, PROTOBUF_FIELD_OFFSET(Object, _impl_.object_type_)}},
@@ -343,25 +359,28 @@ const ::_pbi::TcParseTable<0, 6, 0, 47, 2> Object::_table_ = {
     // .Object.ObjectType object_type = 1;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.object_type_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kOpenEnum)},
-    // int64 literal_int = 2;
+    // uint64 ref_count = 2;
+    {PROTOBUF_FIELD_OFFSET(Object, _impl_.ref_count_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUInt64)},
+    // int64 literal_int = 3;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_int_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kInt64)},
-    // double literal_float = 3;
+    // double literal_float = 4;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_float_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kDouble)},
-    // bool literal_bool = 4;
+    // bool literal_bool = 5;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_bool_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kBool)},
-    // string literal_nil = 5;
+    // string literal_nil = 6;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_nil_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kUtf8String | ::_fl::kRepAString)},
-    // string literal_string = 6;
+    // string literal_string = 7;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_string_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kUtf8String | ::_fl::kRepAString)},
   }},
   // no aux_entries
   {{
-    "\15\0\0\0\0\13\16\0"
+    "\15\0\0\0\0\0\13\16"
     "Object.Object"
     "literal_nil"
     "literal_string"
@@ -375,7 +394,9 @@ PROTOBUF_NOINLINE void Object::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.object_type_ = 0;
+  ::memset(&_impl_.ref_count_, 0, static_cast<::size_t>(
+      reinterpret_cast<char*>(&_impl_.object_type_) -
+      reinterpret_cast<char*>(&_impl_.ref_count_)) + sizeof(_impl_.object_type_));
   clear_literal();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -402,37 +423,44 @@ PROTOBUF_NOINLINE void Object::Clear() {
                 1, this_._internal_object_type(), target);
           }
 
+          // uint64 ref_count = 2;
+          if (this_._internal_ref_count() != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
+                2, this_._internal_ref_count(), target);
+          }
+
           switch (this_.literal_case()) {
             case kLiteralInt: {
               target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt64ToArrayWithField<2>(
+                  WriteInt64ToArrayWithField<3>(
                       stream, this_._internal_literal_int(), target);
               break;
             }
             case kLiteralFloat: {
               target = stream->EnsureSpace(target);
               target = ::_pbi::WireFormatLite::WriteDoubleToArray(
-                  3, this_._internal_literal_float(), target);
+                  4, this_._internal_literal_float(), target);
               break;
             }
             case kLiteralBool: {
               target = stream->EnsureSpace(target);
               target = ::_pbi::WireFormatLite::WriteBoolToArray(
-                  4, this_._internal_literal_bool(), target);
+                  5, this_._internal_literal_bool(), target);
               break;
             }
             case kLiteralNil: {
               const std::string& _s = this_._internal_literal_nil();
               ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
                   _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "Object.Object.literal_nil");
-              target = stream->WriteStringMaybeAliased(5, _s, target);
+              target = stream->WriteStringMaybeAliased(6, _s, target);
               break;
             }
             case kLiteralString: {
               const std::string& _s = this_._internal_literal_string();
               ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
                   _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "Object.Object.literal_string");
-              target = stream->WriteStringMaybeAliased(6, _s, target);
+              target = stream->WriteStringMaybeAliased(7, _s, target);
               break;
             }
             default:
@@ -461,7 +489,13 @@ PROTOBUF_NOINLINE void Object::Clear() {
           // Prevent compiler warnings about cached_has_bits being unused
           (void)cached_has_bits;
 
+          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
            {
+            // uint64 ref_count = 2;
+            if (this_._internal_ref_count() != 0) {
+              total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
+                  this_._internal_ref_count());
+            }
             // .Object.ObjectType object_type = 1;
             if (this_._internal_object_type() != 0) {
               total_size += 1 +
@@ -469,29 +503,29 @@ PROTOBUF_NOINLINE void Object::Clear() {
             }
           }
           switch (this_.literal_case()) {
-            // int64 literal_int = 2;
+            // int64 literal_int = 3;
             case kLiteralInt: {
               total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(
                   this_._internal_literal_int());
               break;
             }
-            // double literal_float = 3;
+            // double literal_float = 4;
             case kLiteralFloat: {
               total_size += 9;
               break;
             }
-            // bool literal_bool = 4;
+            // bool literal_bool = 5;
             case kLiteralBool: {
               total_size += 2;
               break;
             }
-            // string literal_nil = 5;
+            // string literal_nil = 6;
             case kLiteralNil: {
               total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
                                               this_._internal_literal_nil());
               break;
             }
-            // string literal_string = 6;
+            // string literal_string = 7;
             case kLiteralString: {
               total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
                                               this_._internal_literal_string());
@@ -514,6 +548,9 @@ void Object::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from._internal_ref_count() != 0) {
+    _this->_impl_.ref_count_ = from._impl_.ref_count_;
+  }
   if (from._internal_object_type() != 0) {
     _this->_impl_.object_type_ = from._impl_.object_type_;
   }
@@ -572,7 +609,12 @@ void Object::CopyFrom(const Object& from) {
 void Object::InternalSwap(Object* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(_impl_.object_type_, other->_impl_.object_type_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(Object, _impl_.object_type_)
+      + sizeof(Object::_impl_.object_type_)
+      - PROTOBUF_FIELD_OFFSET(Object, _impl_.ref_count_)>(
+          reinterpret_cast<char*>(&_impl_.ref_count_),
+          reinterpret_cast<char*>(&other->_impl_.ref_count_));
   swap(_impl_.literal_, other->_impl_.literal_);
   swap(_impl_._oneof_case_[0], other->_impl_._oneof_case_[0]);
 }

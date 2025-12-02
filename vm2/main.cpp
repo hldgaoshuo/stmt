@@ -154,7 +154,7 @@ static bool test_literal_nil() {
     if (!result->has_literal_nil()) {
         return false;
     }
-    if (result->literal_nil() != "") {
+    if (!result->literal_nil().empty()) {
         return false;
     }
     return true;
@@ -238,6 +238,56 @@ static bool test_gt() {
     return true;
 }
 
+static bool test_literal_string() {
+    const auto chunk = new Object::Chunk();
+    std::string code;
+    code.push_back(OP_CONSTANT); code.push_back(0);
+    chunk->set_code(code);
+
+    const auto c1 = chunk->add_constants();
+    c1->set_literal_string("abc");
+
+    VM vm(chunk);
+    auto [result, err] = vm.run();
+    if (err != Error::SUCCESS) {
+        return false;
+    }
+    if (!result->has_literal_string()) {
+        return false;
+    }
+    if (result->literal_string() != "abc") {
+        return false;
+    }
+    return true;
+}
+
+static bool test_add_string() {
+    const auto chunk = new Object::Chunk();
+    std::string code;
+    code.push_back(OP_CONSTANT); code.push_back(0);
+    code.push_back(OP_CONSTANT); code.push_back(1);
+    code.push_back(OP_ADD);
+    chunk->set_code(code);
+
+    const auto c1 = chunk->add_constants();
+    c1->set_literal_string("abc");
+    const auto c2 = chunk->add_constants();
+    c2->set_literal_string("def");
+
+    VM vm(chunk);
+    auto [result, err] = vm.run();
+    if (err != Error::SUCCESS) {
+        return false;
+    }
+    if (!result->has_literal_string()) {
+        return false;
+    }
+    if (result->literal_string() != "abcdef") {
+        return false;
+    }
+    return true;
+}
+
 int main() {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -255,6 +305,8 @@ int main() {
         {"test_not", test_not},
         {"test_eq", test_eq},
         {"test_gt", test_gt},
+        {"test_literal_string", test_literal_string},
+        {"test_add_string", test_add_string},
     };
 
     for (auto &t : tests) {

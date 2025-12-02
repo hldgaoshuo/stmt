@@ -77,6 +77,16 @@ func (c *Compiler) compile(node ast.Node) error {
 		case nil:
 			c.codeEmit(OP_NIL)
 			return nil
+		case string:
+			obj := &object.Object{
+				Literal: &object.Object_LiteralString{
+					LiteralString: value,
+				},
+				ObjectType: object.ObjectType_OBJ_STRING,
+			}
+			index := c.constantAdd(obj)
+			c.codeEmit(OP_CONSTANT, index)
+			return nil
 		default:
 			return ErrInvalidOperandType
 		}

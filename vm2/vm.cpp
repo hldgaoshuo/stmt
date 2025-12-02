@@ -7,7 +7,7 @@
 #include <fmt/core.h>
 
 VM::VM(Object::Chunk* chunk) {
-    for (const uint8_t b : chunk->code()) {
+    for (uint8_t b : chunk->code()) {
         _code_emit(b);
     }
     _code_emit(OP_RETURN);
@@ -17,7 +17,7 @@ VM::VM(Object::Chunk* chunk) {
     }
 }
 
-void VM::_code_emit(const uint8_t byte) {
+void VM::_code_emit(uint8_t byte) {
     code.push_back(byte);
 }
 uint8_t VM::code_next() {
@@ -25,19 +25,35 @@ uint8_t VM::code_next() {
 }
 
 void VM::_constant_add(Object::Object* value) {
+    retain(value);
     constants.push_back(value);
 }
-Object::Object* VM::constant_get(const uint8_t index) const {
+Object::Object* VM::constant_get(uint8_t index) {
     return constants[index];
 }
 
 void VM::stack_push(Object::Object* value) {
+    retain(value);
     stack.push_back(value);
 }
 Object::Object* VM::stack_pop() {
     Object::Object* value = stack.back();
     stack.pop_back();
     return value;
+}
+
+void VM::retain(Object::Object* obj) {
+    auto ref_count = obj->ref_count();
+    ref_count += 1;
+    obj->set_ref_count(ref_count);
+}
+void VM::release(Object::Object* obj) {
+    auto ref_count = obj->ref_count();
+    ref_count -= 1;
+    obj->set_ref_count(ref_count);
+    if (ref_count == 0) {
+        delete obj;
+    }
 }
 
 std::pair<Object::Object*, Error> VM::run() {
@@ -49,14 +65,14 @@ std::pair<Object::Object*, Error> VM::run() {
                 return {result, Error::SUCCESS};
             }
             case OP_CONSTANT: {
-                const uint8_t constant_index = code_next();
+                uint8_t constant_index = code_next();
                 Object::Object* constant = constant_get(constant_index);
                 stack_push(constant);
                 break;
             }
             case OP_NEGATE: {
-                const Object::Object* value = stack_pop();
-                const auto result = new Object::Object();
+                Object::Object* value = stack_pop();
+                auto result = new Object::Object();
                 if (value->has_literal_int()) {
                     result->set_literal_int(-value->literal_int());
                 }
@@ -68,13 +84,13 @@ std::pair<Object::Object*, Error> VM::run() {
                     return {nullptr, Error::ERROR};
                 }
                 stack_push(result);
-                delete value;
+                release(value);
                 break;
             }
             case OP_ADD: {
-                const Object::Object* b = stack_pop();
-                const Object::Object* a = stack_pop();
-                const auto result = new Object::Object();
+                Object::Object* b = stack_pop();
+                Object::Object* a = stack_pop();
+                auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() + b->literal_int());
                 }
@@ -87,19 +103,22 @@ std::pair<Object::Object*, Error> VM::run() {
                 else if (a->has_literal_float() && b->has_literal_int()) {
                     result->set_literal_float(a->literal_float() + static_cast<double>(b->literal_int()));
                 }
+                else if (a->has_literal_string() && b->has_literal_string()) {
+                    result->set_literal_string(a->literal_string() + b->literal_string());
+                }
                 else {
                     fmt::print("Invalid operands for OP_ADD\n");
                     return {nullptr, Error::ERROR};
                 }
                 stack_push(result);
-                delete a;
-                delete b;
+                release(a);
+                release(b);
                 break;
             }
             case OP_SUBTRACT: {
-                const Object::Object* b = stack_pop();
-                const Object::Object* a = stack_pop();
-                const auto result = new Object::Object();
+                Object::Object* b = stack_pop();
+                Object::Object* a = stack_pop();
+                auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() - b->literal_int());
                 }
@@ -117,14 +136,14 @@ std::pair<Object::Object*, Error> VM::run() {
                     return {nullptr, Error::ERROR};
                 }
                 stack_push(result);
-                delete a;
-                delete b;
+                release(a);
+                release(b);
                 break;
             }
             case OP_MULTIPLY: {
-                const Object::Object* b = stack_pop();
-                const Object::Object* a = stack_pop();
-                const auto result = new Object::Object();
+                Object::Object* b = stack_pop();
+                Object::Object* a = stack_pop();
+                auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() * b->literal_int());
                 }
@@ -142,14 +161,14 @@ std::pair<Object::Object*, Error> VM::run() {
                     return {nullptr, Error::ERROR};
                 }
                 stack_push(result);
-                delete a;
-                delete b;
+                release(a);
+                release(b);
                 break;
             }
             case OP_DIVIDE: {
-                const Object::Object* b = stack_pop();
-                const Object::Object* a = stack_pop();
-                const auto result = new Object::Object();
+                Object::Object* b = stack_pop();
+                Object::Object* a = stack_pop();
+                auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() / b->literal_int());
                 }
@@ -167,14 +186,14 @@ std::pair<Object::Object*, Error> VM::run() {
                     return {nullptr, Error::ERROR};
                 }
                 stack_push(result);
-                delete a;
-                delete b;
+                release(a);
+                release(b);
                 break;
             }
             case OP_MODULO: {
-                const Object::Object* b = stack_pop();
-                const Object::Object* a = stack_pop();
-                const auto result = new Object::Object();
+                Object::Object* b = stack_pop();
+                Object::Object* a = stack_pop();
+                auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() % b->literal_int());
                 }
@@ -192,31 +211,31 @@ std::pair<Object::Object*, Error> VM::run() {
                     return {nullptr, Error::ERROR};
                 }
                 stack_push(result);
-                delete a;
-                delete b;
+                release(a);
+                release(b);
                 break;
             }
             case OP_TRUE: {
-                const auto result = new Object::Object();
+                auto result = new Object::Object();
                 result->set_literal_bool(true);
                 stack_push(result);
                 break;
             }
             case OP_FALSE: {
-                const auto result = new Object::Object();
+                auto result = new Object::Object();
                 result->set_literal_bool(false);
                 stack_push(result);
                 break;
             }
             case OP_NIL: {
-                const auto result = new Object::Object();
+                auto result = new Object::Object();
                 result->set_literal_nil("");
                 stack_push(result);
                 break;
             }
             case OP_NOT: {
-                const Object::Object* value = stack_pop();
-                const auto result = new Object::Object();
+                Object::Object* value = stack_pop();
+                auto result = new Object::Object();
                 if (value->has_literal_bool()) {
                     result->set_literal_bool(!value->literal_bool());
                 }
@@ -225,13 +244,13 @@ std::pair<Object::Object*, Error> VM::run() {
                     return {nullptr, Error::ERROR};
                 }
                 stack_push(result);
-                delete value;
+                release(value);
                 break;
             }
             case OP_EQ: {
-                const Object::Object* b = stack_pop();
-                const Object::Object* a = stack_pop();
-                const auto result = new Object::Object();
+                Object::Object* b = stack_pop();
+                Object::Object* a = stack_pop();
+                auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() == b->literal_int());
                 }
@@ -255,14 +274,14 @@ std::pair<Object::Object*, Error> VM::run() {
                     return {nullptr, Error::ERROR};
                 }
                 stack_push(result);
-                delete a;
-                delete b;
+                release(a);
+                release(b);
                 break;
             }
             case OP_GT: {
-                const Object::Object* b = stack_pop();
-                const Object::Object* a = stack_pop();
-                const auto result = new Object::Object();
+                Object::Object* b = stack_pop();
+                Object::Object* a = stack_pop();
+                auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() > b->literal_int());
                 }
@@ -280,14 +299,14 @@ std::pair<Object::Object*, Error> VM::run() {
                     return {nullptr, Error::ERROR};
                 }
                 stack_push(result);
-                delete a;
-                delete b;
+                release(a);
+                release(b);
                 break;
             }
             case OP_LT: {
-                const Object::Object* b = stack_pop();
-                const Object::Object* a = stack_pop();
-                const auto result = new Object::Object();
+                Object::Object* b = stack_pop();
+                Object::Object* a = stack_pop();
+                auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() < b->literal_int());
                 }
@@ -305,14 +324,14 @@ std::pair<Object::Object*, Error> VM::run() {
                     return {nullptr, Error::ERROR};
                 }
                 stack_push(result);
-                delete a;
-                delete b;
+                release(a);
+                release(b);
                 break;
             }
             case OP_GE: {
-                const Object::Object* b = stack_pop();
-                const Object::Object* a = stack_pop();
-                const auto result = new Object::Object();
+                Object::Object* b = stack_pop();
+                Object::Object* a = stack_pop();
+                auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() >= b->literal_int());
                 }
@@ -330,14 +349,14 @@ std::pair<Object::Object*, Error> VM::run() {
                     return {nullptr, Error::ERROR};
                 }
                 stack_push(result);
-                delete a;
-                delete b;
+                release(a);
+                release(b);
                 break;
             }
             case OP_LE: {
-                const Object::Object* b = stack_pop();
-                const Object::Object* a = stack_pop();
-                const auto result = new Object::Object();
+                Object::Object* b = stack_pop();
+                Object::Object* a = stack_pop();
+                auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() <= b->literal_int());
                 }
@@ -355,8 +374,8 @@ std::pair<Object::Object*, Error> VM::run() {
                     return {nullptr, Error::ERROR};
                 }
                 stack_push(result);
-                delete a;
-                delete b;
+                release(a);
+                release(b);
                 break;
             }
             default:

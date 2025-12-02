@@ -79,6 +79,7 @@ func (ObjectType) EnumDescriptor() ([]byte, []int) {
 type Object struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	ObjectType ObjectType             `protobuf:"varint,1,opt,name=object_type,json=objectType,proto3,enum=Object.ObjectType" json:"object_type,omitempty"`
+	RefCount   uint64                 `protobuf:"varint,2,opt,name=ref_count,json=refCount,proto3" json:"ref_count,omitempty"`
 	// Types that are valid to be assigned to Literal:
 	//
 	//	*Object_LiteralInt
@@ -126,6 +127,13 @@ func (x *Object) GetObjectType() ObjectType {
 		return x.ObjectType
 	}
 	return ObjectType_OBJ_INT
+}
+
+func (x *Object) GetRefCount() uint64 {
+	if x != nil {
+		return x.RefCount
+	}
+	return 0
 }
 
 func (x *Object) GetLiteral() isObject_Literal {
@@ -185,23 +193,23 @@ type isObject_Literal interface {
 }
 
 type Object_LiteralInt struct {
-	LiteralInt int64 `protobuf:"varint,2,opt,name=literal_int,json=literalInt,proto3,oneof"`
+	LiteralInt int64 `protobuf:"varint,3,opt,name=literal_int,json=literalInt,proto3,oneof"`
 }
 
 type Object_LiteralFloat struct {
-	LiteralFloat float64 `protobuf:"fixed64,3,opt,name=literal_float,json=literalFloat,proto3,oneof"`
+	LiteralFloat float64 `protobuf:"fixed64,4,opt,name=literal_float,json=literalFloat,proto3,oneof"`
 }
 
 type Object_LiteralBool struct {
-	LiteralBool bool `protobuf:"varint,4,opt,name=literal_bool,json=literalBool,proto3,oneof"`
+	LiteralBool bool `protobuf:"varint,5,opt,name=literal_bool,json=literalBool,proto3,oneof"`
 }
 
 type Object_LiteralNil struct {
-	LiteralNil string `protobuf:"bytes,5,opt,name=literal_nil,json=literalNil,proto3,oneof"`
+	LiteralNil string `protobuf:"bytes,6,opt,name=literal_nil,json=literalNil,proto3,oneof"`
 }
 
 type Object_LiteralString struct {
-	LiteralString string `protobuf:"bytes,6,opt,name=literal_string,json=literalString,proto3,oneof"`
+	LiteralString string `protobuf:"bytes,7,opt,name=literal_string,json=literalString,proto3,oneof"`
 }
 
 func (*Object_LiteralInt) isObject_Literal() {}
@@ -270,17 +278,18 @@ var File_object_proto protoreflect.FileDescriptor
 
 const file_object_proto_rawDesc = "" +
 	"\n" +
-	"\fobject.proto\x12\x06Object\"\x83\x02\n" +
+	"\fobject.proto\x12\x06Object\"\xa0\x02\n" +
 	"\x06Object\x123\n" +
 	"\vobject_type\x18\x01 \x01(\x0e2\x12.Object.ObjectTypeR\n" +
-	"objectType\x12!\n" +
-	"\vliteral_int\x18\x02 \x01(\x03H\x00R\n" +
+	"objectType\x12\x1b\n" +
+	"\tref_count\x18\x02 \x01(\x04R\brefCount\x12!\n" +
+	"\vliteral_int\x18\x03 \x01(\x03H\x00R\n" +
 	"literalInt\x12%\n" +
-	"\rliteral_float\x18\x03 \x01(\x01H\x00R\fliteralFloat\x12#\n" +
-	"\fliteral_bool\x18\x04 \x01(\bH\x00R\vliteralBool\x12!\n" +
-	"\vliteral_nil\x18\x05 \x01(\tH\x00R\n" +
+	"\rliteral_float\x18\x04 \x01(\x01H\x00R\fliteralFloat\x12#\n" +
+	"\fliteral_bool\x18\x05 \x01(\bH\x00R\vliteralBool\x12!\n" +
+	"\vliteral_nil\x18\x06 \x01(\tH\x00R\n" +
 	"literalNil\x12'\n" +
-	"\x0eliteral_string\x18\x06 \x01(\tH\x00R\rliteralStringB\t\n" +
+	"\x0eliteral_string\x18\a \x01(\tH\x00R\rliteralStringB\t\n" +
 	"\aliteral\"I\n" +
 	"\x05Chunk\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\fR\x04code\x12,\n" +
