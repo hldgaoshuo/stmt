@@ -56,7 +56,7 @@ void VM::release(Object::Object* obj) {
     }
 }
 
-std::pair<Object::Object*, Error> VM::run() {
+std::pair<Object::Object*, Error> VM::interpret_expr() {
     for (;;) {
         switch (uint8_t instruction = code_next()) {
             case OP_RETURN: {

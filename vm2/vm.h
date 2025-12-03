@@ -55,7 +55,7 @@ public:
     void stack_push(Object::Object* value);
     Object::Object* stack_pop();
 
-    std::pair<Object::Object*, Error> run();
+    std::pair<Object::Object*, Error> interpret_expr();
 
     // gc
     static void release(Object::Object* obj);
