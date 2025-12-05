@@ -15,6 +15,7 @@ var (
 	ErrInvalidNodeType     = errors.New("invalid node type")
 	ErrInvalidOperandType  = errors.New("invalid operand type")
 	ErrInvalidOperatorType = errors.New("invalid operator type")
+	ErrVariableNotDefined  = errors.New("variable not defined")
 )
 
 type Compiler struct {
@@ -23,17 +24,23 @@ type Compiler struct {
 	// out
 	code      []uint8
 	constants []*object.Object
+	// self
+	symbolTable *SymbolTable
 }
 
 func New(ast []ast.Node) *Compiler {
 	return &Compiler{
-		ast:       ast,
-		code:      []uint8{},
-		constants: []*object.Object{},
+		ast:         ast,
+		code:        []uint8{},
+		constants:   []*object.Object{},
+		symbolTable: NewSymbolTable(nil),
 	}
 }
 
 func (c *Compiler) Compile() ([]uint8, []*object.Object, error) {
+	for _, node := range c.ast {
+		c.collectGlobal(node)
+	}
 	for _, node := range c.ast {
 		err := c.compile(node)
 		if err != nil {
@@ -41,6 +48,16 @@ func (c *Compiler) Compile() ([]uint8, []*object.Object, error) {
 		}
 	}
 	return c.code, c.constants, nil
+}
+
+func (c *Compiler) collectGlobal(node ast.Node) {
+	switch _node := node.(type) {
+	case *ast.Var:
+		c.symbolTable.Set(_node.Name.Lexeme)
+		return
+	default:
+		return
+	}
 }
 
 func (c *Compiler) compile(node ast.Node) error {
@@ -159,7 +176,9 @@ func (c *Compiler) compile(node ast.Node) error {
 		if err != nil {
 			return err
 		}
-		c.codeEmit(OP_POP)
+		if _, ok := _node.Expression.(*ast.Assign); !ok {
+			c.codeEmit(OP_POP)
+		}
 		return nil
 	case *ast.Print:
 		err := c.compile(_node.Expression)
@@ -167,6 +186,39 @@ func (c *Compiler) compile(node ast.Node) error {
 			return err
 		}
 		c.codeEmit(OP_PRINT)
+		return nil
+	case *ast.Var:
+		if _node.Initializer == nil {
+			c.codeEmit(OP_NIL)
+		} else {
+			err := c.compile(_node.Initializer)
+			if err != nil {
+				return err
+			}
+		}
+		index, ok := c.symbolTable.Get(_node.Name.Lexeme)
+		if !ok {
+			return ErrVariableNotDefined
+		}
+		c.codeEmit(OP_SET_GLOBAL, int(index))
+		return nil
+	case *ast.Variable:
+		index, ok := c.symbolTable.Get(_node.Name.Lexeme)
+		if !ok {
+			return ErrVariableNotDefined
+		}
+		c.codeEmit(OP_GET_GLOBAL, int(index))
+		return nil
+	case *ast.Assign:
+		err := c.compile(_node.Value)
+		if err != nil {
+			return err
+		}
+		index, ok := c.symbolTable.Get(_node.Name.Lexeme)
+		if !ok {
+			return ErrVariableNotDefined
+		}
+		c.codeEmit(OP_SET_GLOBAL, int(index))
 		return nil
 	default:
 		return ErrInvalidNodeType
@@ -217,8 +269,9 @@ func (c *Compiler) constantAdd(obj *object.Object) int {
 // chunk
 func (c *Compiler) chunk(name string) error {
 	chunk := &object.Chunk{
-		Code:      c.code,
-		Constants: c.constants,
+		Code:         c.code,
+		Constants:    c.constants,
+		GlobalsCount: Global.NumDefinitions,
 	}
 
 	row, err := proto.Marshal(chunk)

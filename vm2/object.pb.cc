@@ -60,6 +60,7 @@ inline constexpr Chunk::Impl_::Impl_(
         code_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
+        globals_count_{::uint64_t{0u}},
         _cached_size_{0} {}
 
 template <typename>
@@ -114,6 +115,7 @@ const ::uint32_t
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::Object::Chunk, _impl_.code_),
         PROTOBUF_FIELD_OFFSET(::Object::Chunk, _impl_.constants_),
+        PROTOBUF_FIELD_OFFSET(::Object::Chunk, _impl_.globals_count_),
 };
 
 static const ::_pbi::MigrationSchema
@@ -132,17 +134,18 @@ const char descriptor_table_protodef_object_2eproto[] ABSL_ATTRIBUTE_SECTION_VAR
     "f_count\030\002 \001(\004\022\025\n\013literal_int\030\003 \001(\003H\000\022\027\n\r"
     "literal_float\030\004 \001(\001H\000\022\026\n\014literal_bool\030\005 "
     "\001(\010H\000\022\025\n\013literal_nil\030\006 \001(\tH\000\022\030\n\016literal_"
-    "string\030\007 \001(\tH\000B\t\n\007literal\"8\n\005Chunk\022\014\n\004co"
+    "string\030\007 \001(\tH\000B\t\n\007literal\"O\n\005Chunk\022\014\n\004co"
     "de\030\001 \001(\014\022!\n\tconstants\030\002 \003(\0132\016.Object.Obj"
-    "ect*S\n\nObjectType\022\013\n\007OBJ_INT\020\000\022\r\n\tOBJ_FL"
-    "OAT\020\001\022\014\n\010OBJ_BOOL\020\002\022\013\n\007OBJ_NIL\020\003\022\016\n\nOBJ_"
-    "STRING\020\004B\004Z\002./b\006proto3"
+    "ect\022\025\n\rglobals_count\030\003 \001(\004*S\n\nObjectType"
+    "\022\013\n\007OBJ_INT\020\000\022\r\n\tOBJ_FLOAT\020\001\022\014\n\010OBJ_BOOL"
+    "\020\002\022\013\n\007OBJ_NIL\020\003\022\016\n\nOBJ_STRING\020\004B\004Z\002./b\006p"
+    "roto3"
 };
 static ::absl::once_flag descriptor_table_object_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_object_2eproto = {
     false,
     false,
-    382,
+    405,
     descriptor_table_protodef_object_2eproto,
     "object.proto",
     &descriptor_table_object_2eproto_once,
@@ -657,6 +660,7 @@ Chunk::Chunk(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  _impl_.globals_count_ = from._impl_.globals_count_;
 
   // @@protoc_insertion_point(copy_constructor:Object.Chunk)
 }
@@ -669,6 +673,7 @@ inline PROTOBUF_NDEBUG_INLINE Chunk::Impl_::Impl_(
 
 inline void Chunk::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.globals_count_ = {};
 }
 Chunk::~Chunk() {
   // @@protoc_insertion_point(destructor:Object.Chunk)
@@ -730,15 +735,15 @@ const ::google::protobuf::internal::ClassData* Chunk::GetClassData() const {
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 1, 0, 2> Chunk::_table_ = {
+const ::_pbi::TcParseTable<2, 3, 1, 0, 2> Chunk::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     1,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     _class_data_.base(),
@@ -748,12 +753,16 @@ const ::_pbi::TcParseTable<1, 2, 1, 0, 2> Chunk::_table_ = {
     ::_pbi::TcParser::GetTable<::Object::Chunk>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // repeated .Object.Object constants = 2;
-    {::_pbi::TcParser::FastMtR1,
-     {18, 63, 0, PROTOBUF_FIELD_OFFSET(Chunk, _impl_.constants_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // bytes code = 1;
     {::_pbi::TcParser::FastBS1,
      {10, 63, 0, PROTOBUF_FIELD_OFFSET(Chunk, _impl_.code_)}},
+    // repeated .Object.Object constants = 2;
+    {::_pbi::TcParser::FastMtR1,
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(Chunk, _impl_.constants_)}},
+    // uint64 globals_count = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(Chunk, _impl_.globals_count_), 63>(),
+     {24, 63, 0, PROTOBUF_FIELD_OFFSET(Chunk, _impl_.globals_count_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -763,6 +772,9 @@ const ::_pbi::TcParseTable<1, 2, 1, 0, 2> Chunk::_table_ = {
     // repeated .Object.Object constants = 2;
     {PROTOBUF_FIELD_OFFSET(Chunk, _impl_.constants_), 0, 0,
     (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+    // uint64 globals_count = 3;
+    {PROTOBUF_FIELD_OFFSET(Chunk, _impl_.globals_count_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUInt64)},
   }}, {{
     {::_pbi::TcParser::GetTable<::Object::Object>()},
   }}, {{
@@ -778,6 +790,7 @@ PROTOBUF_NOINLINE void Chunk::Clear() {
 
   _impl_.constants_.Clear();
   _impl_.code_.ClearToEmpty();
+  _impl_.globals_count_ = ::uint64_t{0u};
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -811,6 +824,13 @@ PROTOBUF_NOINLINE void Chunk::Clear() {
                 ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
                     2, repfield, repfield.GetCachedSize(),
                     target, stream);
+          }
+
+          // uint64 globals_count = 3;
+          if (this_._internal_globals_count() != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
+                3, this_._internal_globals_count(), target);
           }
 
           if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -852,6 +872,11 @@ PROTOBUF_NOINLINE void Chunk::Clear() {
               total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
                                               this_._internal_code());
             }
+            // uint64 globals_count = 3;
+            if (this_._internal_globals_count() != 0) {
+              total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
+                  this_._internal_globals_count());
+            }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
                                                      &this_._impl_._cached_size_);
@@ -869,6 +894,9 @@ void Chunk::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::p
       from._internal_constants());
   if (!from._internal_code().empty()) {
     _this->_internal_set_code(from._internal_code());
+  }
+  if (from._internal_globals_count() != 0) {
+    _this->_impl_.globals_count_ = from._impl_.globals_count_;
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -888,6 +916,7 @@ void Chunk::InternalSwap(Chunk* PROTOBUF_RESTRICT other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   _impl_.constants_.InternalSwap(&other->_impl_.constants_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.code_, &other->_impl_.code_, arena);
+        swap(_impl_.globals_count_, other->_impl_.globals_count_);
 }
 
 ::google::protobuf::Metadata Chunk::GetMetadata() const {

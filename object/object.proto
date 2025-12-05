@@ -29,4 +29,5 @@ message Object {
 message Chunk {
   bytes code = 1;
   repeated Object constants = 2;
+  uint64 globals_count = 3;
 }

@@ -557,6 +557,7 @@ class Chunk final : public ::google::protobuf::Message
   enum : int {
     kConstantsFieldNumber = 2,
     kCodeFieldNumber = 1,
+    kGlobalsCountFieldNumber = 3,
   };
   // repeated .Object.Object constants = 2;
   int constants_size() const;
@@ -591,12 +592,22 @@ class Chunk final : public ::google::protobuf::Message
   std::string* _internal_mutable_code();
 
   public:
+  // uint64 globals_count = 3;
+  void clear_globals_count() ;
+  ::uint64_t globals_count() const;
+  void set_globals_count(::uint64_t value);
+
+  private:
+  ::uint64_t _internal_globals_count() const;
+  void _internal_set_globals_count(::uint64_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:Object.Chunk)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 1,
+      2, 3, 1,
       0, 2>
       _table_;
 
@@ -616,6 +627,7 @@ class Chunk final : public ::google::protobuf::Message
                           const Chunk& from_msg);
     ::google::protobuf::RepeatedPtrField< ::Object::Object > constants_;
     ::google::protobuf::internal::ArenaStringPtr code_;
+    ::uint64_t globals_count_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1060,6 +1072,28 @@ inline ::google::protobuf::RepeatedPtrField<::Object::Object>*
 Chunk::_internal_mutable_constants() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.constants_;
+}
+
+// uint64 globals_count = 3;
+inline void Chunk::clear_globals_count() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.globals_count_ = ::uint64_t{0u};
+}
+inline ::uint64_t Chunk::globals_count() const {
+  // @@protoc_insertion_point(field_get:Object.Chunk.globals_count)
+  return _internal_globals_count();
+}
+inline void Chunk::set_globals_count(::uint64_t value) {
+  _internal_set_globals_count(value);
+  // @@protoc_insertion_point(field_set:Object.Chunk.globals_count)
+}
+inline ::uint64_t Chunk::_internal_globals_count() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.globals_count_;
+}
+inline void Chunk::_internal_set_globals_count(::uint64_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.globals_count_ = value;
 }
 
 #ifdef __GNUC__

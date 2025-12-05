@@ -158,6 +158,13 @@ func TestCompiler_CompileExpr(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:      "a",
+			source:    "a",
+			code:      nil,
+			constants: nil,
+			err:       ErrVariableNotDefined,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -171,9 +178,8 @@ func TestCompiler_CompileExpr(t *testing.T) {
 			}
 			compiler_ := New([]ast.Node{node})
 			code, constants, err := compiler_.Compile()
-			if err != nil {
-				t.Errorf("Compile() err = %v", err)
-				return
+			if err != tt.err {
+				t.Errorf("Compile() err = %v, want %v", code, tt.code)
 			}
 			if !reflect.DeepEqual(code, tt.code) {
 				t.Errorf("Compile() code = %v, want %v", code, tt.code)
@@ -228,6 +234,130 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
+		{
+			name:   "var",
+			source: "var a;",
+			code: []uint8{
+				OP_NIL,
+				OP_SET_GLOBAL, 0,
+			},
+			constants: []*object.Object{},
+		},
+		{
+			name:   "var 2",
+			source: "var a = 1;",
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_SET_GLOBAL, 0,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
+		{
+			name: "var 3",
+			source: `
+			var a = 1;
+			a;
+			`,
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_SET_GLOBAL, 0,
+				OP_GET_GLOBAL, 0,
+				OP_POP,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
+		{
+			name: "var 4",
+			source: `
+			var a = 1;
+			print a;
+			`,
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_SET_GLOBAL, 0,
+				OP_GET_GLOBAL, 0,
+				OP_PRINT,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
+		{
+			name: "assign",
+			source: `
+			var a = 1;
+			a = 2;
+			`,
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_SET_GLOBAL, 0,
+				OP_CONSTANT, 1,
+				OP_SET_GLOBAL, 0,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 2,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
+		{
+			name: "assign",
+			source: `
+			var a = 1;
+			a = 2;
+			print a;
+			`,
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_SET_GLOBAL, 0,
+				OP_CONSTANT, 1,
+				OP_SET_GLOBAL, 0,
+				OP_GET_GLOBAL, 0,
+				OP_PRINT,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 2,
 					},
 					ObjectType: object.ObjectType_OBJ_INT,
 				},

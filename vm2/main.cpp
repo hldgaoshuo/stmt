@@ -330,6 +330,54 @@ static bool test_print() {
     return true;
 }
 
+static bool test_var() {
+    const auto chunk = new Object::Chunk();
+    std::string code;
+    code.push_back(OP_CONSTANT); code.push_back(0);
+    code.push_back(OP_SET_GLOBAL); code.push_back(0);
+    code.push_back(OP_GET_GLOBAL); code.push_back(0);
+    code.push_back(OP_PRINT);
+    chunk->set_code(code);
+
+    const auto c1 = chunk->add_constants();
+    c1->set_literal_int(1);
+
+    chunk->set_globals_count(1);
+
+    VM vm(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
+        return false;
+    }
+    return true;
+}
+
+static bool test_assign() {
+    const auto chunk = new Object::Chunk();
+    std::string code;
+    code.push_back(OP_CONSTANT); code.push_back(0);
+    code.push_back(OP_SET_GLOBAL); code.push_back(0);
+    code.push_back(OP_CONSTANT); code.push_back(1);
+    code.push_back(OP_SET_GLOBAL); code.push_back(0);
+    code.push_back(OP_GET_GLOBAL); code.push_back(0);
+    code.push_back(OP_PRINT);
+    chunk->set_code(code);
+
+    const auto c1 = chunk->add_constants();
+    c1->set_literal_int(1);
+    const auto c2 = chunk->add_constants();
+    c2->set_literal_int(2);
+
+    chunk->set_globals_count(1);
+
+    VM vm(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
+        return false;
+    }
+    return true;
+}
+
 int main() {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -350,6 +398,8 @@ int main() {
         {"test_literal_string", test_literal_string},
         {"test_add_string", test_add_string},
         {"test_print", test_print},
+        {"test_var", test_var},
+        {"test_assign", test_assign},
     };
 
     for (auto &t : tests) {

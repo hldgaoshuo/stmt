@@ -14,6 +14,7 @@ VM::VM(Object::Chunk* chunk) {
         Object::Object* o = chunk->mutable_constants(i);
         _constant_add(o);
     }
+    globals.resize(chunk->globals_count());
 }
 
 void VM::_code_emit(uint8_t byte) {
@@ -394,6 +395,18 @@ Error VM::interpret() {
                 else if (value->has_literal_nil()) {
                     fmt::print("nil\n");
                 }
+                break;
+            }
+            case OP_SET_GLOBAL: {
+                auto global_index = code_next();
+                auto global_value = stack_pop();
+                globals[global_index] = global_value;
+                break;
+            }
+            case OP_GET_GLOBAL: {
+                auto global_index = code_next();
+                auto global_value = globals[global_index];
+                stack_push(global_value);
                 break;
             }
             default: {

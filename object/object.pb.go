@@ -226,6 +226,7 @@ type Chunk struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          []byte                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
 	Constants     []*Object              `protobuf:"bytes,2,rep,name=constants,proto3" json:"constants,omitempty"`
+	GlobalsCount  uint64                 `protobuf:"varint,3,opt,name=globals_count,json=globalsCount,proto3" json:"globals_count,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -274,6 +275,13 @@ func (x *Chunk) GetConstants() []*Object {
 	return nil
 }
 
+func (x *Chunk) GetGlobalsCount() uint64 {
+	if x != nil {
+		return x.GlobalsCount
+	}
+	return 0
+}
+
 var File_object_proto protoreflect.FileDescriptor
 
 const file_object_proto_rawDesc = "" +
@@ -290,10 +298,11 @@ const file_object_proto_rawDesc = "" +
 	"\vliteral_nil\x18\x06 \x01(\tH\x00R\n" +
 	"literalNil\x12'\n" +
 	"\x0eliteral_string\x18\a \x01(\tH\x00R\rliteralStringB\t\n" +
-	"\aliteral\"I\n" +
+	"\aliteral\"n\n" +
 	"\x05Chunk\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\fR\x04code\x12,\n" +
-	"\tconstants\x18\x02 \x03(\v2\x0e.Object.ObjectR\tconstants*S\n" +
+	"\tconstants\x18\x02 \x03(\v2\x0e.Object.ObjectR\tconstants\x12#\n" +
+	"\rglobals_count\x18\x03 \x01(\x04R\fglobalsCount*S\n" +
 	"\n" +
 	"ObjectType\x12\v\n" +
 	"\aOBJ_INT\x10\x00\x12\r\n" +
