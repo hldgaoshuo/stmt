@@ -2,7 +2,6 @@ package compiler
 
 import (
 	"encoding/binary"
-	"errors"
 	"os"
 	"stmt/ast"
 	object "stmt/object"
@@ -11,38 +10,32 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-var (
-	ErrInvalidNodeType     = errors.New("invalid node type")
-	ErrInvalidOperandType  = errors.New("invalid operand type")
-	ErrInvalidOperatorType = errors.New("invalid operator type")
-	ErrVariableNotDefined  = errors.New("variable not defined")
-)
-
 type Compiler struct {
 	// in
 	ast []ast.Node
 	// out
 	code      []uint8
 	constants []*object.Object
-	// self
-	symbolTable *SymbolTable
 }
 
 func New(ast []ast.Node) *Compiler {
 	return &Compiler{
-		ast:         ast,
-		code:        []uint8{},
-		constants:   []*object.Object{},
-		symbolTable: NewSymbolTable(nil),
+		ast:       ast,
+		code:      []uint8{},
+		constants: []*object.Object{},
 	}
 }
 
 func (c *Compiler) Compile() ([]uint8, []*object.Object, error) {
+	symbolTable := NewSymbolTable(nil)
 	for _, node := range c.ast {
-		c.collectGlobal(node)
+		err := c.collectGlobal(node, symbolTable)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 	for _, node := range c.ast {
-		err := c.compile(node)
+		err := c.compile(node, symbolTable)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -50,17 +43,16 @@ func (c *Compiler) Compile() ([]uint8, []*object.Object, error) {
 	return c.code, c.constants, nil
 }
 
-func (c *Compiler) collectGlobal(node ast.Node) {
+func (c *Compiler) collectGlobal(node ast.Node, symbolTable *SymbolTable) error {
 	switch _node := node.(type) {
 	case *ast.Var:
-		c.symbolTable.Set(_node.Name.Lexeme)
-		return
+		return symbolTable.SetGlobal(_node.Name.Lexeme)
 	default:
-		return
+		return nil
 	}
 }
 
-func (c *Compiler) compile(node ast.Node) error {
+func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable) error {
 	switch _node := node.(type) {
 	case *ast.Literal:
 		switch value := _node.Value.(type) {
@@ -108,13 +100,13 @@ func (c *Compiler) compile(node ast.Node) error {
 			return ErrInvalidOperandType
 		}
 	case *ast.Grouping:
-		err := c.compile(_node.Expression)
+		err := c.compile(_node.Expression, symbolTable)
 		if err != nil {
 			return err
 		}
 		return nil
 	case *ast.Unary:
-		err := c.compile(_node.Right)
+		err := c.compile(_node.Right, symbolTable)
 		if err != nil {
 			return err
 		}
@@ -129,11 +121,11 @@ func (c *Compiler) compile(node ast.Node) error {
 			return ErrInvalidOperatorType
 		}
 	case *ast.Binary:
-		err := c.compile(_node.Left)
+		err := c.compile(_node.Left, symbolTable)
 		if err != nil {
 			return err
 		}
-		err = c.compile(_node.Right)
+		err = c.compile(_node.Right, symbolTable)
 		if err != nil {
 			return err
 		}
@@ -172,7 +164,7 @@ func (c *Compiler) compile(node ast.Node) error {
 			return ErrInvalidOperatorType
 		}
 	case *ast.ExpressionStatement:
-		err := c.compile(_node.Expression)
+		err := c.compile(_node.Expression, symbolTable)
 		if err != nil {
 			return err
 		}
@@ -181,7 +173,7 @@ func (c *Compiler) compile(node ast.Node) error {
 		}
 		return nil
 	case *ast.Print:
-		err := c.compile(_node.Expression)
+		err := c.compile(_node.Expression, symbolTable)
 		if err != nil {
 			return err
 		}
@@ -191,30 +183,30 @@ func (c *Compiler) compile(node ast.Node) error {
 		if _node.Initializer == nil {
 			c.codeEmit(OP_NIL)
 		} else {
-			err := c.compile(_node.Initializer)
+			err := c.compile(_node.Initializer, symbolTable)
 			if err != nil {
 				return err
 			}
 		}
-		index, ok := c.symbolTable.Get(_node.Name.Lexeme)
-		if !ok {
-			return ErrVariableNotDefined
+		index, err := symbolTable.Set(_node.Name.Lexeme)
+		if err != nil {
+			return err
 		}
 		c.codeEmit(OP_SET_GLOBAL, int(index))
 		return nil
 	case *ast.Variable:
-		index, ok := c.symbolTable.Get(_node.Name.Lexeme)
+		index, ok := symbolTable.Get(_node.Name.Lexeme)
 		if !ok {
 			return ErrVariableNotDefined
 		}
 		c.codeEmit(OP_GET_GLOBAL, int(index))
 		return nil
 	case *ast.Assign:
-		err := c.compile(_node.Value)
+		err := c.compile(_node.Value, symbolTable)
 		if err != nil {
 			return err
 		}
-		index, ok := c.symbolTable.Get(_node.Name.Lexeme)
+		index, ok := symbolTable.Get(_node.Name.Lexeme)
 		if !ok {
 			return ErrVariableNotDefined
 		}
