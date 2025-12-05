@@ -2,16 +2,27 @@ package compiler
 
 var Global *SymbolTable
 
+const (
+	GlobalScope string = "GLOBAL"
+	LocalScope  string = "LOCAL"
+)
+
+type SymbolInfo struct {
+	Name  string
+	Index uint64
+	Scope string
+}
+
 type SymbolTable struct {
 	Outer          *SymbolTable
-	Store          map[string]uint64
+	Store          map[string]*SymbolInfo
 	NumDefinitions uint64
 }
 
 func NewSymbolTable(outer *SymbolTable) *SymbolTable {
 	t := &SymbolTable{
 		Outer:          outer,
-		Store:          make(map[string]uint64),
+		Store:          make(map[string]*SymbolInfo),
 		NumDefinitions: 0,
 	}
 	if outer == nil {
@@ -24,35 +35,43 @@ func (s *SymbolTable) SetGlobal(name string) error {
 	if _, ok := s.Store[name]; ok {
 		return ErrVariableAlreadyDefined
 	}
-	s.Store[name] = s.NumDefinitions
+	s.Store[name] = &SymbolInfo{
+		Name:  name,
+		Index: s.NumDefinitions,
+		Scope: GlobalScope,
+	}
 	s.NumDefinitions++
 	return nil
 }
 
-func (s *SymbolTable) Set(name string) (uint64, error) {
+func (s *SymbolTable) Set(name string) (*SymbolInfo, error) {
 	if s.Outer == nil {
-		index, ok := s.Store[name]
+		info, ok := s.Store[name]
 		if !ok {
-			return 0, ErrVariableNotDefined
+			return nil, ErrVariableNotDefined
 		}
-		return index, nil
+		return info, nil
 	} else {
 		if _, ok := s.Store[name]; ok {
-			return 0, ErrVariableAlreadyDefined
+			return nil, ErrVariableAlreadyDefined
 		}
-		index := s.NumDefinitions
-		s.Store[name] = index
+		info := &SymbolInfo{
+			Name:  name,
+			Index: s.NumDefinitions,
+			Scope: LocalScope,
+		}
+		s.Store[name] = info
 		s.NumDefinitions++
-		return index, nil
+		return info, nil
 	}
 }
 
-func (s *SymbolTable) Get(name string) (uint64, bool) {
-	if index, ok := s.Store[name]; ok {
-		return index, true
+func (s *SymbolTable) Get(name string) (*SymbolInfo, bool) {
+	if info, ok := s.Store[name]; ok {
+		return info, true
 	}
 	if s.Outer != nil {
 		return s.Outer.Get(name)
 	}
-	return 0, false
+	return nil, false
 }

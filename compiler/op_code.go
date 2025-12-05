@@ -22,6 +22,8 @@ const (
 	OP_PRINT
 	OP_SET_GLOBAL
 	OP_GET_GLOBAL
+	OP_SET_LOCAL
+	OP_GET_LOCAL
 )
 
 // op 可能有多个操作数
@@ -46,4 +48,6 @@ var operandWidths = map[uint8][]int{
 	OP_PRINT:      {},
 	OP_SET_GLOBAL: {1},
 	OP_GET_GLOBAL: {1},
+	OP_SET_LOCAL:  {1},
+	OP_GET_LOCAL:  {1},
 }

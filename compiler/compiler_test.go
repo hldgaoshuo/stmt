@@ -334,7 +334,7 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			},
 		},
 		{
-			name: "assign",
+			name: "assign 2",
 			source: `
 			var a = 1;
 			a = 2;
@@ -347,6 +347,35 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 				OP_SET_GLOBAL, 0,
 				OP_GET_GLOBAL, 0,
 				OP_PRINT,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 2,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
+		{
+			name: "block",
+			source: `
+			var a = 1;
+			{
+				var a = 2;
+			}
+			`,
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_SET_GLOBAL, 0,
+				OP_CONSTANT, 1,
+				OP_SET_LOCAL, 0,
 			},
 			constants: []*object.Object{
 				{

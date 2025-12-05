@@ -188,29 +188,62 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable) error {
 				return err
 			}
 		}
-		index, err := symbolTable.Set(_node.Name.Lexeme)
+		symbolInfo, err := symbolTable.Set(_node.Name.Lexeme)
 		if err != nil {
 			return err
 		}
-		c.codeEmit(OP_SET_GLOBAL, int(index))
-		return nil
+		switch symbolInfo.Scope {
+		case LocalScope:
+			c.codeEmit(OP_SET_LOCAL, int(symbolInfo.Index))
+			return nil
+		case GlobalScope:
+			c.codeEmit(OP_SET_GLOBAL, int(symbolInfo.Index))
+			return nil
+		default:
+			return ErrInvalidSymbolScope
+		}
 	case *ast.Variable:
-		index, ok := symbolTable.Get(_node.Name.Lexeme)
+		symbolInfo, ok := symbolTable.Get(_node.Name.Lexeme)
 		if !ok {
 			return ErrVariableNotDefined
 		}
-		c.codeEmit(OP_GET_GLOBAL, int(index))
-		return nil
+		switch symbolInfo.Scope {
+		case LocalScope:
+			c.codeEmit(OP_GET_LOCAL, int(symbolInfo.Index))
+			return nil
+		case GlobalScope:
+			c.codeEmit(OP_GET_GLOBAL, int(symbolInfo.Index))
+			return nil
+		default:
+			return ErrInvalidSymbolScope
+		}
 	case *ast.Assign:
 		err := c.compile(_node.Value, symbolTable)
 		if err != nil {
 			return err
 		}
-		index, ok := symbolTable.Get(_node.Name.Lexeme)
+		symbolInfo, ok := symbolTable.Get(_node.Name.Lexeme)
 		if !ok {
 			return ErrVariableNotDefined
 		}
-		c.codeEmit(OP_SET_GLOBAL, int(index))
+		switch symbolInfo.Scope {
+		case LocalScope:
+			c.codeEmit(OP_SET_LOCAL, int(symbolInfo.Index))
+			return nil
+		case GlobalScope:
+			c.codeEmit(OP_SET_GLOBAL, int(symbolInfo.Index))
+			return nil
+		default:
+			return ErrInvalidSymbolScope
+		}
+	case *ast.Block:
+		_symbolTable := NewSymbolTable(symbolTable)
+		for _, statement := range _node.Declarations {
+			err := c.compile(statement, _symbolTable)
+			if err != nil {
+				return err
+			}
+		}
 		return nil
 	default:
 		return ErrInvalidNodeType
