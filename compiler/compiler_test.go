@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestCompiler_Compile(t *testing.T) {
+func TestCompiler_CompileExpr(t *testing.T) {
 	tests := []struct {
 		name      string
 		source    string
@@ -170,6 +170,81 @@ func TestCompiler_Compile(t *testing.T) {
 				return
 			}
 			compiler_ := New([]ast.Node{node})
+			code, constants, err := compiler_.Compile()
+			if err != nil {
+				t.Errorf("Compile() err = %v", err)
+				return
+			}
+			if !reflect.DeepEqual(code, tt.code) {
+				t.Errorf("Compile() code = %v, want %v", code, tt.code)
+			}
+			if !reflect.DeepEqual(constants, tt.constants) {
+				t.Errorf("Compile() constants = %v, want %v", constants, tt.constants)
+			}
+		})
+	}
+}
+
+func TestCompiler_CompileStmtDecl(t *testing.T) {
+	tests := []struct {
+		name      string
+		source    string
+		err       error
+		code      []uint8
+		constants []*object.Object
+	}{
+		{
+			name:   "expr",
+			source: "1+2;",
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_CONSTANT, 1,
+				OP_ADD,
+				OP_POP,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 2,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
+		{
+			name:   "print",
+			source: "print 1;",
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_PRINT,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			scanner_ := scanner.New(tt.source)
+			tokens := scanner_.Scan()
+			parser_ := parser.New(tokens)
+			node, err := parser_.Parse()
+			if err != nil {
+				t.Errorf("Parse() err = %v", err)
+				return
+			}
+			compiler_ := New(node)
 			code, constants, err := compiler_.Compile()
 			if err != nil {
 				t.Errorf("Compile() err = %v", err)

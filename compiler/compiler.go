@@ -154,6 +154,20 @@ func (c *Compiler) compile(node ast.Node) error {
 		default:
 			return ErrInvalidOperatorType
 		}
+	case *ast.ExpressionStatement:
+		err := c.compile(_node.Expression)
+		if err != nil {
+			return err
+		}
+		c.codeEmit(OP_POP)
+		return nil
+	case *ast.Print:
+		err := c.compile(_node.Expression)
+		if err != nil {
+			return err
+		}
+		c.codeEmit(OP_PRINT)
+		return nil
 	default:
 		return ErrInvalidNodeType
 	}

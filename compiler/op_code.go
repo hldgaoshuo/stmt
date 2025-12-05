@@ -18,6 +18,8 @@ const (
 	OP_LT
 	OP_GE
 	OP_LE
+	OP_POP
+	OP_PRINT
 )
 
 // op 可能有多个操作数
@@ -38,4 +40,6 @@ var operandWidths = map[uint8][]int{
 	OP_LT:       {},
 	OP_GE:       {},
 	OP_LE:       {},
+	OP_POP:      {},
+	OP_PRINT:    {},
 }

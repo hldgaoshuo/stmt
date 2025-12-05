@@ -10,7 +10,6 @@ VM::VM(Object::Chunk* chunk) {
     for (uint8_t b : chunk->code()) {
         _code_emit(b);
     }
-    _code_emit(OP_RETURN);
     for (int i = 0; i < chunk->constants_size(); i++) {
         Object::Object* o = chunk->mutable_constants(i);
         _constant_add(o);
@@ -56,22 +55,17 @@ void VM::release(Object::Object* obj) {
     }
 }
 
-std::pair<Object::Object*, Error> VM::interpret_expr() {
-    for (;;) {
+Error VM::interpret() {
+    while (ip < code.size()) {
         switch (uint8_t instruction = code_next()) {
-            case OP_RETURN: {
-                // todo 临时将 result 返回
-                auto result = stack_pop();
-                return {result, Error::SUCCESS};
-            }
             case OP_CONSTANT: {
-                uint8_t constant_index = code_next();
-                Object::Object* constant = constant_get(constant_index);
+                auto constant_index = code_next();
+                auto constant = constant_get(constant_index);
                 stack_push(constant);
                 break;
             }
             case OP_NEGATE: {
-                Object::Object* value = stack_pop();
+                auto value = stack_pop();
                 auto result = new Object::Object();
                 if (value->has_literal_int()) {
                     result->set_literal_int(-value->literal_int());
@@ -81,15 +75,15 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 }
                 else {
                     fmt::print("Invalid operand for OP_NEGATE\n");
-                    return {nullptr, Error::ERROR};
+                    return Error::ERROR;
                 }
                 stack_push(result);
                 release(value);
                 break;
             }
             case OP_ADD: {
-                Object::Object* b = stack_pop();
-                Object::Object* a = stack_pop();
+                auto b = stack_pop();
+                auto a = stack_pop();
                 auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() + b->literal_int());
@@ -108,7 +102,7 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 }
                 else {
                     fmt::print("Invalid operands for OP_ADD\n");
-                    return {nullptr, Error::ERROR};
+                    return Error::ERROR;
                 }
                 stack_push(result);
                 release(a);
@@ -116,8 +110,8 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 break;
             }
             case OP_SUBTRACT: {
-                Object::Object* b = stack_pop();
-                Object::Object* a = stack_pop();
+                auto b = stack_pop();
+                auto a = stack_pop();
                 auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() - b->literal_int());
@@ -133,7 +127,7 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 }
                 else {
                     fmt::print("Invalid operands for OP_SUBTRACT\n");
-                    return {nullptr, Error::ERROR};
+                    return Error::ERROR;
                 }
                 stack_push(result);
                 release(a);
@@ -141,8 +135,8 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 break;
             }
             case OP_MULTIPLY: {
-                Object::Object* b = stack_pop();
-                Object::Object* a = stack_pop();
+                auto b = stack_pop();
+                auto a = stack_pop();
                 auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() * b->literal_int());
@@ -158,7 +152,7 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 }
                 else {
                     fmt::print("Invalid operands for OP_MULTIPLY\n");
-                    return {nullptr, Error::ERROR};
+                    return Error::ERROR;
                 }
                 stack_push(result);
                 release(a);
@@ -166,8 +160,8 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 break;
             }
             case OP_DIVIDE: {
-                Object::Object* b = stack_pop();
-                Object::Object* a = stack_pop();
+                auto b = stack_pop();
+                auto a = stack_pop();
                 auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() / b->literal_int());
@@ -183,7 +177,7 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 }
                 else {
                     fmt::print("Invalid operands for OP_DIVIDE\n");
-                    return {nullptr, Error::ERROR};
+                    return Error::ERROR;
                 }
                 stack_push(result);
                 release(a);
@@ -191,8 +185,8 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 break;
             }
             case OP_MODULO: {
-                Object::Object* b = stack_pop();
-                Object::Object* a = stack_pop();
+                auto b = stack_pop();
+                auto a = stack_pop();
                 auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() % b->literal_int());
@@ -208,7 +202,7 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 }
                 else {
                     fmt::print("Invalid operands for OP_MODULO\n");
-                    return {nullptr, Error::ERROR};
+                    return Error::ERROR;
                 }
                 stack_push(result);
                 release(a);
@@ -234,22 +228,22 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 break;
             }
             case OP_NOT: {
-                Object::Object* value = stack_pop();
+                auto value = stack_pop();
                 auto result = new Object::Object();
                 if (value->has_literal_bool()) {
                     result->set_literal_bool(!value->literal_bool());
                 }
                 else {
                     fmt::print("Invalid operand for OP_NOT\n");
-                    return {nullptr, Error::ERROR};
+                    return Error::ERROR;
                 }
                 stack_push(result);
                 release(value);
                 break;
             }
             case OP_EQ: {
-                Object::Object* b = stack_pop();
-                Object::Object* a = stack_pop();
+                auto b = stack_pop();
+                auto a = stack_pop();
                 auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() == b->literal_int());
@@ -271,7 +265,7 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 }
                 else {
                     fmt::print("Invalid operands for OP_EQ\n");
-                    return {nullptr, Error::ERROR};
+                    return Error::ERROR;
                 }
                 stack_push(result);
                 release(a);
@@ -279,8 +273,8 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 break;
             }
             case OP_GT: {
-                Object::Object* b = stack_pop();
-                Object::Object* a = stack_pop();
+                auto b = stack_pop();
+                auto a = stack_pop();
                 auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() > b->literal_int());
@@ -296,7 +290,7 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 }
                 else {
                     fmt::print("Invalid operands for OP_GT\n");
-                    return {nullptr, Error::ERROR};
+                    return Error::ERROR;
                 }
                 stack_push(result);
                 release(a);
@@ -304,8 +298,8 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 break;
             }
             case OP_LT: {
-                Object::Object* b = stack_pop();
-                Object::Object* a = stack_pop();
+                auto b = stack_pop();
+                auto a = stack_pop();
                 auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() < b->literal_int());
@@ -321,7 +315,7 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 }
                 else {
                     fmt::print("Invalid operands for OP_LT\n");
-                    return {nullptr, Error::ERROR};
+                    return Error::ERROR;
                 }
                 stack_push(result);
                 release(a);
@@ -329,8 +323,8 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 break;
             }
             case OP_GE: {
-                Object::Object* b = stack_pop();
-                Object::Object* a = stack_pop();
+                auto b = stack_pop();
+                auto a = stack_pop();
                 auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() >= b->literal_int());
@@ -346,7 +340,7 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 }
                 else {
                     fmt::print("Invalid operands for OP_GE\n");
-                    return {nullptr, Error::ERROR};
+                    return Error::ERROR;
                 }
                 stack_push(result);
                 release(a);
@@ -354,8 +348,8 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 break;
             }
             case OP_LE: {
-                Object::Object* b = stack_pop();
-                Object::Object* a = stack_pop();
+                auto b = stack_pop();
+                auto a = stack_pop();
                 auto result = new Object::Object();
                 if (a->has_literal_int() && b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() <= b->literal_int());
@@ -371,16 +365,42 @@ std::pair<Object::Object*, Error> VM::interpret_expr() {
                 }
                 else {
                     fmt::print("Invalid operands for OP_LE\n");
-                    return {nullptr, Error::ERROR};
+                    return Error::ERROR;
                 }
                 stack_push(result);
                 release(a);
                 release(b);
                 break;
             }
-            default:
+            case OP_POP: {
+                auto value = stack_pop();
+                release(value);
+                break;
+            }
+            case OP_PRINT: {
+                Object::Object* value = stack_pop();
+                if (value->has_literal_int()) {
+                    fmt::print("{}\n", value->literal_int());
+                }
+                else if (value->has_literal_float()) {
+                    fmt::print("{}\n", value->literal_float());
+                }
+                else if (value->has_literal_string()) {
+                    fmt::print("{}\n", value->literal_string());
+                }
+                else if (value->has_literal_bool()) {
+                    fmt::print("{}\n", value->literal_bool());
+                }
+                else if (value->has_literal_nil()) {
+                    fmt::print("nil\n");
+                }
+                break;
+            }
+            default: {
                 fmt::print("Unknown opcode {}\n", instruction);
-                return {nullptr, Error::ERROR};
+                return Error::ERROR;
+            }
         }
     }
+    return Error::SUCCESS;
 }

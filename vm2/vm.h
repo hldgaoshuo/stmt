@@ -28,6 +28,8 @@ typedef enum {
     OP_LT,
     OP_GE,
     OP_LE,
+    OP_POP,
+    OP_PRINT,
 } OpCode;
 
 enum class Error {
@@ -55,7 +57,7 @@ public:
     void stack_push(Object::Object* value);
     Object::Object* stack_pop();
 
-    std::pair<Object::Object*, Error> interpret_expr();
+    Error interpret();
 
     // gc
     static void release(Object::Object* obj);

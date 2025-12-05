@@ -13,10 +13,12 @@ static bool test_literal_int() {
     c1->set_literal_int(1);
 
     VM vm(chunk);
-    auto [result, err] = vm.interpret_expr();
+    auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
     }
+
+    auto result = vm.stack_pop();
     if (!result->has_literal_int()) {
         return false;
     }
@@ -36,10 +38,12 @@ static bool test_literal_float() {
     c1->set_literal_float(1.5);
 
     VM vm(chunk);
-    auto [result, err] = vm.interpret_expr();
+    auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
     }
+
+    auto result = vm.stack_pop();
     if (!result->has_literal_float()) {
         return false;
     }
@@ -60,10 +64,12 @@ static bool test_negate() {
     c1->set_literal_int(5);
 
     VM vm(chunk);
-    auto [result, err] = vm.interpret_expr();
+    auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
     }
+
+    auto result = vm.stack_pop();
     if (!result->has_literal_int()) {
         return false;
     }
@@ -87,10 +93,12 @@ static bool test_add() {
     c2->set_literal_int(2);
 
     VM vm(chunk);
-    auto [result, err] = vm.interpret_expr();
+    auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
     }
+
+    auto result = vm.stack_pop();
     if (!result->has_literal_int()) {
         return false;
     }
@@ -107,10 +115,12 @@ static bool test_literal_true() {
     chunk->set_code(code);
 
     VM vm(chunk);
-    auto [result, err] = vm.interpret_expr();
+    auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
     }
+
+    auto result = vm.stack_pop();
     if (!result->has_literal_bool()) {
         return false;
     }
@@ -127,10 +137,12 @@ static bool test_literal_false() {
     chunk->set_code(code);
 
     VM vm(chunk);
-    auto [result, err] = vm.interpret_expr();
+    auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
     }
+
+    auto result = vm.stack_pop();
     if (!result->has_literal_bool()) {
         return false;
     }
@@ -147,10 +159,12 @@ static bool test_literal_nil() {
     chunk->set_code(code);
 
     VM vm(chunk);
-    auto [result, err] = vm.interpret_expr();
+    auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
     }
+
+    auto result = vm.stack_pop();
     if (!result->has_literal_nil()) {
         return false;
     }
@@ -171,10 +185,12 @@ static bool test_not() {
     c1->set_literal_bool(true);
 
     VM vm(chunk);
-    auto [result, err] = vm.interpret_expr();
+    auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
     }
+
+    auto result = vm.stack_pop();
     if (!result->has_literal_bool()) {
         return false;
     }
@@ -198,10 +214,12 @@ static bool test_eq() {
     c2->set_literal_bool(true);
 
     VM vm(chunk);
-    auto [result, err] = vm.interpret_expr();
+    auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
     }
+
+    auto result = vm.stack_pop();
     if (!result->has_literal_bool()) {
         return false;
     }
@@ -225,10 +243,12 @@ static bool test_gt() {
     c2->set_literal_int(1);
 
     VM vm(chunk);
-    auto [result, err] = vm.interpret_expr();
+    auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
     }
+
+    auto result = vm.stack_pop();
     if (!result->has_literal_bool()) {
         return false;
     }
@@ -248,10 +268,12 @@ static bool test_literal_string() {
     c1->set_literal_string("abc");
 
     VM vm(chunk);
-    auto [result, err] = vm.interpret_expr();
+    auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
     }
+
+    auto result = vm.stack_pop();
     if (!result->has_literal_string()) {
         return false;
     }
@@ -275,14 +297,34 @@ static bool test_add_string() {
     c2->set_literal_string("def");
 
     VM vm(chunk);
-    auto [result, err] = vm.interpret_expr();
+    auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
     }
+
+    auto result = vm.stack_pop();
     if (!result->has_literal_string()) {
         return false;
     }
     if (result->literal_string() != "abcdef") {
+        return false;
+    }
+    return true;
+}
+
+static bool test_print() {
+    const auto chunk = new Object::Chunk();
+    std::string code;
+    code.push_back(OP_CONSTANT); code.push_back(0);
+    code.push_back(OP_PRINT);
+    chunk->set_code(code);
+
+    const auto c1 = chunk->add_constants();
+    c1->set_literal_int(1);
+
+    VM vm(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
         return false;
     }
     return true;
@@ -307,6 +349,7 @@ int main() {
         {"test_gt", test_gt},
         {"test_literal_string", test_literal_string},
         {"test_add_string", test_add_string},
+        {"test_print", test_print},
     };
 
     for (auto &t : tests) {
