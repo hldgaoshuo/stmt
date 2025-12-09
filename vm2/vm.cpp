@@ -41,6 +41,10 @@ Object::Object* VM::stack_pop() {
     stack.pop_back();
     return value;
 }
+Object::Object* VM::stack_peek() {
+    Object::Object* value = stack.back();
+    return value;
+}
 
 void VM::retain(Object::Object* obj) {
     auto ref_count = obj->ref_count();
@@ -407,6 +411,28 @@ Error VM::interpret() {
                 auto global_index = code_next();
                 auto global_value = globals[global_index];
                 stack_push(global_value);
+                break;
+            }
+            case OP_JUMP_FALSE: {
+                auto _ip = code_next();
+                if (auto cond = stack_peek(); cond->has_literal_bool()) {
+                    if (!cond->literal_bool()) {
+                        ip = _ip;
+                    }
+                } else {
+                    fmt::print("Invalid operands for OP_JUMP_FALSE\n");
+                    return Error::ERROR;
+                }
+                break;
+            }
+            case OP_JUMP: {
+                auto _ip = code_next();
+                ip = _ip;
+                break;
+            }
+            case OP_LOOP: {
+                auto _ip = code_next();
+                ip = _ip;
                 break;
             }
             default: {

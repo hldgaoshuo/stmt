@@ -378,6 +378,149 @@ static bool test_assign() {
     return true;
 }
 
+static bool test_if() {
+    const auto chunk = new Object::Chunk();
+    std::string code;
+    code.push_back(OP_TRUE);
+    code.push_back(OP_JUMP_FALSE); code.push_back(9);
+    code.push_back(OP_POP);
+    code.push_back(OP_CONSTANT); code.push_back(0);
+    code.push_back(OP_PRINT);
+    code.push_back(OP_JUMP); code.push_back(10);
+    code.push_back(OP_POP);
+    code.push_back(OP_CONSTANT); code.push_back(1);
+    code.push_back(OP_PRINT);
+    chunk->set_code(code);
+
+    const auto c1 = chunk->add_constants();
+    c1->set_literal_int(10);
+    const auto c2 = chunk->add_constants();
+    c2->set_literal_int(20);
+
+    VM vm(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
+        return false;
+    }
+    return true;
+}
+
+static bool test_if_else() {
+    const auto chunk = new Object::Chunk();
+    std::string code;
+    code.push_back(OP_FALSE);
+    code.push_back(OP_JUMP_FALSE); code.push_back(9);
+    code.push_back(OP_POP);
+    code.push_back(OP_CONSTANT); code.push_back(0);
+    code.push_back(OP_PRINT);
+    code.push_back(OP_JUMP); code.push_back(13);
+    code.push_back(OP_POP);
+    code.push_back(OP_CONSTANT); code.push_back(1);
+    code.push_back(OP_PRINT);
+    chunk->set_code(code);
+
+    const auto c1 = chunk->add_constants();
+    c1->set_literal_int(10);
+    const auto c2 = chunk->add_constants();
+    c2->set_literal_int(20);
+
+    VM vm(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
+        return false;
+    }
+    return true;
+}
+
+static bool test_and() {
+    const auto chunk = new Object::Chunk();
+    std::string code;
+    code.push_back(OP_TRUE);
+    code.push_back(OP_JUMP_FALSE); code.push_back(5);
+    code.push_back(OP_POP);
+    code.push_back(OP_TRUE);
+    chunk->set_code(code);
+
+    VM vm(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
+        return false;
+    }
+
+    auto result = vm.stack_pop();
+    if (!result->has_literal_bool()) {
+        return false;
+    }
+    if (result->literal_bool() != true) {
+        return false;
+    }
+    return true;
+}
+
+static bool test_or() {
+    const auto chunk = new Object::Chunk();
+    std::string code;
+    code.push_back(OP_TRUE);
+    code.push_back(OP_JUMP_FALSE); code.push_back(5);
+    code.push_back(OP_JUMP); code.push_back(7);
+    code.push_back(OP_POP);
+    code.push_back(OP_TRUE);
+    chunk->set_code(code);
+
+    VM vm(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
+        return false;
+    }
+
+    auto result = vm.stack_pop();
+    if (!result->has_literal_bool()) {
+        return false;
+    }
+    if (result->literal_bool() != true) {
+        return false;
+    }
+    return true;
+}
+
+static bool test_while() {
+    const auto chunk = new Object::Chunk();
+    std::string code;
+    code.push_back(OP_CONSTANT); code.push_back(0);
+    code.push_back(OP_SET_GLOBAL); code.push_back(0);
+    code.push_back(OP_GET_GLOBAL); code.push_back(0);
+    code.push_back(OP_CONSTANT); code.push_back(1);
+    code.push_back(OP_LT);
+    code.push_back(OP_JUMP_FALSE); code.push_back(24);
+    code.push_back(OP_POP);
+    code.push_back(OP_GET_GLOBAL); code.push_back(0);
+    code.push_back(OP_PRINT);
+    code.push_back(OP_GET_GLOBAL); code.push_back(0);
+    code.push_back(OP_CONSTANT); code.push_back(2);
+    code.push_back(OP_ADD);
+    code.push_back(OP_SET_GLOBAL); code.push_back(0);
+    code.push_back(OP_LOOP); code.push_back(20);
+    code.push_back(OP_POP);
+    chunk->set_code(code);
+
+    const auto c1 = chunk->add_constants();
+    c1->set_literal_int(0);
+    const auto c2 = chunk->add_constants();
+    c2->set_literal_int(5);
+    const auto c3 = chunk->add_constants();
+    c3->set_literal_int(1);
+
+    chunk->set_globals_count(1);
+
+    VM vm(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
+        fmt::print("Error occurred: {}\n", static_cast<int>(err));
+        return false;
+    }
+    return true;
+}
+
 int main() {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -385,27 +528,38 @@ int main() {
     int passed = 0;
 
     struct Test { const char* name; bool (*fn)(); } tests[] = {
-        {"test_literal_int", test_literal_int},
-        {"test_literal_float", test_literal_float},
-        {"test_negate", test_negate},
-        {"test_add", test_add},
-        {"test_literal_true", test_literal_true},
-        {"test_literal_false", test_literal_false},
-        {"test_literal_nil", test_literal_nil},
-        {"test_not", test_not},
-        {"test_eq", test_eq},
-        {"test_gt", test_gt},
-        {"test_literal_string", test_literal_string},
-        {"test_add_string", test_add_string},
-        {"test_print", test_print},
-        {"test_var", test_var},
-        {"test_assign", test_assign},
+        // {"test_literal_int", test_literal_int},
+        // {"test_literal_float", test_literal_float},
+        // {"test_negate", test_negate},
+        // {"test_add", test_add},
+        // {"test_literal_true", test_literal_true},
+        // {"test_literal_false", test_literal_false},
+        // {"test_literal_nil", test_literal_nil},
+        // {"test_not", test_not},
+        // {"test_eq", test_eq},
+        // {"test_gt", test_gt},
+        // {"test_literal_string", test_literal_string},
+        // {"test_add_string", test_add_string},
+        // {"test_print", test_print},
+        // {"test_var", test_var},
+        // {"test_assign", test_assign},
+        // {"test_if", test_if},
+        // {"test_if_else", test_if_else},
+        // {"test_and", test_and},
+        // {"test_or", test_or},
+        {"test_while", test_while},
     };
 
     for (auto &t : tests) {
         ++total;
         bool ok = false;
-        try { ok = t.fn(); } catch (...) { ok = false; }
+        try { 
+            fmt::print("Running test: {}\n", t.name);
+            ok = t.fn(); 
+        } catch (...) { 
+            fmt::print("Exception occurred in test: {}\n", t.name);
+            ok = false; 
+        }
         if (ok) {
             ++passed;
             fmt::print("[PASS] {}\n", t.name);

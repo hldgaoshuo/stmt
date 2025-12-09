@@ -32,6 +32,9 @@ typedef enum {
     OP_PRINT,
     OP_SET_GLOBAL,
     OP_GET_GLOBAL,
+    OP_JUMP_FALSE,
+    OP_JUMP,
+    OP_LOOP,
 } OpCode;
 
 enum class Error {
@@ -58,6 +61,7 @@ public:
     std::vector<Object::Object*> stack;
     void stack_push(Object::Object* value);
     Object::Object* stack_pop();
+    Object::Object* stack_peek();
 
     // globals
     std::vector<Object::Object*> globals;

@@ -3,6 +3,7 @@ package compiler
 import "errors"
 
 var (
+	ErrOpCodeMismatch         = errors.New("opcode mismatch")
 	ErrInvalidNodeType        = errors.New("invalid node type")
 	ErrInvalidOperandType     = errors.New("invalid operand type")
 	ErrInvalidOperatorType    = errors.New("invalid operator type")

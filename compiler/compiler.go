@@ -245,15 +245,118 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable) error {
 			}
 		}
 		return nil
+	case *ast.If:
+		err := c.compile(_node.Condition, symbolTable)
+		if err != nil {
+			return err
+		}
+		offsetFalse := c.codeEmit(OP_JUMP_FALSE, 0)
+		c.codeEmit(OP_POP)
+		err = c.compile(_node.ThenBranch, symbolTable)
+		if err != nil {
+			return err
+		}
+		offset := c.codeEmit(OP_JUMP, 0)
+		err = c.codePatch(offsetFalse, OP_JUMP_FALSE)
+		if err != nil {
+			return err
+		}
+		c.codeEmit(OP_POP)
+		if _node.ElseBranch != nil {
+			err = c.compile(_node.ElseBranch, symbolTable)
+			if err != nil {
+				return err
+			}
+		}
+		err = c.codePatch(offset, OP_JUMP)
+		if err != nil {
+			return err
+		}
+		return nil
+	case *ast.Logical:
+		err := c.compile(_node.Left, symbolTable)
+		if err != nil {
+			return err
+		}
+		switch _node.Operator.TokenType {
+		case token.AND:
+			offsetFalse := c.codeEmit(OP_JUMP_FALSE, 0)
+			c.codeEmit(OP_POP)
+			err = c.compile(_node.Right, symbolTable)
+			if err != nil {
+				return err
+			}
+			err = c.codePatch(offsetFalse, OP_JUMP_FALSE)
+			if err != nil {
+				return err
+			}
+			return nil
+		case token.OR:
+			offsetFalse := c.codeEmit(OP_JUMP_FALSE, 0)
+			offset := c.codeEmit(OP_JUMP, 0)
+			err = c.codePatch(offsetFalse, OP_JUMP_FALSE)
+			if err != nil {
+				return err
+			}
+			c.codeEmit(OP_POP)
+			err = c.compile(_node.Right, symbolTable)
+			if err != nil {
+				return err
+			}
+			err = c.codePatch(offset, OP_JUMP)
+			if err != nil {
+				return err
+			}
+			return nil
+		default:
+			return ErrInvalidOperatorType
+		}
+	case *ast.While:
+		loop := c.codeOffset()
+		err := c.compile(_node.Condition, symbolTable)
+		if err != nil {
+			return err
+		}
+		offsetFalse := c.codeEmit(OP_JUMP_FALSE, 0)
+		c.codeEmit(OP_POP)
+		err = c.compile(_node.Body, symbolTable)
+		if err != nil {
+			return err
+		}
+		c.codeEmit(OP_LOOP, loop)
+		err = c.codePatch(offsetFalse, OP_JUMP_FALSE)
+		if err != nil {
+			return err
+		}
+		c.codeEmit(OP_POP)
+		return nil
 	default:
 		return ErrInvalidNodeType
 	}
 }
 
 // code
-func (c *Compiler) codeEmit(op uint8, operands ...int) {
+func (c *Compiler) codePatch(offset int, op uint8) error {
+	_op := c.code[offset]
+	if _op != op {
+		return ErrOpCodeMismatch
+	}
+	operand := c.codeOffset()
+	code := c.codeMake(op, operand)
+	copy(c.code[offset:], code)
+	return nil
+}
+
+func (c *Compiler) codeEmit(op uint8, operands ...int) int {
+	offset := c.codeOffset()
 	code := c.codeMake(op, operands...)
 	c.code = append(c.code, code...)
+	return offset
+}
+
+func (c *Compiler) codeOffset() int {
+	offset := len(c.code)
+	return offset
 }
 
 func (c *Compiler) codeMake(op byte, operands ...int) []byte {

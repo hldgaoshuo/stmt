@@ -392,6 +392,156 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "if",
+			source: `
+			if (true)
+			{
+				print 10;
+			}
+			print 20;
+			`,
+			code: []uint8{
+				OP_TRUE,
+				OP_JUMP_FALSE, 9,
+				OP_POP,
+				OP_CONSTANT, 0,
+				OP_PRINT,
+				OP_JUMP, 10,
+				OP_POP,
+				OP_CONSTANT, 1,
+				OP_PRINT,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 10,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 20,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
+		{
+			name: "if else",
+			source: `
+			if (false)
+			{
+				print 10;
+			}
+			else
+			{
+				print 20;
+			}
+			`,
+			code: []uint8{
+				OP_FALSE,
+				OP_JUMP_FALSE, 9,
+				OP_POP,
+				OP_CONSTANT, 0,
+				OP_PRINT,
+				OP_JUMP, 13,
+				OP_POP,
+				OP_CONSTANT, 1,
+				OP_PRINT,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 10,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 20,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
+		{
+			name: "and",
+			source: `
+			true and true;
+			`,
+			code: []uint8{
+				OP_TRUE,
+				OP_JUMP_FALSE, 5,
+				OP_POP,
+				OP_TRUE,
+				OP_POP,
+			},
+			constants: []*object.Object{},
+		},
+		{
+			name: "or",
+			source: `
+			true or true;
+			`,
+			code: []uint8{
+				OP_TRUE,
+				OP_JUMP_FALSE, 5,
+				OP_JUMP, 7,
+				OP_POP,
+				OP_TRUE,
+				OP_POP,
+			},
+			constants: []*object.Object{},
+		},
+		{
+			name: "while",
+			source: `
+			var i = 0;
+			while (i < 5)
+			{
+				print i;
+				i = i + 1;
+			}
+			`,
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_SET_GLOBAL, 0,
+				OP_GET_GLOBAL, 0,
+				OP_CONSTANT, 1,
+				OP_LT,
+				OP_JUMP_FALSE, 24,
+				OP_POP,
+				OP_GET_GLOBAL, 0,
+				OP_PRINT,
+				OP_GET_GLOBAL, 0,
+				OP_CONSTANT, 2,
+				OP_ADD,
+				OP_SET_GLOBAL, 0,
+				OP_LOOP, 4,
+				OP_POP,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 0,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 5,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -410,7 +560,7 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(code, tt.code) {
-				t.Errorf("Compile() code = %v, want %v", code, tt.code)
+				t.Errorf("Compile() \n code: %v \n want: %v", code, tt.code)
 			}
 			if !reflect.DeepEqual(constants, tt.constants) {
 				t.Errorf("Compile() constants = %v, want %v", constants, tt.constants)

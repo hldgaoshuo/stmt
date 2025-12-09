@@ -24,6 +24,11 @@ const (
 	OP_GET_GLOBAL
 	OP_SET_LOCAL
 	OP_GET_LOCAL
+	OP_JUMP_FALSE
+	OP_JUMP
+	OP_AND
+	OP_OR
+	OP_LOOP
 )
 
 // op 可能有多个操作数
@@ -50,4 +55,9 @@ var operandWidths = map[uint8][]int{
 	OP_GET_GLOBAL: {1},
 	OP_SET_LOCAL:  {1},
 	OP_GET_LOCAL:  {1},
+	OP_JUMP_FALSE: {1},
+	OP_JUMP:       {1},
+	OP_AND:        {},
+	OP_OR:         {},
+	OP_LOOP:       {1},
 }
