@@ -499,7 +499,7 @@ static bool test_while() {
     code.push_back(OP_CONSTANT); code.push_back(2);
     code.push_back(OP_ADD);
     code.push_back(OP_SET_GLOBAL); code.push_back(0);
-    code.push_back(OP_LOOP); code.push_back(20);
+    code.push_back(OP_LOOP); code.push_back(4);
     code.push_back(OP_POP);
     chunk->set_code(code);
 
@@ -528,25 +528,25 @@ int main() {
     int passed = 0;
 
     struct Test { const char* name; bool (*fn)(); } tests[] = {
-        // {"test_literal_int", test_literal_int},
-        // {"test_literal_float", test_literal_float},
-        // {"test_negate", test_negate},
-        // {"test_add", test_add},
-        // {"test_literal_true", test_literal_true},
-        // {"test_literal_false", test_literal_false},
-        // {"test_literal_nil", test_literal_nil},
-        // {"test_not", test_not},
-        // {"test_eq", test_eq},
-        // {"test_gt", test_gt},
-        // {"test_literal_string", test_literal_string},
-        // {"test_add_string", test_add_string},
-        // {"test_print", test_print},
-        // {"test_var", test_var},
-        // {"test_assign", test_assign},
-        // {"test_if", test_if},
-        // {"test_if_else", test_if_else},
-        // {"test_and", test_and},
-        // {"test_or", test_or},
+        {"test_literal_int", test_literal_int},
+        {"test_literal_float", test_literal_float},
+        {"test_negate", test_negate},
+        {"test_add", test_add},
+        {"test_literal_true", test_literal_true},
+        {"test_literal_false", test_literal_false},
+        {"test_literal_nil", test_literal_nil},
+        {"test_not", test_not},
+        {"test_eq", test_eq},
+        {"test_gt", test_gt},
+        {"test_literal_string", test_literal_string},
+        {"test_add_string", test_add_string},
+        {"test_print", test_print},
+        {"test_var", test_var},
+        {"test_assign", test_assign},
+        {"test_if", test_if},
+        {"test_if_else", test_if_else},
+        {"test_and", test_and},
+        {"test_or", test_or},
         {"test_while", test_while},
     };
 
