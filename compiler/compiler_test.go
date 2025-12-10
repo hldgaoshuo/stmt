@@ -307,6 +307,44 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			},
 		},
 		{
+			name: "var 5",
+			source: `
+			var a = 1;
+			print a;
+			{
+				var a = 2;
+				print a;
+			}
+			print a;
+			`,
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_SET_GLOBAL, 0,
+				OP_GET_GLOBAL, 0,
+				OP_PRINT,
+				OP_CONSTANT, 1,
+				OP_SET_LOCAL, 0,
+				OP_GET_LOCAL, 0,
+				OP_PRINT,
+				OP_GET_GLOBAL, 0,
+				OP_PRINT,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 2,
+					},
+					ObjectType: object.ObjectType_OBJ_INT,
+				},
+			},
+		},
+		{
 			name: "assign",
 			source: `
 			var a = 1;

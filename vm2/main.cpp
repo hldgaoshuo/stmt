@@ -378,6 +378,36 @@ static bool test_assign() {
     return true;
 }
 
+static bool test_block() {
+    const auto chunk = new Object::Chunk();
+    std::string code;
+    code.push_back(OP_CONSTANT); code.push_back(0);
+    code.push_back(OP_SET_GLOBAL); code.push_back(0);
+    code.push_back(OP_GET_GLOBAL); code.push_back(0);
+    code.push_back(OP_PRINT);
+    code.push_back(OP_CONSTANT); code.push_back(1);
+    code.push_back(OP_SET_LOCAL); code.push_back(0);
+    code.push_back(OP_GET_LOCAL); code.push_back(0);
+    code.push_back(OP_PRINT);
+    code.push_back(OP_GET_GLOBAL); code.push_back(0);
+    code.push_back(OP_PRINT);
+    chunk->set_code(code);
+
+    const auto c1 = chunk->add_constants();
+    c1->set_literal_int(1);
+    const auto c2 = chunk->add_constants();
+    c2->set_literal_int(2);
+
+    chunk->set_globals_count(1);
+
+    VM vm(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
+        return false;
+    }
+    return true;
+}
+
 static bool test_if() {
     const auto chunk = new Object::Chunk();
     std::string code;
@@ -544,6 +574,7 @@ int main() {
         {"test_var", test_var},
         {"test_assign", test_assign},
         {"test_if", test_if},
+        {"test_block", test_block},
         {"test_if_else", test_if_else},
         {"test_and", test_and},
         {"test_or", test_or},

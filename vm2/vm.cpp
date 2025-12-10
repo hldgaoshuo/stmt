@@ -45,6 +45,12 @@ Object::Object* VM::stack_peek() {
     Object::Object* value = stack.back();
     return value;
 }
+void VM::stack_set(uint8_t index, Object::Object* value) {
+    stack[index] = value;
+}
+Object::Object* VM::stack_get(uint8_t index) {
+    return stack[index];
+}
 
 void VM::retain(Object::Object* obj) {
     auto ref_count = obj->ref_count();
@@ -411,6 +417,18 @@ Error VM::interpret() {
                 auto global_index = code_next();
                 auto global_value = globals[global_index];
                 stack_push(global_value);
+                break;
+            }
+            case OP_SET_LOCAL: {
+                auto local_index = code_next();
+                auto local_value = stack_pop();
+                stack_set(local_index, local_value);
+                break;
+            }
+            case OP_GET_LOCAL: {
+                auto local_index = code_next();
+                auto local_value = stack_get(local_index);
+                stack_push(local_value);
                 break;
             }
             case OP_JUMP_FALSE: {

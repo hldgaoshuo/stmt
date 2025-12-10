@@ -32,6 +32,8 @@ typedef enum {
     OP_PRINT,
     OP_SET_GLOBAL,
     OP_GET_GLOBAL,
+    OP_SET_LOCAL,
+    OP_GET_LOCAL,
     OP_JUMP_FALSE,
     OP_JUMP,
     OP_LOOP,
@@ -62,6 +64,8 @@ public:
     void stack_push(Object::Object* value);
     Object::Object* stack_pop();
     Object::Object* stack_peek();
+    void stack_set(uint8_t index, Object::Object* value);
+    Object::Object* stack_get(uint8_t index);
 
     // globals
     std::vector<Object::Object*> globals;
