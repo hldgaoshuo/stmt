@@ -323,6 +323,44 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		}
 		scope.CodeEmit(OP_POP)
 		return nil
+	case *ast.Function:
+		symbolInfo, err := symbolTable.Set(_node.Name.Lexeme)
+		if err != nil {
+			return err
+		}
+		_symbolTable := NewSymbolTable(symbolTable)
+		for _, param := range _node.Params {
+			_, err = _symbolTable.Set(param.Lexeme)
+			if err != nil {
+				return err
+			}
+		}
+		_scope := NewScope()
+		err = c.compile(_node.Body, _symbolTable, _scope)
+		if err != nil {
+			return err
+		}
+		obj := &object.Object{
+			ObjectType: object.ObjectType_OBJ_FUNCTION,
+			Literal: &object.Object_LiteralFunction{
+				LiteralFunction: &object.Function{
+					Code:      _scope.Code,
+					NumParams: uint64(len(_node.Params)),
+				},
+			},
+		}
+		index := c.constantAdd(obj)
+		scope.CodeEmit(OP_CONSTANT, index)
+		switch symbolInfo.Scope {
+		case LocalScope:
+			scope.CodeEmit(OP_SET_LOCAL, int(symbolInfo.Index))
+			return nil
+		case GlobalScope:
+			scope.CodeEmit(OP_SET_GLOBAL, int(symbolInfo.Index))
+			return nil
+		default:
+			return ErrInvalidSymbolScope
+		}
 	default:
 		return ErrInvalidNodeType
 	}

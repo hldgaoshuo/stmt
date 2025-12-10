@@ -12,6 +12,12 @@ enum ObjectType {
   OBJ_BOOL = 2;
   OBJ_NIL = 3;
   OBJ_STRING = 4;
+  OBJ_FUNCTION = 5;
+}
+
+message Function {
+  bytes code = 1;
+  uint64 num_params = 2;
 }
 
 message Object {
@@ -23,6 +29,7 @@ message Object {
     bool literal_bool = 5;
     string literal_nil = 6;
     string literal_string = 7;
+    Function literal_function = 8;
   }
 }
 

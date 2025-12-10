@@ -56,6 +56,9 @@ namespace Object {
 class Chunk;
 struct ChunkDefaultTypeInternal;
 extern ChunkDefaultTypeInternal _Chunk_default_instance_;
+class Function;
+struct FunctionDefaultTypeInternal;
+extern FunctionDefaultTypeInternal _Function_default_instance_;
 class Object;
 struct ObjectDefaultTypeInternal;
 extern ObjectDefaultTypeInternal _Object_default_instance_;
@@ -72,6 +75,7 @@ enum ObjectType : int {
   OBJ_BOOL = 2,
   OBJ_NIL = 3,
   OBJ_STRING = 4,
+  OBJ_FUNCTION = 5,
   ObjectType_INT_MIN_SENTINEL_DO_NOT_USE_ =
       std::numeric_limits<::int32_t>::min(),
   ObjectType_INT_MAX_SENTINEL_DO_NOT_USE_ =
@@ -81,8 +85,8 @@ enum ObjectType : int {
 bool ObjectType_IsValid(int value);
 extern const uint32_t ObjectType_internal_data_[];
 constexpr ObjectType ObjectType_MIN = static_cast<ObjectType>(0);
-constexpr ObjectType ObjectType_MAX = static_cast<ObjectType>(4);
-constexpr int ObjectType_ARRAYSIZE = 4 + 1;
+constexpr ObjectType ObjectType_MAX = static_cast<ObjectType>(5);
+constexpr int ObjectType_ARRAYSIZE = 5 + 1;
 const ::google::protobuf::EnumDescriptor*
 ObjectType_descriptor();
 template <typename T>
@@ -95,7 +99,7 @@ const std::string& ObjectType_Name(T value) {
 template <>
 inline const std::string& ObjectType_Name(ObjectType value) {
   return ::google::protobuf::internal::NameOfDenseEnum<ObjectType_descriptor,
-                                                 0, 4>(
+                                                 0, 5>(
       static_cast<int>(value));
 }
 inline bool ObjectType_Parse(absl::string_view name, ObjectType* value) {
@@ -106,6 +110,214 @@ inline bool ObjectType_Parse(absl::string_view name, ObjectType* value) {
 // ===================================================================
 
 
+// -------------------------------------------------------------------
+
+class Function final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:Object.Function) */ {
+ public:
+  inline Function() : Function(nullptr) {}
+  ~Function() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(Function* msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(Function));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR Function(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline Function(const Function& from) : Function(nullptr, from) {}
+  inline Function(Function&& from) noexcept
+      : Function(nullptr, std::move(from)) {}
+  inline Function& operator=(const Function& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Function& operator=(Function&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Function& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const Function* internal_default_instance() {
+    return reinterpret_cast<const Function*>(
+        &_Function_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 0;
+  friend void swap(Function& a, Function& b) { a.Swap(&b); }
+  inline void Swap(Function* other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Function* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Function* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<Function>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const Function& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const Function& from) { Function::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(Function* other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "Object.Function"; }
+
+ protected:
+  explicit Function(::google::protobuf::Arena* arena);
+  Function(::google::protobuf::Arena* arena, const Function& from);
+  Function(::google::protobuf::Arena* arena, Function&& from) noexcept
+      : Function(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
+  static constexpr auto InternalNewImpl_();
+  static const ::google::protobuf::internal::ClassDataFull _class_data_;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kCodeFieldNumber = 1,
+    kNumParamsFieldNumber = 2,
+  };
+  // bytes code = 1;
+  void clear_code() ;
+  const std::string& code() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_code(Arg_&& arg, Args_... args);
+  std::string* mutable_code();
+  PROTOBUF_NODISCARD std::string* release_code();
+  void set_allocated_code(std::string* value);
+
+  private:
+  const std::string& _internal_code() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_code(
+      const std::string& value);
+  std::string* _internal_mutable_code();
+
+  public:
+  // uint64 num_params = 2;
+  void clear_num_params() ;
+  ::uint64_t num_params() const;
+  void set_num_params(::uint64_t value);
+
+  private:
+  ::uint64_t _internal_num_params() const;
+  void _internal_set_num_params(::uint64_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:Object.Function)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 0,
+      0, 2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const Function& from_msg);
+    ::google::protobuf::internal::ArenaStringPtr code_;
+    ::uint64_t num_params_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_object_2eproto;
+};
 // -------------------------------------------------------------------
 
 class Object final : public ::google::protobuf::Message
@@ -169,13 +381,14 @@ class Object final : public ::google::protobuf::Message
     kLiteralBool = 5,
     kLiteralNil = 6,
     kLiteralString = 7,
+    kLiteralFunction = 8,
     LITERAL_NOT_SET = 0,
   };
   static inline const Object* internal_default_instance() {
     return reinterpret_cast<const Object*>(
         &_Object_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 0;
+  static constexpr int kIndexInFileMessages = 1;
   friend void swap(Object& a, Object& b) { a.Swap(&b); }
   inline void Swap(Object* other) {
     if (other == this) return;
@@ -269,6 +482,7 @@ class Object final : public ::google::protobuf::Message
     kLiteralBoolFieldNumber = 5,
     kLiteralNilFieldNumber = 6,
     kLiteralStringFieldNumber = 7,
+    kLiteralFunctionFieldNumber = 8,
   };
   // uint64 ref_count = 2;
   void clear_ref_count() ;
@@ -357,6 +571,25 @@ class Object final : public ::google::protobuf::Message
   std::string* _internal_mutable_literal_string();
 
   public:
+  // .Object.Function literal_function = 8;
+  bool has_literal_function() const;
+  private:
+  bool _internal_has_literal_function() const;
+
+  public:
+  void clear_literal_function() ;
+  const ::Object::Function& literal_function() const;
+  PROTOBUF_NODISCARD ::Object::Function* release_literal_function();
+  ::Object::Function* mutable_literal_function();
+  void set_allocated_literal_function(::Object::Function* value);
+  void unsafe_arena_set_allocated_literal_function(::Object::Function* value);
+  ::Object::Function* unsafe_arena_release_literal_function();
+
+  private:
+  const ::Object::Function& _internal_literal_function() const;
+  ::Object::Function* _internal_mutable_literal_function();
+
+  public:
   void clear_literal();
   LiteralCase literal_case() const;
   // @@protoc_insertion_point(class_scope:Object.Object)
@@ -367,12 +600,13 @@ class Object final : public ::google::protobuf::Message
   void set_has_literal_bool();
   void set_has_literal_nil();
   void set_has_literal_string();
+  void set_has_literal_function();
   inline bool has_literal() const;
   inline void clear_has_literal();
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      1, 7, 0,
-      47, 2>
+      1, 8, 1,
+      55, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -399,6 +633,7 @@ class Object final : public ::google::protobuf::Message
       bool literal_bool_;
       ::google::protobuf::internal::ArenaStringPtr literal_nil_;
       ::google::protobuf::internal::ArenaStringPtr literal_string_;
+      ::Object::Function* literal_function_;
     } literal_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t _oneof_case_[1];
@@ -468,7 +703,7 @@ class Chunk final : public ::google::protobuf::Message
     return reinterpret_cast<const Chunk*>(
         &_Chunk_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 1;
+  static constexpr int kIndexInFileMessages = 2;
   friend void swap(Chunk& a, Chunk& b) { a.Swap(&b); }
   inline void Swap(Chunk* other) {
     if (other == this) return;
@@ -647,6 +882,80 @@ class Chunk final : public ::google::protobuf::Message
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// Function
+
+// bytes code = 1;
+inline void Function::clear_code() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.code_.ClearToEmpty();
+}
+inline const std::string& Function::code() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:Object.Function.code)
+  return _internal_code();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void Function::set_code(Arg_&& arg,
+                                                     Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.code_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:Object.Function.code)
+}
+inline std::string* Function::mutable_code() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_code();
+  // @@protoc_insertion_point(field_mutable:Object.Function.code)
+  return _s;
+}
+inline const std::string& Function::_internal_code() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.code_.Get();
+}
+inline void Function::_internal_set_code(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.code_.Set(value, GetArena());
+}
+inline std::string* Function::_internal_mutable_code() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.code_.Mutable( GetArena());
+}
+inline std::string* Function::release_code() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:Object.Function.code)
+  return _impl_.code_.Release();
+}
+inline void Function::set_allocated_code(std::string* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.code_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.code_.IsDefault()) {
+    _impl_.code_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:Object.Function.code)
+}
+
+// uint64 num_params = 2;
+inline void Function::clear_num_params() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.num_params_ = ::uint64_t{0u};
+}
+inline ::uint64_t Function::num_params() const {
+  // @@protoc_insertion_point(field_get:Object.Function.num_params)
+  return _internal_num_params();
+}
+inline void Function::set_num_params(::uint64_t value) {
+  _internal_set_num_params(value);
+  // @@protoc_insertion_point(field_set:Object.Function.num_params)
+}
+inline ::uint64_t Function::_internal_num_params() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.num_params_;
+}
+inline void Function::_internal_set_num_params(::uint64_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.num_params_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // Object
@@ -962,6 +1271,85 @@ inline void Object::set_allocated_literal_string(std::string* value) {
     _impl_.literal_.literal_string_.InitAllocated(value, GetArena());
   }
   // @@protoc_insertion_point(field_set_allocated:Object.Object.literal_string)
+}
+
+// .Object.Function literal_function = 8;
+inline bool Object::has_literal_function() const {
+  return literal_case() == kLiteralFunction;
+}
+inline bool Object::_internal_has_literal_function() const {
+  return literal_case() == kLiteralFunction;
+}
+inline void Object::set_has_literal_function() {
+  _impl_._oneof_case_[0] = kLiteralFunction;
+}
+inline void Object::clear_literal_function() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (literal_case() == kLiteralFunction) {
+    if (GetArena() == nullptr) {
+      delete _impl_.literal_.literal_function_;
+    } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.literal_.literal_function_);
+    }
+    clear_has_literal();
+  }
+}
+inline ::Object::Function* Object::release_literal_function() {
+  // @@protoc_insertion_point(field_release:Object.Object.literal_function)
+  if (literal_case() == kLiteralFunction) {
+    clear_has_literal();
+    auto* temp = _impl_.literal_.literal_function_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.literal_.literal_function_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Object::Function& Object::_internal_literal_function() const {
+  return literal_case() == kLiteralFunction ? *_impl_.literal_.literal_function_ : reinterpret_cast<::Object::Function&>(::Object::_Function_default_instance_);
+}
+inline const ::Object::Function& Object::literal_function() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:Object.Object.literal_function)
+  return _internal_literal_function();
+}
+inline ::Object::Function* Object::unsafe_arena_release_literal_function() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:Object.Object.literal_function)
+  if (literal_case() == kLiteralFunction) {
+    clear_has_literal();
+    auto* temp = _impl_.literal_.literal_function_;
+    _impl_.literal_.literal_function_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void Object::unsafe_arena_set_allocated_literal_function(::Object::Function* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_literal();
+  if (value) {
+    set_has_literal_function();
+    _impl_.literal_.literal_function_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Object.Object.literal_function)
+}
+inline ::Object::Function* Object::_internal_mutable_literal_function() {
+  if (literal_case() != kLiteralFunction) {
+    clear_literal();
+    set_has_literal_function();
+    _impl_.literal_.literal_function_ =
+        ::google::protobuf::Message::DefaultConstruct<::Object::Function>(GetArena());
+  }
+  return _impl_.literal_.literal_function_;
+}
+inline ::Object::Function* Object::mutable_literal_function() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::Object::Function* _msg = _internal_mutable_literal_function();
+  // @@protoc_insertion_point(field_mutable:Object.Object.literal_function)
+  return _msg;
 }
 
 inline bool Object::has_literal() const {

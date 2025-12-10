@@ -24,11 +24,12 @@ const (
 type ObjectType int32
 
 const (
-	ObjectType_OBJ_INT    ObjectType = 0
-	ObjectType_OBJ_FLOAT  ObjectType = 1
-	ObjectType_OBJ_BOOL   ObjectType = 2
-	ObjectType_OBJ_NIL    ObjectType = 3
-	ObjectType_OBJ_STRING ObjectType = 4
+	ObjectType_OBJ_INT      ObjectType = 0
+	ObjectType_OBJ_FLOAT    ObjectType = 1
+	ObjectType_OBJ_BOOL     ObjectType = 2
+	ObjectType_OBJ_NIL      ObjectType = 3
+	ObjectType_OBJ_STRING   ObjectType = 4
+	ObjectType_OBJ_FUNCTION ObjectType = 5
 )
 
 // Enum value maps for ObjectType.
@@ -39,13 +40,15 @@ var (
 		2: "OBJ_BOOL",
 		3: "OBJ_NIL",
 		4: "OBJ_STRING",
+		5: "OBJ_FUNCTION",
 	}
 	ObjectType_value = map[string]int32{
-		"OBJ_INT":    0,
-		"OBJ_FLOAT":  1,
-		"OBJ_BOOL":   2,
-		"OBJ_NIL":    3,
-		"OBJ_STRING": 4,
+		"OBJ_INT":      0,
+		"OBJ_FLOAT":    1,
+		"OBJ_BOOL":     2,
+		"OBJ_NIL":      3,
+		"OBJ_STRING":   4,
+		"OBJ_FUNCTION": 5,
 	}
 )
 
@@ -76,6 +79,58 @@ func (ObjectType) EnumDescriptor() ([]byte, []int) {
 	return file_object_proto_rawDescGZIP(), []int{0}
 }
 
+type Function struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          []byte                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	NumParams     uint64                 `protobuf:"varint,2,opt,name=num_params,json=numParams,proto3" json:"num_params,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Function) Reset() {
+	*x = Function{}
+	mi := &file_object_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Function) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Function) ProtoMessage() {}
+
+func (x *Function) ProtoReflect() protoreflect.Message {
+	mi := &file_object_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Function.ProtoReflect.Descriptor instead.
+func (*Function) Descriptor() ([]byte, []int) {
+	return file_object_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *Function) GetCode() []byte {
+	if x != nil {
+		return x.Code
+	}
+	return nil
+}
+
+func (x *Function) GetNumParams() uint64 {
+	if x != nil {
+		return x.NumParams
+	}
+	return 0
+}
+
 type Object struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	ObjectType ObjectType             `protobuf:"varint,1,opt,name=object_type,json=objectType,proto3,enum=Object.ObjectType" json:"object_type,omitempty"`
@@ -87,6 +142,7 @@ type Object struct {
 	//	*Object_LiteralBool
 	//	*Object_LiteralNil
 	//	*Object_LiteralString
+	//	*Object_LiteralFunction
 	Literal       isObject_Literal `protobuf_oneof:"literal"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -94,7 +150,7 @@ type Object struct {
 
 func (x *Object) Reset() {
 	*x = Object{}
-	mi := &file_object_proto_msgTypes[0]
+	mi := &file_object_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -106,7 +162,7 @@ func (x *Object) String() string {
 func (*Object) ProtoMessage() {}
 
 func (x *Object) ProtoReflect() protoreflect.Message {
-	mi := &file_object_proto_msgTypes[0]
+	mi := &file_object_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -119,7 +175,7 @@ func (x *Object) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Object.ProtoReflect.Descriptor instead.
 func (*Object) Descriptor() ([]byte, []int) {
-	return file_object_proto_rawDescGZIP(), []int{0}
+	return file_object_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Object) GetObjectType() ObjectType {
@@ -188,6 +244,15 @@ func (x *Object) GetLiteralString() string {
 	return ""
 }
 
+func (x *Object) GetLiteralFunction() *Function {
+	if x != nil {
+		if x, ok := x.Literal.(*Object_LiteralFunction); ok {
+			return x.LiteralFunction
+		}
+	}
+	return nil
+}
+
 type isObject_Literal interface {
 	isObject_Literal()
 }
@@ -212,6 +277,10 @@ type Object_LiteralString struct {
 	LiteralString string `protobuf:"bytes,7,opt,name=literal_string,json=literalString,proto3,oneof"`
 }
 
+type Object_LiteralFunction struct {
+	LiteralFunction *Function `protobuf:"bytes,8,opt,name=literal_function,json=literalFunction,proto3,oneof"`
+}
+
 func (*Object_LiteralInt) isObject_Literal() {}
 
 func (*Object_LiteralFloat) isObject_Literal() {}
@@ -221,6 +290,8 @@ func (*Object_LiteralBool) isObject_Literal() {}
 func (*Object_LiteralNil) isObject_Literal() {}
 
 func (*Object_LiteralString) isObject_Literal() {}
+
+func (*Object_LiteralFunction) isObject_Literal() {}
 
 type Chunk struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -233,7 +304,7 @@ type Chunk struct {
 
 func (x *Chunk) Reset() {
 	*x = Chunk{}
-	mi := &file_object_proto_msgTypes[1]
+	mi := &file_object_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -245,7 +316,7 @@ func (x *Chunk) String() string {
 func (*Chunk) ProtoMessage() {}
 
 func (x *Chunk) ProtoReflect() protoreflect.Message {
-	mi := &file_object_proto_msgTypes[1]
+	mi := &file_object_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -258,7 +329,7 @@ func (x *Chunk) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Chunk.ProtoReflect.Descriptor instead.
 func (*Chunk) Descriptor() ([]byte, []int) {
-	return file_object_proto_rawDescGZIP(), []int{1}
+	return file_object_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Chunk) GetCode() []byte {
@@ -286,7 +357,11 @@ var File_object_proto protoreflect.FileDescriptor
 
 const file_object_proto_rawDesc = "" +
 	"\n" +
-	"\fobject.proto\x12\x06Object\"\xa0\x02\n" +
+	"\fobject.proto\x12\x06Object\"=\n" +
+	"\bFunction\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\fR\x04code\x12\x1d\n" +
+	"\n" +
+	"num_params\x18\x02 \x01(\x04R\tnumParams\"\xdf\x02\n" +
 	"\x06Object\x123\n" +
 	"\vobject_type\x18\x01 \x01(\x0e2\x12.Object.ObjectTypeR\n" +
 	"objectType\x12\x1b\n" +
@@ -297,12 +372,13 @@ const file_object_proto_rawDesc = "" +
 	"\fliteral_bool\x18\x05 \x01(\bH\x00R\vliteralBool\x12!\n" +
 	"\vliteral_nil\x18\x06 \x01(\tH\x00R\n" +
 	"literalNil\x12'\n" +
-	"\x0eliteral_string\x18\a \x01(\tH\x00R\rliteralStringB\t\n" +
+	"\x0eliteral_string\x18\a \x01(\tH\x00R\rliteralString\x12=\n" +
+	"\x10literal_function\x18\b \x01(\v2\x10.Object.FunctionH\x00R\x0fliteralFunctionB\t\n" +
 	"\aliteral\"n\n" +
 	"\x05Chunk\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\fR\x04code\x12,\n" +
 	"\tconstants\x18\x02 \x03(\v2\x0e.Object.ObjectR\tconstants\x12#\n" +
-	"\rglobals_count\x18\x03 \x01(\x04R\fglobalsCount*S\n" +
+	"\rglobals_count\x18\x03 \x01(\x04R\fglobalsCount*e\n" +
 	"\n" +
 	"ObjectType\x12\v\n" +
 	"\aOBJ_INT\x10\x00\x12\r\n" +
@@ -310,7 +386,8 @@ const file_object_proto_rawDesc = "" +
 	"\bOBJ_BOOL\x10\x02\x12\v\n" +
 	"\aOBJ_NIL\x10\x03\x12\x0e\n" +
 	"\n" +
-	"OBJ_STRING\x10\x04B\x04Z\x02./b\x06proto3"
+	"OBJ_STRING\x10\x04\x12\x10\n" +
+	"\fOBJ_FUNCTION\x10\x05B\x04Z\x02./b\x06proto3"
 
 var (
 	file_object_proto_rawDescOnce sync.Once
@@ -325,20 +402,22 @@ func file_object_proto_rawDescGZIP() []byte {
 }
 
 var file_object_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_object_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_object_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_object_proto_goTypes = []any{
-	(ObjectType)(0), // 0: Object.ObjectType
-	(*Object)(nil),  // 1: Object.Object
-	(*Chunk)(nil),   // 2: Object.Chunk
+	(ObjectType)(0),  // 0: Object.ObjectType
+	(*Function)(nil), // 1: Object.Function
+	(*Object)(nil),   // 2: Object.Object
+	(*Chunk)(nil),    // 3: Object.Chunk
 }
 var file_object_proto_depIdxs = []int32{
 	0, // 0: Object.Object.object_type:type_name -> Object.ObjectType
-	1, // 1: Object.Chunk.constants:type_name -> Object.Object
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1, // 1: Object.Object.literal_function:type_name -> Object.Function
+	2, // 2: Object.Chunk.constants:type_name -> Object.Object
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_object_proto_init() }
@@ -346,12 +425,13 @@ func file_object_proto_init() {
 	if File_object_proto != nil {
 		return
 	}
-	file_object_proto_msgTypes[0].OneofWrappers = []any{
+	file_object_proto_msgTypes[1].OneofWrappers = []any{
 		(*Object_LiteralInt)(nil),
 		(*Object_LiteralFloat)(nil),
 		(*Object_LiteralBool)(nil),
 		(*Object_LiteralNil)(nil),
 		(*Object_LiteralString)(nil),
+		(*Object_LiteralFunction)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -359,7 +439,7 @@ func file_object_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_object_proto_rawDesc), len(file_object_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
