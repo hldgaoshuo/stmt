@@ -40,6 +40,8 @@ func (c *Compiler) collectGlobal(node ast.Node, symbolTable *SymbolTable) error 
 	switch _node := node.(type) {
 	case *ast.Var:
 		return symbolTable.SetGlobal(_node.Name.Lexeme)
+	case *ast.Function:
+		return symbolTable.SetGlobal(_node.Name.Lexeme)
 	default:
 		return nil
 	}
