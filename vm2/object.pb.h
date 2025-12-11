@@ -791,7 +791,7 @@ class Chunk final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kConstantsFieldNumber = 2,
-    kCodeFieldNumber = 1,
+    kFunctionFieldNumber = 1,
     kGlobalsCountFieldNumber = 3,
   };
   // repeated .Object.Object constants = 2;
@@ -811,20 +811,19 @@ class Chunk final : public ::google::protobuf::Message
   const ::Object::Object& constants(int index) const;
   ::Object::Object* add_constants();
   const ::google::protobuf::RepeatedPtrField<::Object::Object>& constants() const;
-  // bytes code = 1;
-  void clear_code() ;
-  const std::string& code() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_code(Arg_&& arg, Args_... args);
-  std::string* mutable_code();
-  PROTOBUF_NODISCARD std::string* release_code();
-  void set_allocated_code(std::string* value);
+  // .Object.Function function = 1;
+  bool has_function() const;
+  void clear_function() ;
+  const ::Object::Function& function() const;
+  PROTOBUF_NODISCARD ::Object::Function* release_function();
+  ::Object::Function* mutable_function();
+  void set_allocated_function(::Object::Function* value);
+  void unsafe_arena_set_allocated_function(::Object::Function* value);
+  ::Object::Function* unsafe_arena_release_function();
 
   private:
-  const std::string& _internal_code() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_code(
-      const std::string& value);
-  std::string* _internal_mutable_code();
+  const ::Object::Function& _internal_function() const;
+  ::Object::Function* _internal_mutable_function();
 
   public:
   // uint64 globals_count = 3;
@@ -842,7 +841,7 @@ class Chunk final : public ::google::protobuf::Message
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      2, 3, 1,
+      2, 3, 2,
       0, 2>
       _table_;
 
@@ -860,10 +859,11 @@ class Chunk final : public ::google::protobuf::Message
     inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                           ::google::protobuf::Arena* arena, const Impl_& from,
                           const Chunk& from_msg);
-    ::google::protobuf::RepeatedPtrField< ::Object::Object > constants_;
-    ::google::protobuf::internal::ArenaStringPtr code_;
-    ::uint64_t globals_count_;
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedPtrField< ::Object::Object > constants_;
+    ::Object::Function* function_;
+    ::uint64_t globals_count_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1365,52 +1365,100 @@ inline Object::LiteralCase Object::literal_case() const {
 
 // Chunk
 
-// bytes code = 1;
-inline void Chunk::clear_code() {
+// .Object.Function function = 1;
+inline bool Chunk::has_function() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  PROTOBUF_ASSUME(!value || _impl_.function_ != nullptr);
+  return value;
+}
+inline void Chunk::clear_function() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.code_.ClearToEmpty();
+  if (_impl_.function_ != nullptr) _impl_.function_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string& Chunk::code() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:Object.Chunk.code)
-  return _internal_code();
-}
-template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void Chunk::set_code(Arg_&& arg,
-                                                     Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.code_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:Object.Chunk.code)
-}
-inline std::string* Chunk::mutable_code() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_code();
-  // @@protoc_insertion_point(field_mutable:Object.Chunk.code)
-  return _s;
-}
-inline const std::string& Chunk::_internal_code() const {
+inline const ::Object::Function& Chunk::_internal_function() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.code_.Get();
+  const ::Object::Function* p = _impl_.function_;
+  return p != nullptr ? *p : reinterpret_cast<const ::Object::Function&>(::Object::_Function_default_instance_);
 }
-inline void Chunk::_internal_set_code(const std::string& value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.code_.Set(value, GetArena());
+inline const ::Object::Function& Chunk::function() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:Object.Chunk.function)
+  return _internal_function();
 }
-inline std::string* Chunk::_internal_mutable_code() {
+inline void Chunk::unsafe_arena_set_allocated_function(::Object::Function* value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _impl_.code_.Mutable( GetArena());
-}
-inline std::string* Chunk::release_code() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:Object.Chunk.code)
-  return _impl_.code_.Release();
-}
-inline void Chunk::set_allocated_code(std::string* value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.code_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.code_.IsDefault()) {
-    _impl_.code_.Set("", GetArena());
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.function_);
   }
-  // @@protoc_insertion_point(field_set_allocated:Object.Chunk.code)
+  _impl_.function_ = reinterpret_cast<::Object::Function*>(value);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Object.Chunk.function)
+}
+inline ::Object::Function* Chunk::release_function() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::Object::Function* released = _impl_.function_;
+  _impl_.function_ = nullptr;
+  if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
+    auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
+    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    if (GetArena() == nullptr) {
+      delete old;
+    }
+  } else {
+    if (GetArena() != nullptr) {
+      released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    }
+  }
+  return released;
+}
+inline ::Object::Function* Chunk::unsafe_arena_release_function() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:Object.Chunk.function)
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::Object::Function* temp = _impl_.function_;
+  _impl_.function_ = nullptr;
+  return temp;
+}
+inline ::Object::Function* Chunk::_internal_mutable_function() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.function_ == nullptr) {
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::Object::Function>(GetArena());
+    _impl_.function_ = reinterpret_cast<::Object::Function*>(p);
+  }
+  return _impl_.function_;
+}
+inline ::Object::Function* Chunk::mutable_function() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  _impl_._has_bits_[0] |= 0x00000001u;
+  ::Object::Function* _msg = _internal_mutable_function();
+  // @@protoc_insertion_point(field_mutable:Object.Chunk.function)
+  return _msg;
+}
+inline void Chunk::set_allocated_function(::Object::Function* value) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (message_arena == nullptr) {
+    delete (_impl_.function_);
+  }
+
+  if (value != nullptr) {
+    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    if (message_arena != submessage_arena) {
+      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
+    }
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+
+  _impl_.function_ = reinterpret_cast<::Object::Function*>(value);
+  // @@protoc_insertion_point(field_set_allocated:Object.Chunk.function)
 }
 
 // repeated .Object.Object constants = 2;

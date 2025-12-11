@@ -4,15 +4,18 @@
 #include "vm.h"
 
 static bool test_literal_int() {
-    const auto chunk = new Object::Chunk();
+    auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
-    const auto c1 = chunk->add_constants();
+    auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -29,15 +32,18 @@ static bool test_literal_int() {
 }
 
 static bool test_literal_float() {
-    const auto chunk = new Object::Chunk();
+    auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
-    const auto c1 = chunk->add_constants();
+    auto c1 = chunk->add_constants();
     c1->set_literal_float(1.5);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -55,15 +61,18 @@ static bool test_literal_float() {
 
 static bool test_negate() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_NEGATE);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(5);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -81,18 +90,21 @@ static bool test_negate() {
 
 static bool test_add() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_ADD);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
     const auto c2 = chunk->add_constants();
     c2->set_literal_int(2);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -110,11 +122,14 @@ static bool test_add() {
 
 static bool test_literal_true() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_TRUE);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -132,11 +147,14 @@ static bool test_literal_true() {
 
 static bool test_literal_false() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_FALSE);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -154,11 +172,14 @@ static bool test_literal_false() {
 
 static bool test_literal_nil() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_NIL);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -176,15 +197,18 @@ static bool test_literal_nil() {
 
 static bool test_not() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_NOT);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_bool(true);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -202,18 +226,21 @@ static bool test_not() {
 
 static bool test_eq() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_EQ);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_bool(true);
     const auto c2 = chunk->add_constants();
     c2->set_literal_bool(true);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -231,18 +258,21 @@ static bool test_eq() {
 
 static bool test_gt() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_GT);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(2);
     const auto c2 = chunk->add_constants();
     c2->set_literal_int(1);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -260,14 +290,17 @@ static bool test_gt() {
 
 static bool test_literal_string() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_string("abc");
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -285,18 +318,21 @@ static bool test_literal_string() {
 
 static bool test_add_string() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_ADD);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_string("abc");
     const auto c2 = chunk->add_constants();
     c2->set_literal_string("def");
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -314,15 +350,18 @@ static bool test_add_string() {
 
 static bool test_print() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_PRINT);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -332,19 +371,22 @@ static bool test_print() {
 
 static bool test_var() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_SET_GLOBAL); code.push_back(0);
     code.push_back(OP_GET_GLOBAL); code.push_back(0);
     code.push_back(OP_PRINT);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
 
     chunk->set_globals_count(1);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -354,6 +396,8 @@ static bool test_var() {
 
 static bool test_assign() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_SET_GLOBAL); code.push_back(0);
@@ -361,7 +405,8 @@ static bool test_assign() {
     code.push_back(OP_SET_GLOBAL); code.push_back(0);
     code.push_back(OP_GET_GLOBAL); code.push_back(0);
     code.push_back(OP_PRINT);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
@@ -370,7 +415,7 @@ static bool test_assign() {
 
     chunk->set_globals_count(1);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -380,6 +425,8 @@ static bool test_assign() {
 
 static bool test_block() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_SET_GLOBAL); code.push_back(0);
@@ -391,7 +438,8 @@ static bool test_block() {
     code.push_back(OP_PRINT);
     code.push_back(OP_GET_GLOBAL); code.push_back(0);
     code.push_back(OP_PRINT);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
@@ -400,7 +448,7 @@ static bool test_block() {
 
     chunk->set_globals_count(1);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -410,6 +458,8 @@ static bool test_block() {
 
 static bool test_if() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_TRUE);
     code.push_back(OP_JUMP_FALSE); code.push_back(9);
@@ -420,14 +470,15 @@ static bool test_if() {
     code.push_back(OP_POP);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_PRINT);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(10);
     const auto c2 = chunk->add_constants();
     c2->set_literal_int(20);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -437,6 +488,8 @@ static bool test_if() {
 
 static bool test_if_else() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_FALSE);
     code.push_back(OP_JUMP_FALSE); code.push_back(9);
@@ -447,14 +500,15 @@ static bool test_if_else() {
     code.push_back(OP_POP);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_PRINT);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(10);
     const auto c2 = chunk->add_constants();
     c2->set_literal_int(20);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -464,14 +518,17 @@ static bool test_if_else() {
 
 static bool test_and() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_TRUE);
     code.push_back(OP_JUMP_FALSE); code.push_back(5);
     code.push_back(OP_POP);
     code.push_back(OP_TRUE);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -489,15 +546,18 @@ static bool test_and() {
 
 static bool test_or() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_TRUE);
     code.push_back(OP_JUMP_FALSE); code.push_back(5);
     code.push_back(OP_JUMP); code.push_back(7);
     code.push_back(OP_POP);
     code.push_back(OP_TRUE);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         return false;
@@ -515,6 +575,8 @@ static bool test_or() {
 
 static bool test_while() {
     const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_SET_GLOBAL); code.push_back(0);
@@ -531,7 +593,8 @@ static bool test_while() {
     code.push_back(OP_SET_GLOBAL); code.push_back(0);
     code.push_back(OP_LOOP); code.push_back(4);
     code.push_back(OP_POP);
-    chunk->set_code(code);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(0);
@@ -542,7 +605,7 @@ static bool test_while() {
 
     chunk->set_globals_count(1);
 
-    VM vm(chunk);
+    auto vm = VM(chunk);
     auto err = vm.interpret();
     if (err != Error::SUCCESS) {
         fmt::print("Error occurred: {}\n", static_cast<int>(err));

@@ -295,7 +295,7 @@ func (*Object_LiteralFunction) isObject_Literal() {}
 
 type Chunk struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          []byte                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	Function      *Function              `protobuf:"bytes,1,opt,name=function,proto3" json:"function,omitempty"`
 	Constants     []*Object              `protobuf:"bytes,2,rep,name=constants,proto3" json:"constants,omitempty"`
 	GlobalsCount  uint64                 `protobuf:"varint,3,opt,name=globals_count,json=globalsCount,proto3" json:"globals_count,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -332,9 +332,9 @@ func (*Chunk) Descriptor() ([]byte, []int) {
 	return file_object_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *Chunk) GetCode() []byte {
+func (x *Chunk) GetFunction() *Function {
 	if x != nil {
-		return x.Code
+		return x.Function
 	}
 	return nil
 }
@@ -374,9 +374,9 @@ const file_object_proto_rawDesc = "" +
 	"literalNil\x12'\n" +
 	"\x0eliteral_string\x18\a \x01(\tH\x00R\rliteralString\x12=\n" +
 	"\x10literal_function\x18\b \x01(\v2\x10.Object.FunctionH\x00R\x0fliteralFunctionB\t\n" +
-	"\aliteral\"n\n" +
-	"\x05Chunk\x12\x12\n" +
-	"\x04code\x18\x01 \x01(\fR\x04code\x12,\n" +
+	"\aliteral\"\x88\x01\n" +
+	"\x05Chunk\x12,\n" +
+	"\bfunction\x18\x01 \x01(\v2\x10.Object.FunctionR\bfunction\x12,\n" +
 	"\tconstants\x18\x02 \x03(\v2\x0e.Object.ObjectR\tconstants\x12#\n" +
 	"\rglobals_count\x18\x03 \x01(\x04R\fglobalsCount*e\n" +
 	"\n" +
@@ -412,12 +412,13 @@ var file_object_proto_goTypes = []any{
 var file_object_proto_depIdxs = []int32{
 	0, // 0: Object.Object.object_type:type_name -> Object.ObjectType
 	1, // 1: Object.Object.literal_function:type_name -> Object.Function
-	2, // 2: Object.Chunk.constants:type_name -> Object.Object
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	1, // 2: Object.Chunk.function:type_name -> Object.Function
+	2, // 3: Object.Chunk.constants:type_name -> Object.Object
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_object_proto_init() }

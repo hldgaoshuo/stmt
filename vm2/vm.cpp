@@ -6,22 +6,21 @@
 #include <cmath>
 #include <fmt/core.h>
 
+#include "Frame.h"
+
 VM::VM(Object::Chunk* chunk) {
-    for (uint8_t b : chunk->code()) {
-        _code_emit(b);
-    }
+    // frames
+    auto frame = new Frame(chunk->mutable_function());
+    frames.push_back(frame);
+
+    // constants
     for (int i = 0; i < chunk->constants_size(); i++) {
         Object::Object* o = chunk->mutable_constants(i);
         _constant_add(o);
     }
-    globals.resize(chunk->globals_count());
-}
 
-void VM::_code_emit(uint8_t byte) {
-    code.push_back(byte);
-}
-uint8_t VM::code_next() {
-    return code[ip++];
+    // globals
+    globals.resize(chunk->globals_count());
 }
 
 void VM::_constant_add(Object::Object* value) {
@@ -67,10 +66,11 @@ void VM::release(Object::Object* obj) {
 }
 
 Error VM::interpret() {
-    while (ip < code.size()) {
-        switch (uint8_t instruction = code_next()) {
+    auto frame = frames.back();
+    while (frame->ip < frame->code_size()) {
+        switch (uint8_t instruction = frame->code_next()) {
             case OP_CONSTANT: {
-                auto constant_index = code_next();
+                auto constant_index = frame->code_next();
                 auto constant = constant_get(constant_index);
                 stack_push(constant);
                 break;
@@ -408,34 +408,34 @@ Error VM::interpret() {
                 break;
             }
             case OP_SET_GLOBAL: {
-                auto global_index = code_next();
+                auto global_index = frame->code_next();
                 auto global_value = stack_pop();
                 globals[global_index] = global_value;
                 break;
             }
             case OP_GET_GLOBAL: {
-                auto global_index = code_next();
+                auto global_index = frame->code_next();
                 auto global_value = globals[global_index];
                 stack_push(global_value);
                 break;
             }
             case OP_SET_LOCAL: {
-                auto local_index = code_next();
+                auto local_index = frame->code_next();
                 auto local_value = stack_pop();
                 stack_set(local_index, local_value);
                 break;
             }
             case OP_GET_LOCAL: {
-                auto local_index = code_next();
+                auto local_index = frame->code_next();
                 auto local_value = stack_get(local_index);
                 stack_push(local_value);
                 break;
             }
             case OP_JUMP_FALSE: {
-                auto _ip = code_next();
+                auto _ip = frame->code_next();
                 if (auto cond = stack_peek(); cond->has_literal_bool()) {
                     if (!cond->literal_bool()) {
-                        ip = _ip;
+                        frame->ip = _ip;
                     }
                 } else {
                     fmt::print("Invalid operands for OP_JUMP_FALSE\n");
@@ -444,13 +444,13 @@ Error VM::interpret() {
                 break;
             }
             case OP_JUMP: {
-                auto _ip = code_next();
-                ip = _ip;
+                auto _ip = frame->code_next();
+                frame->ip = _ip;
                 break;
             }
             case OP_LOOP: {
-                auto _ip = code_next();
-                ip = _ip;
+                auto _ip = frame->code_next();
+                frame->ip = _ip;
                 break;
             }
             default: {

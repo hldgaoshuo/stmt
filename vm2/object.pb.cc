@@ -84,12 +84,10 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 
 inline constexpr Chunk::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
-      : constants_{},
-        code_(
-            &::google::protobuf::internal::fixed_address_empty_string,
-            ::_pbi::ConstantInitialized()),
-        globals_count_{::uint64_t{0u}},
-        _cached_size_{0} {}
+      : _cached_size_{0},
+        constants_{},
+        function_{nullptr},
+        globals_count_{::uint64_t{0u}} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR Chunk::Chunk(::_pbi::ConstantInitialized)
@@ -144,7 +142,7 @@ const ::uint32_t
         ::_pbi::kInvalidFieldOffsetTag,
         ::_pbi::kInvalidFieldOffsetTag,
         PROTOBUF_FIELD_OFFSET(::Object::Object, _impl_.literal_),
-        ~0u,  // no _has_bits_
+        PROTOBUF_FIELD_OFFSET(::Object::Chunk, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::Object::Chunk, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
@@ -152,16 +150,19 @@ const ::uint32_t
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::Object::Chunk, _impl_.code_),
+        PROTOBUF_FIELD_OFFSET(::Object::Chunk, _impl_.function_),
         PROTOBUF_FIELD_OFFSET(::Object::Chunk, _impl_.constants_),
         PROTOBUF_FIELD_OFFSET(::Object::Chunk, _impl_.globals_count_),
+        0,
+        ~0u,
+        ~0u,
 };
 
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
         {0, -1, -1, sizeof(::Object::Function)},
         {10, -1, -1, sizeof(::Object::Object)},
-        {27, -1, -1, sizeof(::Object::Chunk)},
+        {27, 38, -1, sizeof(::Object::Chunk)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::Object::_Function_default_instance_._instance,
@@ -177,18 +178,19 @@ const char descriptor_table_protodef_object_2eproto[] ABSL_ATTRIBUTE_SECTION_VAR
     "H\000\022\027\n\rliteral_float\030\004 \001(\001H\000\022\026\n\014literal_b"
     "ool\030\005 \001(\010H\000\022\025\n\013literal_nil\030\006 \001(\tH\000\022\030\n\016li"
     "teral_string\030\007 \001(\tH\000\022,\n\020literal_function"
-    "\030\010 \001(\0132\020.Object.FunctionH\000B\t\n\007literal\"O\n"
-    "\005Chunk\022\014\n\004code\030\001 \001(\014\022!\n\tconstants\030\002 \003(\0132"
-    "\016.Object.Object\022\025\n\rglobals_count\030\003 \001(\004*e"
-    "\n\nObjectType\022\013\n\007OBJ_INT\020\000\022\r\n\tOBJ_FLOAT\020\001"
-    "\022\014\n\010OBJ_BOOL\020\002\022\013\n\007OBJ_NIL\020\003\022\016\n\nOBJ_STRIN"
-    "G\020\004\022\020\n\014OBJ_FUNCTION\020\005B\004Z\002./b\006proto3"
+    "\030\010 \001(\0132\020.Object.FunctionH\000B\t\n\007literal\"e\n"
+    "\005Chunk\022\"\n\010function\030\001 \001(\0132\020.Object.Functi"
+    "on\022!\n\tconstants\030\002 \003(\0132\016.Object.Object\022\025\n"
+    "\rglobals_count\030\003 \001(\004*e\n\nObjectType\022\013\n\007OB"
+    "J_INT\020\000\022\r\n\tOBJ_FLOAT\020\001\022\014\n\010OBJ_BOOL\020\002\022\013\n\007"
+    "OBJ_NIL\020\003\022\016\n\nOBJ_STRING\020\004\022\020\n\014OBJ_FUNCTIO"
+    "N\020\005B\004Z\002./b\006proto3"
 };
 static ::absl::once_flag descriptor_table_object_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_object_2eproto = {
     false,
     false,
-    515,
+    537,
     descriptor_table_protodef_object_2eproto,
     "object.proto",
     &descriptor_table_object_2eproto_once,
@@ -972,6 +974,10 @@ void Object::InternalSwap(Object* PROTOBUF_RESTRICT other) {
 
 class Chunk::_Internal {
  public:
+  using HasBits =
+      decltype(std::declval<Chunk>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(Chunk, _impl_._has_bits_);
 };
 
 Chunk::Chunk(::google::protobuf::Arena* arena)
@@ -986,9 +992,9 @@ Chunk::Chunk(::google::protobuf::Arena* arena)
 inline PROTOBUF_NDEBUG_INLINE Chunk::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
     const Impl_& from, const ::Object::Chunk& from_msg)
-      : constants_{visibility, arena, from.constants_},
-        code_(arena, from.code_),
-        _cached_size_{0} {}
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        constants_{visibility, arena, from.constants_} {}
 
 Chunk::Chunk(
     ::google::protobuf::Arena* arena,
@@ -1003,6 +1009,10 @@ Chunk::Chunk(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
+  _impl_.function_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::Object::Function>(
+                              arena, *from._impl_.function_)
+                        : nullptr;
   _impl_.globals_count_ = from._impl_.globals_count_;
 
   // @@protoc_insertion_point(copy_constructor:Object.Chunk)
@@ -1010,13 +1020,17 @@ Chunk::Chunk(
 inline PROTOBUF_NDEBUG_INLINE Chunk::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
-      : constants_{visibility, arena},
-        code_(arena),
-        _cached_size_{0} {}
+      : _cached_size_{0},
+        constants_{visibility, arena} {}
 
 inline void Chunk::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.globals_count_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, function_),
+           0,
+           offsetof(Impl_, globals_count_) -
+               offsetof(Impl_, function_) +
+               sizeof(Impl_::globals_count_));
 }
 Chunk::~Chunk() {
   // @@protoc_insertion_point(destructor:Object.Chunk)
@@ -1026,7 +1040,7 @@ inline void Chunk::SharedDtor(MessageLite& self) {
   Chunk& this_ = static_cast<Chunk&>(self);
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.code_.Destroy();
+  delete this_._impl_.function_;
   this_._impl_.~Impl_();
 }
 
@@ -1042,7 +1056,7 @@ constexpr auto Chunk::InternalNewImpl_() {
                   ::google::protobuf::Message::internal_visibility()),
   });
   if (arena_bits.has_value()) {
-    return ::google::protobuf::internal::MessageCreator::CopyInit(
+    return ::google::protobuf::internal::MessageCreator::ZeroInit(
         sizeof(Chunk), alignof(Chunk), *arena_bits);
   } else {
     return ::google::protobuf::internal::MessageCreator(&Chunk::PlacementNew_,
@@ -1078,16 +1092,16 @@ const ::google::protobuf::internal::ClassData* Chunk::GetClassData() const {
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 1, 0, 2> Chunk::_table_ = {
+const ::_pbi::TcParseTable<2, 3, 2, 0, 2> Chunk::_table_ = {
   {
-    0,  // no _has_bits_
+    PROTOBUF_FIELD_OFFSET(Chunk, _impl_._has_bits_),
     0, // no _extensions_
     3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
     4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
     3,  // num_field_entries
-    1,  // num_aux_entries
+    2,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     _class_data_.base(),
     nullptr,  // post_loop_handler
@@ -1097,28 +1111,29 @@ const ::_pbi::TcParseTable<2, 3, 1, 0, 2> Chunk::_table_ = {
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
-    // bytes code = 1;
-    {::_pbi::TcParser::FastBS1,
-     {10, 63, 0, PROTOBUF_FIELD_OFFSET(Chunk, _impl_.code_)}},
+    // .Object.Function function = 1;
+    {::_pbi::TcParser::FastMtS1,
+     {10, 0, 0, PROTOBUF_FIELD_OFFSET(Chunk, _impl_.function_)}},
     // repeated .Object.Object constants = 2;
     {::_pbi::TcParser::FastMtR1,
-     {18, 63, 0, PROTOBUF_FIELD_OFFSET(Chunk, _impl_.constants_)}},
+     {18, 63, 1, PROTOBUF_FIELD_OFFSET(Chunk, _impl_.constants_)}},
     // uint64 globals_count = 3;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(Chunk, _impl_.globals_count_), 63>(),
      {24, 63, 0, PROTOBUF_FIELD_OFFSET(Chunk, _impl_.globals_count_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // bytes code = 1;
-    {PROTOBUF_FIELD_OFFSET(Chunk, _impl_.code_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kBytes | ::_fl::kRepAString)},
+    // .Object.Function function = 1;
+    {PROTOBUF_FIELD_OFFSET(Chunk, _impl_.function_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
     // repeated .Object.Object constants = 2;
-    {PROTOBUF_FIELD_OFFSET(Chunk, _impl_.constants_), 0, 0,
+    {PROTOBUF_FIELD_OFFSET(Chunk, _impl_.constants_), -1, 1,
     (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
     // uint64 globals_count = 3;
-    {PROTOBUF_FIELD_OFFSET(Chunk, _impl_.globals_count_), 0, 0,
+    {PROTOBUF_FIELD_OFFSET(Chunk, _impl_.globals_count_), -1, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUInt64)},
   }}, {{
+    {::_pbi::TcParser::GetTable<::Object::Function>()},
     {::_pbi::TcParser::GetTable<::Object::Object>()},
   }}, {{
   }},
@@ -1132,8 +1147,13 @@ PROTOBUF_NOINLINE void Chunk::Clear() {
   (void) cached_has_bits;
 
   _impl_.constants_.Clear();
-  _impl_.code_.ClearToEmpty();
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    ABSL_DCHECK(_impl_.function_ != nullptr);
+    _impl_.function_->Clear();
+  }
   _impl_.globals_count_ = ::uint64_t{0u};
+  _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -1152,10 +1172,12 @@ PROTOBUF_NOINLINE void Chunk::Clear() {
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
-          // bytes code = 1;
-          if (!this_._internal_code().empty()) {
-            const std::string& _s = this_._internal_code();
-            target = stream->WriteBytesMaybeAliased(1, _s, target);
+          cached_has_bits = this_._impl_._has_bits_[0];
+          // .Object.Function function = 1;
+          if (cached_has_bits & 0x00000001u) {
+            target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+                1, *this_._impl_.function_, this_._impl_.function_->GetCachedSize(), target,
+                stream);
           }
 
           // repeated .Object.Object constants = 2;
@@ -1210,11 +1232,14 @@ PROTOBUF_NOINLINE void Chunk::Clear() {
             }
           }
            {
-            // bytes code = 1;
-            if (!this_._internal_code().empty()) {
-              total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
-                                              this_._internal_code());
+            // .Object.Function function = 1;
+            cached_has_bits = this_._impl_._has_bits_[0];
+            if (cached_has_bits & 0x00000001u) {
+              total_size += 1 +
+                            ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.function_);
             }
+          }
+           {
             // uint64 globals_count = 3;
             if (this_._internal_globals_count() != 0) {
               total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
@@ -1228,6 +1253,7 @@ PROTOBUF_NOINLINE void Chunk::Clear() {
 void Chunk::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<Chunk*>(&to_msg);
   auto& from = static_cast<const Chunk&>(from_msg);
+  ::google::protobuf::Arena* arena = _this->GetArena();
   // @@protoc_insertion_point(class_specific_merge_from_start:Object.Chunk)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
@@ -1235,12 +1261,20 @@ void Chunk::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::p
 
   _this->_internal_mutable_constants()->MergeFrom(
       from._internal_constants());
-  if (!from._internal_code().empty()) {
-    _this->_internal_set_code(from._internal_code());
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    ABSL_DCHECK(from._impl_.function_ != nullptr);
+    if (_this->_impl_.function_ == nullptr) {
+      _this->_impl_.function_ =
+          ::google::protobuf::Message::CopyConstruct<::Object::Function>(arena, *from._impl_.function_);
+    } else {
+      _this->_impl_.function_->MergeFrom(*from._impl_.function_);
+    }
   }
   if (from._internal_globals_count() != 0) {
     _this->_impl_.globals_count_ = from._impl_.globals_count_;
   }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -1254,12 +1288,15 @@ void Chunk::CopyFrom(const Chunk& from) {
 
 void Chunk::InternalSwap(Chunk* PROTOBUF_RESTRICT other) {
   using std::swap;
-  auto* arena = GetArena();
-  ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   _impl_.constants_.InternalSwap(&other->_impl_.constants_);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.code_, &other->_impl_.code_, arena);
-        swap(_impl_.globals_count_, other->_impl_.globals_count_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(Chunk, _impl_.globals_count_)
+      + sizeof(Chunk::_impl_.globals_count_)
+      - PROTOBUF_FIELD_OFFSET(Chunk, _impl_.function_)>(
+          reinterpret_cast<char*>(&_impl_.function_),
+          reinterpret_cast<char*>(&other->_impl_.function_));
 }
 
 ::google::protobuf::Metadata Chunk::GetMetadata() const {

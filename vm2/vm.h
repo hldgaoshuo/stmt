@@ -5,10 +5,10 @@
 #ifndef VM2_VM_H
 #define VM2_VM_H
 
-#include <cstdint>
 #include <vector>
 #include <utility>
 #include "object.pb.h"
+#include "Frame.h"
 
 typedef enum {
     OP_RETURN,
@@ -48,11 +48,8 @@ class VM {
 public:
     VM(Object::Chunk* chunk);
 
-    // code
-    std::vector<uint8_t> code;
-    std::size_t ip = 0;
-    void _code_emit(uint8_t byte);
-    uint8_t code_next();
+    // frames
+    std::vector<Frame*> frames;
 
     // constants
     std::vector<Object::Object*> constants;

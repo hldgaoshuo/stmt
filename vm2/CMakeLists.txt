@@ -10,6 +10,7 @@ add_executable(vm2
         main.cpp
         vm.cpp
         object.pb.cc
+        Frame.cpp
 )
 
 target_link_libraries(vm2 PRIVATE
