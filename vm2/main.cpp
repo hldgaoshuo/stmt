@@ -1,7 +1,7 @@
 #include <string>
 #include <google/protobuf/stubs/common.h>
 #include <fmt/core.h>
-#include "vm.h"
+#include "VM.h"
 
 static bool test_literal_int() {
     auto chunk = new Object::Chunk();

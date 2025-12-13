@@ -8,8 +8,8 @@ find_package(protobuf REQUIRED)
 
 add_executable(vm2
         main.cpp
-        vm.cpp
         object.pb.cc
+        VM.cpp
         Frame.cpp
 )
 

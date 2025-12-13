@@ -2,7 +2,7 @@
 // Created by gaoshuo on 2025/12/1.
 //
 
-#include "vm.h"
+#include "VM.h"
 #include <cmath>
 #include <fmt/core.h>
 
