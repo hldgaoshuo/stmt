@@ -29,6 +29,7 @@ const (
 	OP_AND
 	OP_OR
 	OP_LOOP
+	OP_CALL
 )
 
 // op 可能有多个操作数
@@ -60,4 +61,5 @@ var operandWidths = map[uint8][]int{
 	OP_AND:        {},
 	OP_OR:         {},
 	OP_LOOP:       {1},
+	OP_CALL:       {1},
 }

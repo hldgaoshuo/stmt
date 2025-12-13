@@ -363,6 +363,19 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		default:
 			return ErrInvalidSymbolScope
 		}
+	case *ast.Call:
+		err := c.compile(_node.Callee, symbolTable, scope)
+		if err != nil {
+			return err
+		}
+		for _, argument := range _node.Arguments {
+			err = c.compile(argument, symbolTable, scope)
+			if err != nil {
+				return err
+			}
+		}
+		scope.CodeEmit(OP_CALL, len(_node.Arguments))
+		return nil
 	default:
 		return ErrInvalidNodeType
 	}

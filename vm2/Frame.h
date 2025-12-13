@@ -10,11 +10,11 @@
 
 class Frame {
 public:
-    Frame(Object::Function* fun);
+    Frame(Object::Function* fun, std::size_t bp);
 
     Object::Function* function;
-    std::size_t ip;
     std::size_t base_pointer;
+    std::size_t ip;
 
     std::size_t code_size();
     uint8_t code_next();

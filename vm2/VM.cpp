@@ -10,7 +10,7 @@
 
 VM::VM(Object::Chunk* chunk) {
     // frames
-    auto frame = new Frame(chunk->mutable_function());
+    auto frame = new Frame(chunk->mutable_function(), 0);
     frames.push_back(frame);
 
     // constants
@@ -21,6 +21,10 @@ VM::VM(Object::Chunk* chunk) {
 
     // globals
     globals.resize(chunk->globals_count());
+}
+
+void VM::frame_push(Frame* frame) {
+    frames.push_back(frame);
 }
 
 void VM::_constant_add(Object::Object* value) {
@@ -40,8 +44,9 @@ Object::Object* VM::stack_pop() {
     stack.pop_back();
     return value;
 }
-Object::Object* VM::stack_peek() {
-    Object::Object* value = stack.back();
+Object::Object* VM::stack_peek(uint8_t num) {
+    auto size = stack.size();
+    Object::Object* value = stack[size-1-num];
     return value;
 }
 void VM::stack_set(uint8_t index, Object::Object* value) {
@@ -49,6 +54,11 @@ void VM::stack_set(uint8_t index, Object::Object* value) {
 }
 Object::Object* VM::stack_get(uint8_t index) {
     return stack[index];
+}
+uint8_t VM::stack_base_pointer(uint8_t offset) {
+    auto size = stack.size();
+    auto result = size - 1 - offset;
+    return result;
 }
 
 void VM::retain(Object::Object* obj) {
@@ -96,19 +106,19 @@ Error VM::interpret() {
                 auto b = stack_pop();
                 auto a = stack_pop();
                 auto result = new Object::Object();
-                if (a->has_literal_int() && b->has_literal_int()) {
+                if (a->has_literal_int() and b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() + b->literal_int());
                 }
-                else if (a->has_literal_float() && b->has_literal_float()) {
+                else if (a->has_literal_float() and b->has_literal_float()) {
                     result->set_literal_float(a->literal_float() + b->literal_float());
                 }
-                else if (a->has_literal_int() && b->has_literal_float()) {
+                else if (a->has_literal_int() and b->has_literal_float()) {
                     result->set_literal_float(static_cast<double>(a->literal_int()) + b->literal_float());
                 }
-                else if (a->has_literal_float() && b->has_literal_int()) {
+                else if (a->has_literal_float() and b->has_literal_int()) {
                     result->set_literal_float(a->literal_float() + static_cast<double>(b->literal_int()));
                 }
-                else if (a->has_literal_string() && b->has_literal_string()) {
+                else if (a->has_literal_string() and b->has_literal_string()) {
                     result->set_literal_string(a->literal_string() + b->literal_string());
                 }
                 else {
@@ -124,16 +134,16 @@ Error VM::interpret() {
                 auto b = stack_pop();
                 auto a = stack_pop();
                 auto result = new Object::Object();
-                if (a->has_literal_int() && b->has_literal_int()) {
+                if (a->has_literal_int() and b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() - b->literal_int());
                 }
-                else if (a->has_literal_float() && b->has_literal_float()) {
+                else if (a->has_literal_float() and b->has_literal_float()) {
                     result->set_literal_float(a->literal_float() - b->literal_float());
                 }
-                else if (a->has_literal_int() && b->has_literal_float()) {
+                else if (a->has_literal_int() and b->has_literal_float()) {
                     result->set_literal_float(static_cast<double>(a->literal_int()) - b->literal_float());
                 }
-                else if (a->has_literal_float() && b->has_literal_int()) {
+                else if (a->has_literal_float() and b->has_literal_int()) {
                     result->set_literal_float(a->literal_float() - static_cast<double>(b->literal_int()));
                 }
                 else {
@@ -149,16 +159,16 @@ Error VM::interpret() {
                 auto b = stack_pop();
                 auto a = stack_pop();
                 auto result = new Object::Object();
-                if (a->has_literal_int() && b->has_literal_int()) {
+                if (a->has_literal_int() and b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() * b->literal_int());
                 }
-                else if (a->has_literal_float() && b->has_literal_float()) {
+                else if (a->has_literal_float() and b->has_literal_float()) {
                     result->set_literal_float(a->literal_float() * b->literal_float());
                 }
-                else if (a->has_literal_int() && b->has_literal_float()) {
+                else if (a->has_literal_int() and b->has_literal_float()) {
                     result->set_literal_float(static_cast<double>(a->literal_int()) * b->literal_float());
                 }
-                else if (a->has_literal_float() && b->has_literal_int()) {
+                else if (a->has_literal_float() and b->has_literal_int()) {
                     result->set_literal_float(a->literal_float() * static_cast<double>(b->literal_int()));
                 }
                 else {
@@ -174,16 +184,16 @@ Error VM::interpret() {
                 auto b = stack_pop();
                 auto a = stack_pop();
                 auto result = new Object::Object();
-                if (a->has_literal_int() && b->has_literal_int()) {
+                if (a->has_literal_int() and b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() / b->literal_int());
                 }
-                else if (a->has_literal_float() && b->has_literal_float()) {
+                else if (a->has_literal_float() and b->has_literal_float()) {
                     result->set_literal_float(a->literal_float() / b->literal_float());
                 }
-                else if (a->has_literal_int() && b->has_literal_float()) {
+                else if (a->has_literal_int() and b->has_literal_float()) {
                     result->set_literal_float(static_cast<double>(a->literal_int()) / b->literal_float());
                 }
-                else if (a->has_literal_float() && b->has_literal_int()) {
+                else if (a->has_literal_float() and b->has_literal_int()) {
                     result->set_literal_float(a->literal_float() / static_cast<double>(b->literal_int()));
                 }
                 else {
@@ -199,16 +209,16 @@ Error VM::interpret() {
                 auto b = stack_pop();
                 auto a = stack_pop();
                 auto result = new Object::Object();
-                if (a->has_literal_int() && b->has_literal_int()) {
+                if (a->has_literal_int() and b->has_literal_int()) {
                     result->set_literal_int(a->literal_int() % b->literal_int());
                 }
-                else if (a->has_literal_float() && b->has_literal_float()) {
+                else if (a->has_literal_float() and b->has_literal_float()) {
                     result->set_literal_float(fmod(a->literal_float(), b->literal_float()));
                 }
-                else if (a->has_literal_int() && b->has_literal_float()) {
+                else if (a->has_literal_int() and b->has_literal_float()) {
                     result->set_literal_float(fmod(static_cast<double>(a->literal_int()), b->literal_float()));
                 }
-                else if (a->has_literal_float() && b->has_literal_int()) {
+                else if (a->has_literal_float() and b->has_literal_int()) {
                     result->set_literal_float(fmod(a->literal_float(), static_cast<double>(b->literal_int())));
                 }
                 else {
@@ -242,7 +252,7 @@ Error VM::interpret() {
                 auto value = stack_pop();
                 auto result = new Object::Object();
                 if (value->has_literal_bool()) {
-                    result->set_literal_bool(!value->literal_bool());
+                    result->set_literal_bool(not value->literal_bool());
                 }
                 else {
                     fmt::print("Invalid operand for OP_NOT\n");
@@ -256,22 +266,22 @@ Error VM::interpret() {
                 auto b = stack_pop();
                 auto a = stack_pop();
                 auto result = new Object::Object();
-                if (a->has_literal_int() && b->has_literal_int()) {
+                if (a->has_literal_int() and b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() == b->literal_int());
                 }
-                else if (a->has_literal_float() && b->has_literal_float()) {
+                else if (a->has_literal_float() and b->has_literal_float()) {
                     result->set_literal_bool(a->literal_float() == b->literal_float());
                 }
-                else if (a->has_literal_int() && b->has_literal_float()) {
+                else if (a->has_literal_int() and b->has_literal_float()) {
                     result->set_literal_float(static_cast<double>(a->literal_int()) == b->literal_float());
                 }
-                else if (a->has_literal_float() && b->has_literal_int()) {
+                else if (a->has_literal_float() and b->has_literal_int()) {
                     result->set_literal_float(a->literal_float() == static_cast<double>(b->literal_int()));
                 }
-                else if (a->has_literal_bool() && b->has_literal_bool()) {
+                else if (a->has_literal_bool() and b->has_literal_bool()) {
                     result->set_literal_bool(a->literal_bool() == b->literal_bool());
                 }
-                else if (a->has_literal_nil() && b->has_literal_nil()) {
+                else if (a->has_literal_nil() and b->has_literal_nil()) {
                     result->set_literal_bool(true);
                 }
                 else {
@@ -287,16 +297,16 @@ Error VM::interpret() {
                 auto b = stack_pop();
                 auto a = stack_pop();
                 auto result = new Object::Object();
-                if (a->has_literal_int() && b->has_literal_int()) {
+                if (a->has_literal_int() and b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() > b->literal_int());
                 }
-                else if (a->has_literal_float() && b->has_literal_float()) {
+                else if (a->has_literal_float() and b->has_literal_float()) {
                     result->set_literal_bool(a->literal_float() > b->literal_float());
                 }
-                else if (a->has_literal_int() && b->has_literal_float()) {
+                else if (a->has_literal_int() and b->has_literal_float()) {
                     result->set_literal_float(static_cast<double>(a->literal_int()) > b->literal_float());
                 }
-                else if (a->has_literal_float() && b->has_literal_int()) {
+                else if (a->has_literal_float() and b->has_literal_int()) {
                     result->set_literal_float(a->literal_float() > static_cast<double>(b->literal_int()));
                 }
                 else {
@@ -312,16 +322,16 @@ Error VM::interpret() {
                 auto b = stack_pop();
                 auto a = stack_pop();
                 auto result = new Object::Object();
-                if (a->has_literal_int() && b->has_literal_int()) {
+                if (a->has_literal_int() and b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() < b->literal_int());
                 }
-                else if (a->has_literal_float() && b->has_literal_float()) {
+                else if (a->has_literal_float() and b->has_literal_float()) {
                     result->set_literal_bool(a->literal_float() < b->literal_float());
                 }
-                else if (a->has_literal_int() && b->has_literal_float()) {
+                else if (a->has_literal_int() and b->has_literal_float()) {
                     result->set_literal_float(static_cast<double>(a->literal_int()) < b->literal_float());
                 }
-                else if (a->has_literal_float() && b->has_literal_int()) {
+                else if (a->has_literal_float() and b->has_literal_int()) {
                     result->set_literal_float(a->literal_float() < static_cast<double>(b->literal_int()));
                 }
                 else {
@@ -337,16 +347,16 @@ Error VM::interpret() {
                 auto b = stack_pop();
                 auto a = stack_pop();
                 auto result = new Object::Object();
-                if (a->has_literal_int() && b->has_literal_int()) {
+                if (a->has_literal_int() and b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() >= b->literal_int());
                 }
-                else if (a->has_literal_float() && b->has_literal_float()) {
+                else if (a->has_literal_float() and b->has_literal_float()) {
                     result->set_literal_bool(a->literal_float() >= b->literal_float());
                 }
-                else if (a->has_literal_int() && b->has_literal_float()) {
+                else if (a->has_literal_int() and b->has_literal_float()) {
                     result->set_literal_float(static_cast<double>(a->literal_int()) >= b->literal_float());
                 }
-                else if (a->has_literal_float() && b->has_literal_int()) {
+                else if (a->has_literal_float() and b->has_literal_int()) {
                     result->set_literal_float(a->literal_float() >= static_cast<double>(b->literal_int()));
                 }
                 else {
@@ -362,16 +372,16 @@ Error VM::interpret() {
                 auto b = stack_pop();
                 auto a = stack_pop();
                 auto result = new Object::Object();
-                if (a->has_literal_int() && b->has_literal_int()) {
+                if (a->has_literal_int() and b->has_literal_int()) {
                     result->set_literal_bool(a->literal_int() <= b->literal_int());
                 }
-                else if (a->has_literal_float() && b->has_literal_float()) {
+                else if (a->has_literal_float() and b->has_literal_float()) {
                     result->set_literal_bool(a->literal_float() <= b->literal_float());
                 }
-                else if (a->has_literal_int() && b->has_literal_float()) {
+                else if (a->has_literal_int() and b->has_literal_float()) {
                     result->set_literal_float(static_cast<double>(a->literal_int()) <= b->literal_float());
                 }
-                else if (a->has_literal_float() && b->has_literal_int()) {
+                else if (a->has_literal_float() and b->has_literal_int()) {
                     result->set_literal_float(a->literal_float() <= static_cast<double>(b->literal_int()));
                 }
                 else {
@@ -433,8 +443,8 @@ Error VM::interpret() {
             }
             case OP_JUMP_FALSE: {
                 auto _ip = frame->code_next();
-                if (auto cond = stack_peek(); cond->has_literal_bool()) {
-                    if (!cond->literal_bool()) {
+                if (auto cond = stack_peek(0); cond->has_literal_bool()) {
+                    if (not cond->literal_bool()) {
                         frame->ip = _ip;
                     }
                 } else {
@@ -451,6 +461,18 @@ Error VM::interpret() {
             case OP_LOOP: {
                 auto _ip = frame->code_next();
                 frame->ip = _ip;
+                break;
+            }
+            case OP_CALL: {
+                auto arg_count = frame->code_next();
+                auto obj = stack_peek(arg_count);
+                if (not obj->has_literal_function()) {
+                    fmt::print("Invalid constant for OP_CALL\n");
+                    return Error::ERROR;
+                }
+                auto base_pointer = stack_base_pointer(arg_count);
+                frame = new Frame(obj->mutable_literal_function(), base_pointer);
+                frame_push(frame);
                 break;
             }
             default: {

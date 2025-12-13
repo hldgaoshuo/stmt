@@ -612,6 +612,42 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "call",
+			source: `
+			fun pt() {
+				print 1;
+			}
+			pt();
+			`,
+			code: []uint8{
+				OP_CONSTANT, 1,
+				OP_SET_GLOBAL, 0,
+				OP_GET_GLOBAL, 0,
+				OP_CALL, 0,
+				OP_POP,
+			},
+			constants: []*object.Object{
+				{
+					ObjectType: object.ObjectType_OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+				},
+				{
+					ObjectType: object.ObjectType_OBJ_FUNCTION,
+					Literal: &object.Object_LiteralFunction{
+						LiteralFunction: &object.Function{
+							Code: []uint8{
+								OP_CONSTANT, 0,
+								OP_PRINT,
+							},
+							NumParams: 0,
+						},
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

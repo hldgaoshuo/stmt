@@ -37,6 +37,7 @@ typedef enum {
     OP_JUMP_FALSE,
     OP_JUMP,
     OP_LOOP,
+    OP_CALL,
 } OpCode;
 
 enum class Error {
@@ -50,6 +51,7 @@ public:
 
     // frames
     std::vector<Frame*> frames;
+    void frame_push(Frame* frame);
 
     // constants
     std::vector<Object::Object*> constants;
@@ -60,9 +62,10 @@ public:
     std::vector<Object::Object*> stack;
     void stack_push(Object::Object* value);
     Object::Object* stack_pop();
-    Object::Object* stack_peek();
+    Object::Object* stack_peek(uint8_t num);
     void stack_set(uint8_t index, Object::Object* value);
     Object::Object* stack_get(uint8_t index);
+    uint8_t stack_base_pointer(uint8_t offset);
 
     // globals
     std::vector<Object::Object*> globals;
