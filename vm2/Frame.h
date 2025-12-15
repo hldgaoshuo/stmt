@@ -10,9 +10,9 @@
 
 class Frame {
 public:
-    Frame(Object::Function* fun, std::size_t bp);
+    Frame(Object::Closure* clo, std::size_t bp);
 
-    Object::Function* function;
+    Object::Closure* closure;
     std::size_t base_pointer;
     std::size_t ip;
 

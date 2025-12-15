@@ -356,7 +356,7 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 			},
 		}
 		index := c.constantAdd(obj)
-		scope.CodeEmit(OP_CONSTANT, index)
+		scope.CodeEmit(OP_CLOSURE, index)
 		switch symbolInfo.Scope {
 		case LocalScope:
 			scope.CodeEmit(OP_SET_LOCAL, int(symbolInfo.Index))

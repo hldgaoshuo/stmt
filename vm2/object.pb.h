@@ -1014,7 +1014,7 @@ class Chunk final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kConstantsFieldNumber = 2,
-    kFunctionFieldNumber = 1,
+    kClosureFieldNumber = 1,
     kGlobalsCountFieldNumber = 3,
   };
   // repeated .Object.Object constants = 2;
@@ -1034,19 +1034,19 @@ class Chunk final : public ::google::protobuf::Message
   const ::Object::Object& constants(int index) const;
   ::Object::Object* add_constants();
   const ::google::protobuf::RepeatedPtrField<::Object::Object>& constants() const;
-  // .Object.Function function = 1;
-  bool has_function() const;
-  void clear_function() ;
-  const ::Object::Function& function() const;
-  PROTOBUF_NODISCARD ::Object::Function* release_function();
-  ::Object::Function* mutable_function();
-  void set_allocated_function(::Object::Function* value);
-  void unsafe_arena_set_allocated_function(::Object::Function* value);
-  ::Object::Function* unsafe_arena_release_function();
+  // .Object.Closure closure = 1;
+  bool has_closure() const;
+  void clear_closure() ;
+  const ::Object::Closure& closure() const;
+  PROTOBUF_NODISCARD ::Object::Closure* release_closure();
+  ::Object::Closure* mutable_closure();
+  void set_allocated_closure(::Object::Closure* value);
+  void unsafe_arena_set_allocated_closure(::Object::Closure* value);
+  ::Object::Closure* unsafe_arena_release_closure();
 
   private:
-  const ::Object::Function& _internal_function() const;
-  ::Object::Function* _internal_mutable_function();
+  const ::Object::Closure& _internal_closure() const;
+  ::Object::Closure* _internal_mutable_closure();
 
   public:
   // uint64 globals_count = 3;
@@ -1085,7 +1085,7 @@ class Chunk final : public ::google::protobuf::Message
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::RepeatedPtrField< ::Object::Object > constants_;
-    ::Object::Function* function_;
+    ::Object::Closure* closure_;
     ::uint64_t globals_count_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1767,45 +1767,45 @@ inline Object::LiteralCase Object::literal_case() const {
 
 // Chunk
 
-// .Object.Function function = 1;
-inline bool Chunk::has_function() const {
+// .Object.Closure closure = 1;
+inline bool Chunk::has_closure() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
-  PROTOBUF_ASSUME(!value || _impl_.function_ != nullptr);
+  PROTOBUF_ASSUME(!value || _impl_.closure_ != nullptr);
   return value;
 }
-inline void Chunk::clear_function() {
+inline void Chunk::clear_closure() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (_impl_.function_ != nullptr) _impl_.function_->Clear();
+  if (_impl_.closure_ != nullptr) _impl_.closure_->Clear();
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline const ::Object::Function& Chunk::_internal_function() const {
+inline const ::Object::Closure& Chunk::_internal_closure() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  const ::Object::Function* p = _impl_.function_;
-  return p != nullptr ? *p : reinterpret_cast<const ::Object::Function&>(::Object::_Function_default_instance_);
+  const ::Object::Closure* p = _impl_.closure_;
+  return p != nullptr ? *p : reinterpret_cast<const ::Object::Closure&>(::Object::_Closure_default_instance_);
 }
-inline const ::Object::Function& Chunk::function() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:Object.Chunk.function)
-  return _internal_function();
+inline const ::Object::Closure& Chunk::closure() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:Object.Chunk.closure)
+  return _internal_closure();
 }
-inline void Chunk::unsafe_arena_set_allocated_function(::Object::Function* value) {
+inline void Chunk::unsafe_arena_set_allocated_closure(::Object::Closure* value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (GetArena() == nullptr) {
-    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.function_);
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.closure_);
   }
-  _impl_.function_ = reinterpret_cast<::Object::Function*>(value);
+  _impl_.closure_ = reinterpret_cast<::Object::Closure*>(value);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
   } else {
     _impl_._has_bits_[0] &= ~0x00000001u;
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Object.Chunk.function)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Object.Chunk.closure)
 }
-inline ::Object::Function* Chunk::release_function() {
+inline ::Object::Closure* Chunk::release_closure() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
   _impl_._has_bits_[0] &= ~0x00000001u;
-  ::Object::Function* released = _impl_.function_;
-  _impl_.function_ = nullptr;
+  ::Object::Closure* released = _impl_.closure_;
+  _impl_.closure_ = nullptr;
   if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
     auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
     released = ::google::protobuf::internal::DuplicateIfNonNull(released);
@@ -1819,34 +1819,34 @@ inline ::Object::Function* Chunk::release_function() {
   }
   return released;
 }
-inline ::Object::Function* Chunk::unsafe_arena_release_function() {
+inline ::Object::Closure* Chunk::unsafe_arena_release_closure() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:Object.Chunk.function)
+  // @@protoc_insertion_point(field_release:Object.Chunk.closure)
 
   _impl_._has_bits_[0] &= ~0x00000001u;
-  ::Object::Function* temp = _impl_.function_;
-  _impl_.function_ = nullptr;
+  ::Object::Closure* temp = _impl_.closure_;
+  _impl_.closure_ = nullptr;
   return temp;
 }
-inline ::Object::Function* Chunk::_internal_mutable_function() {
+inline ::Object::Closure* Chunk::_internal_mutable_closure() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (_impl_.function_ == nullptr) {
-    auto* p = ::google::protobuf::Message::DefaultConstruct<::Object::Function>(GetArena());
-    _impl_.function_ = reinterpret_cast<::Object::Function*>(p);
+  if (_impl_.closure_ == nullptr) {
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::Object::Closure>(GetArena());
+    _impl_.closure_ = reinterpret_cast<::Object::Closure*>(p);
   }
-  return _impl_.function_;
+  return _impl_.closure_;
 }
-inline ::Object::Function* Chunk::mutable_function() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::Object::Closure* Chunk::mutable_closure() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   _impl_._has_bits_[0] |= 0x00000001u;
-  ::Object::Function* _msg = _internal_mutable_function();
-  // @@protoc_insertion_point(field_mutable:Object.Chunk.function)
+  ::Object::Closure* _msg = _internal_mutable_closure();
+  // @@protoc_insertion_point(field_mutable:Object.Chunk.closure)
   return _msg;
 }
-inline void Chunk::set_allocated_function(::Object::Function* value) {
+inline void Chunk::set_allocated_closure(::Object::Closure* value) {
   ::google::protobuf::Arena* message_arena = GetArena();
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (message_arena == nullptr) {
-    delete (_impl_.function_);
+    delete (_impl_.closure_);
   }
 
   if (value != nullptr) {
@@ -1859,8 +1859,8 @@ inline void Chunk::set_allocated_function(::Object::Function* value) {
     _impl_._has_bits_[0] &= ~0x00000001u;
   }
 
-  _impl_.function_ = reinterpret_cast<::Object::Function*>(value);
-  // @@protoc_insertion_point(field_set_allocated:Object.Chunk.function)
+  _impl_.closure_ = reinterpret_cast<::Object::Closure*>(value);
+  // @@protoc_insertion_point(field_set_allocated:Object.Chunk.closure)
 }
 
 // repeated .Object.Object constants = 2;

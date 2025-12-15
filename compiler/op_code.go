@@ -30,6 +30,7 @@ const (
 	OP_LOOP
 	OP_CALL
 	OP_RETURN
+	OP_CLOSURE
 )
 
 // op 可能有多个操作数
@@ -62,4 +63,5 @@ var operandWidths = map[uint8][]int{
 	OP_LOOP:       {1},
 	OP_CALL:       {1},
 	OP_RETURN:     {},
+	OP_CLOSURE:    {1},
 }

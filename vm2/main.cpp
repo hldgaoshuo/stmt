@@ -6,11 +6,13 @@
 static bool test_literal_int() {
     auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
@@ -34,11 +36,13 @@ static bool test_literal_int() {
 static bool test_literal_float() {
     auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     auto c1 = chunk->add_constants();
     c1->set_literal_float(1.5);
@@ -62,12 +66,14 @@ static bool test_literal_float() {
 static bool test_negate() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_NEGATE);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(5);
@@ -91,13 +97,15 @@ static bool test_negate() {
 static bool test_add() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_ADD);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
@@ -123,11 +131,13 @@ static bool test_add() {
 static bool test_literal_true() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_TRUE);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     auto vm = VM(chunk);
     auto err = vm.interpret();
@@ -148,11 +158,13 @@ static bool test_literal_true() {
 static bool test_literal_false() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_FALSE);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     auto vm = VM(chunk);
     auto err = vm.interpret();
@@ -173,11 +185,13 @@ static bool test_literal_false() {
 static bool test_literal_nil() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_NIL);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     auto vm = VM(chunk);
     auto err = vm.interpret();
@@ -198,12 +212,14 @@ static bool test_literal_nil() {
 static bool test_not() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_NOT);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_bool(true);
@@ -227,13 +243,15 @@ static bool test_not() {
 static bool test_eq() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_EQ);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_bool(true);
@@ -259,13 +277,15 @@ static bool test_eq() {
 static bool test_gt() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_GT);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(2);
@@ -291,11 +311,13 @@ static bool test_gt() {
 static bool test_literal_string() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_string("abc");
@@ -319,13 +341,15 @@ static bool test_literal_string() {
 static bool test_add_string() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_ADD);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_string("abc");
@@ -351,12 +375,14 @@ static bool test_add_string() {
 static bool test_print() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
     code.push_back(OP_PRINT);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
@@ -372,6 +398,7 @@ static bool test_print() {
 static bool test_var() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
@@ -379,7 +406,8 @@ static bool test_var() {
     code.push_back(OP_GET_GLOBAL); code.push_back(0);
     code.push_back(OP_PRINT);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
@@ -397,6 +425,7 @@ static bool test_var() {
 static bool test_assign() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
@@ -406,7 +435,8 @@ static bool test_assign() {
     code.push_back(OP_GET_GLOBAL); code.push_back(0);
     code.push_back(OP_PRINT);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
@@ -426,6 +456,7 @@ static bool test_assign() {
 static bool test_block() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
@@ -439,7 +470,8 @@ static bool test_block() {
     code.push_back(OP_GET_GLOBAL); code.push_back(0);
     code.push_back(OP_PRINT);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
@@ -459,6 +491,7 @@ static bool test_block() {
 static bool test_if() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_TRUE);
@@ -471,7 +504,8 @@ static bool test_if() {
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_PRINT);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(10);
@@ -489,6 +523,7 @@ static bool test_if() {
 static bool test_if_else() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_FALSE);
@@ -501,7 +536,8 @@ static bool test_if_else() {
     code.push_back(OP_CONSTANT); code.push_back(1);
     code.push_back(OP_PRINT);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(10);
@@ -519,6 +555,7 @@ static bool test_if_else() {
 static bool test_and() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_TRUE);
@@ -526,7 +563,8 @@ static bool test_and() {
     code.push_back(OP_POP);
     code.push_back(OP_TRUE);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     auto vm = VM(chunk);
     auto err = vm.interpret();
@@ -547,6 +585,7 @@ static bool test_and() {
 static bool test_or() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_TRUE);
@@ -555,7 +594,8 @@ static bool test_or() {
     code.push_back(OP_POP);
     code.push_back(OP_TRUE);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     auto vm = VM(chunk);
     auto err = vm.interpret();
@@ -576,6 +616,7 @@ static bool test_or() {
 static bool test_while() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
     code.push_back(OP_CONSTANT); code.push_back(0);
@@ -594,7 +635,8 @@ static bool test_while() {
     code.push_back(OP_LOOP); code.push_back(4);
     code.push_back(OP_POP);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(0);
@@ -617,15 +659,17 @@ static bool test_while() {
 static bool test_call() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
-    code.push_back(OP_CONSTANT); code.push_back(1);
+    code.push_back(OP_CLOSURE); code.push_back(1);
     code.push_back(OP_SET_GLOBAL); code.push_back(0);
     code.push_back(OP_GET_GLOBAL); code.push_back(0);
     code.push_back(OP_CALL); code.push_back(0);
     code.push_back(OP_POP);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     c1->set_literal_int(1);
@@ -654,9 +698,10 @@ static bool test_call() {
 static bool test_call_arg() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
-    code.push_back(OP_CONSTANT); code.push_back(0);
+    code.push_back(OP_CLOSURE); code.push_back(0);
     code.push_back(OP_SET_GLOBAL); code.push_back(0);
     code.push_back(OP_GET_GLOBAL); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
@@ -664,7 +709,8 @@ static bool test_call_arg() {
     code.push_back(OP_CALL); code.push_back(2);
     code.push_back(OP_POP);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     auto fun_pt = new Object::Function();
@@ -697,9 +743,10 @@ static bool test_call_arg() {
 static bool test_call_arg_return() {
     const auto chunk = new Object::Chunk();
 
+    auto clo = new Object::Closure();
     auto fun = new Object::Function();
     std::string code;
-    code.push_back(OP_CONSTANT); code.push_back(0);
+    code.push_back(OP_CLOSURE); code.push_back(0);
     code.push_back(OP_SET_GLOBAL); code.push_back(0);
     code.push_back(OP_GET_GLOBAL); code.push_back(0);
     code.push_back(OP_CONSTANT); code.push_back(1);
@@ -707,7 +754,8 @@ static bool test_call_arg_return() {
     code.push_back(OP_CALL); code.push_back(2);
     code.push_back(OP_PRINT);
     fun->set_code(code);
-    chunk->set_allocated_function(fun);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
 
     const auto c1 = chunk->add_constants();
     auto fun_pt = new Object::Function();

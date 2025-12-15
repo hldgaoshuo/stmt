@@ -10,7 +10,7 @@
 
 VM::VM(Object::Chunk* chunk) {
     // frames
-    auto frame = new Frame(chunk->mutable_function(), 0);
+    auto frame = new Frame(chunk->mutable_closure(), 0);
     frames.push_back(frame);
 
     // constants
@@ -477,12 +477,12 @@ Error VM::interpret() {
             case OP_CALL: {
                 auto arg_count = frame->code_next();
                 auto obj = stack_peek(arg_count);
-                if (not obj->has_literal_function()) {
+                if (not obj->has_literal_closure()) {
                     fmt::print("Invalid constant for OP_CALL\n");
                     return Error::ERROR;
                 }
                 auto base_pointer = stack_base_pointer(arg_count);
-                frame = new Frame(obj->mutable_literal_function(), base_pointer);
+                frame = new Frame(obj->mutable_literal_closure(), base_pointer);
                 frame_push(frame);
                 break;
             }
@@ -493,6 +493,21 @@ Error VM::interpret() {
                 stack_resize(frame->base_pointer);
                 stack_push(result);
                 frame = frame_pop();
+                break;
+            }
+            case OP_CLOSURE: {
+                auto function_index = frame->code_next();
+                auto function_obj = constant_get(function_index);
+                if (not function_obj->has_literal_function()) {
+                    fmt::print("Invalid constant for OP_CLOSURE\n");
+                    return Error::ERROR;
+                }
+                auto function = function_obj->mutable_literal_function();
+                auto obj = new Object::Object();
+                auto closure = new Object::Closure();
+                closure->set_allocated_function(function);
+                obj->set_allocated_literal_closure(closure);
+                stack_push(obj);
                 break;
             }
             default: {
@@ -542,7 +557,7 @@ void VM::frame_show() {
                    i,
                    frame->ip,
                    frame->base_pointer);
-        const std::string& code = frame->function->code();
+        const std::string& code = frame->closure->mutable_function()->code();
         fmt::print("[");
         for (std::size_t j = 0; j < code.size(); ++j) {
             if (j > 0) fmt::print(", ");

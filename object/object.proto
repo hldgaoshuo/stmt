@@ -40,7 +40,7 @@ message Object {
 }
 
 message Chunk {
-  Function function = 1;
+  Closure closure = 1;
   repeated Object constants = 2;
   uint64 globals_count = 3;
 }

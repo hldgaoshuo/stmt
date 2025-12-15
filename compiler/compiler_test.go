@@ -588,7 +588,7 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			}
 			`,
 			code: []uint8{
-				OP_CONSTANT, 1,
+				OP_CLOSURE, 1,
 				OP_SET_GLOBAL, 0,
 			},
 			constants: []*object.Object{
@@ -623,7 +623,7 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			}
 			`,
 			code: []uint8{
-				OP_CONSTANT, 1,
+				OP_CLOSURE, 1,
 				OP_SET_GLOBAL, 0,
 			},
 			constants: []*object.Object{
@@ -658,7 +658,7 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			}
 			`,
 			code: []uint8{
-				OP_CONSTANT, 2,
+				OP_CLOSURE, 2,
 				OP_SET_GLOBAL, 0,
 			},
 			constants: []*object.Object{
@@ -699,7 +699,7 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			pt();
 			`,
 			code: []uint8{
-				OP_CONSTANT, 1,
+				OP_CLOSURE, 1,
 				OP_SET_GLOBAL, 0,
 				OP_GET_GLOBAL, 0,
 				OP_CALL, 0,
@@ -737,7 +737,7 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			pt(1, 2);
 			`,
 			code: []uint8{
-				OP_CONSTANT, 0,
+				OP_CLOSURE, 0,
 				OP_SET_GLOBAL, 0,
 				OP_GET_GLOBAL, 0,
 				OP_CONSTANT, 1,
@@ -785,7 +785,7 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			print add(1, 2);
 			`,
 			code: []uint8{
-				OP_CONSTANT, 0,
+				OP_CLOSURE, 0,
 				OP_SET_GLOBAL, 0,
 				OP_GET_GLOBAL, 0,
 				OP_CONSTANT, 1,

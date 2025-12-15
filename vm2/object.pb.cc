@@ -111,7 +111,7 @@ inline constexpr Chunk::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
         constants_{},
-        function_{nullptr},
+        closure_{nullptr},
         globals_count_{::uint64_t{0u}} {}
 
 template <typename>
@@ -186,7 +186,7 @@ const ::uint32_t
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::Object::Chunk, _impl_.function_),
+        PROTOBUF_FIELD_OFFSET(::Object::Chunk, _impl_.closure_),
         PROTOBUF_FIELD_OFFSET(::Object::Chunk, _impl_.constants_),
         PROTOBUF_FIELD_OFFSET(::Object::Chunk, _impl_.globals_count_),
         0,
@@ -219,19 +219,19 @@ const char descriptor_table_protodef_object_2eproto[] ABSL_ATTRIBUTE_SECTION_VAR
     "\000\022\030\n\016literal_string\030\007 \001(\tH\000\022,\n\020literal_f"
     "unction\030\010 \001(\0132\020.Object.FunctionH\000\022*\n\017lit"
     "eral_closure\030\t \001(\0132\017.Object.ClosureH\000B\t\n"
-    "\007literal\"e\n\005Chunk\022\"\n\010function\030\001 \001(\0132\020.Ob"
-    "ject.Function\022!\n\tconstants\030\002 \003(\0132\016.Objec"
-    "t.Object\022\025\n\rglobals_count\030\003 \001(\004*v\n\nObjec"
-    "tType\022\013\n\007OBJ_INT\020\000\022\r\n\tOBJ_FLOAT\020\001\022\014\n\010OBJ"
-    "_BOOL\020\002\022\013\n\007OBJ_NIL\020\003\022\016\n\nOBJ_STRING\020\004\022\020\n\014"
-    "OBJ_FUNCTION\020\005\022\017\n\013OBJ_CLOSURE\020\006B\004Z\002./b\006p"
-    "roto3"
+    "\007literal\"c\n\005Chunk\022 \n\007closure\030\001 \001(\0132\017.Obj"
+    "ect.Closure\022!\n\tconstants\030\002 \003(\0132\016.Object."
+    "Object\022\025\n\rglobals_count\030\003 \001(\004*v\n\nObjectT"
+    "ype\022\013\n\007OBJ_INT\020\000\022\r\n\tOBJ_FLOAT\020\001\022\014\n\010OBJ_B"
+    "OOL\020\002\022\013\n\007OBJ_NIL\020\003\022\016\n\nOBJ_STRING\020\004\022\020\n\014OB"
+    "J_FUNCTION\020\005\022\017\n\013OBJ_CLOSURE\020\006B\004Z\002./b\006pro"
+    "to3"
 };
 static ::absl::once_flag descriptor_table_object_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_object_2eproto = {
     false,
     false,
-    645,
+    643,
     descriptor_table_protodef_object_2eproto,
     "object.proto",
     &descriptor_table_object_2eproto_once,
@@ -1350,8 +1350,8 @@ Chunk::Chunk(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
-  _impl_.function_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::Object::Function>(
-                              arena, *from._impl_.function_)
+  _impl_.closure_ = (cached_has_bits & 0x00000001u) ? ::google::protobuf::Message::CopyConstruct<::Object::Closure>(
+                              arena, *from._impl_.closure_)
                         : nullptr;
   _impl_.globals_count_ = from._impl_.globals_count_;
 
@@ -1366,10 +1366,10 @@ inline PROTOBUF_NDEBUG_INLINE Chunk::Impl_::Impl_(
 inline void Chunk::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, function_),
+               offsetof(Impl_, closure_),
            0,
            offsetof(Impl_, globals_count_) -
-               offsetof(Impl_, function_) +
+               offsetof(Impl_, closure_) +
                sizeof(Impl_::globals_count_));
 }
 Chunk::~Chunk() {
@@ -1380,7 +1380,7 @@ inline void Chunk::SharedDtor(MessageLite& self) {
   Chunk& this_ = static_cast<Chunk&>(self);
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
-  delete this_._impl_.function_;
+  delete this_._impl_.closure_;
   this_._impl_.~Impl_();
 }
 
@@ -1451,9 +1451,9 @@ const ::_pbi::TcParseTable<2, 3, 2, 0, 2> Chunk::_table_ = {
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
-    // .Object.Function function = 1;
+    // .Object.Closure closure = 1;
     {::_pbi::TcParser::FastMtS1,
-     {10, 0, 0, PROTOBUF_FIELD_OFFSET(Chunk, _impl_.function_)}},
+     {10, 0, 0, PROTOBUF_FIELD_OFFSET(Chunk, _impl_.closure_)}},
     // repeated .Object.Object constants = 2;
     {::_pbi::TcParser::FastMtR1,
      {18, 63, 1, PROTOBUF_FIELD_OFFSET(Chunk, _impl_.constants_)}},
@@ -1463,8 +1463,8 @@ const ::_pbi::TcParseTable<2, 3, 2, 0, 2> Chunk::_table_ = {
   }}, {{
     65535, 65535
   }}, {{
-    // .Object.Function function = 1;
-    {PROTOBUF_FIELD_OFFSET(Chunk, _impl_.function_), _Internal::kHasBitsOffset + 0, 0,
+    // .Object.Closure closure = 1;
+    {PROTOBUF_FIELD_OFFSET(Chunk, _impl_.closure_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
     // repeated .Object.Object constants = 2;
     {PROTOBUF_FIELD_OFFSET(Chunk, _impl_.constants_), -1, 1,
@@ -1473,7 +1473,7 @@ const ::_pbi::TcParseTable<2, 3, 2, 0, 2> Chunk::_table_ = {
     {PROTOBUF_FIELD_OFFSET(Chunk, _impl_.globals_count_), -1, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUInt64)},
   }}, {{
-    {::_pbi::TcParser::GetTable<::Object::Function>()},
+    {::_pbi::TcParser::GetTable<::Object::Closure>()},
     {::_pbi::TcParser::GetTable<::Object::Object>()},
   }}, {{
   }},
@@ -1489,8 +1489,8 @@ PROTOBUF_NOINLINE void Chunk::Clear() {
   _impl_.constants_.Clear();
   cached_has_bits = _impl_._has_bits_[0];
   if (cached_has_bits & 0x00000001u) {
-    ABSL_DCHECK(_impl_.function_ != nullptr);
-    _impl_.function_->Clear();
+    ABSL_DCHECK(_impl_.closure_ != nullptr);
+    _impl_.closure_->Clear();
   }
   _impl_.globals_count_ = ::uint64_t{0u};
   _impl_._has_bits_.Clear();
@@ -1513,10 +1513,10 @@ PROTOBUF_NOINLINE void Chunk::Clear() {
           (void)cached_has_bits;
 
           cached_has_bits = this_._impl_._has_bits_[0];
-          // .Object.Function function = 1;
+          // .Object.Closure closure = 1;
           if (cached_has_bits & 0x00000001u) {
             target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-                1, *this_._impl_.function_, this_._impl_.function_->GetCachedSize(), target,
+                1, *this_._impl_.closure_, this_._impl_.closure_->GetCachedSize(), target,
                 stream);
           }
 
@@ -1572,11 +1572,11 @@ PROTOBUF_NOINLINE void Chunk::Clear() {
             }
           }
            {
-            // .Object.Function function = 1;
+            // .Object.Closure closure = 1;
             cached_has_bits = this_._impl_._has_bits_[0];
             if (cached_has_bits & 0x00000001u) {
               total_size += 1 +
-                            ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.function_);
+                            ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.closure_);
             }
           }
            {
@@ -1603,12 +1603,12 @@ void Chunk::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::p
       from._internal_constants());
   cached_has_bits = from._impl_._has_bits_[0];
   if (cached_has_bits & 0x00000001u) {
-    ABSL_DCHECK(from._impl_.function_ != nullptr);
-    if (_this->_impl_.function_ == nullptr) {
-      _this->_impl_.function_ =
-          ::google::protobuf::Message::CopyConstruct<::Object::Function>(arena, *from._impl_.function_);
+    ABSL_DCHECK(from._impl_.closure_ != nullptr);
+    if (_this->_impl_.closure_ == nullptr) {
+      _this->_impl_.closure_ =
+          ::google::protobuf::Message::CopyConstruct<::Object::Closure>(arena, *from._impl_.closure_);
     } else {
-      _this->_impl_.function_->MergeFrom(*from._impl_.function_);
+      _this->_impl_.closure_->MergeFrom(*from._impl_.closure_);
     }
   }
   if (from._internal_globals_count() != 0) {
@@ -1634,9 +1634,9 @@ void Chunk::InternalSwap(Chunk* PROTOBUF_RESTRICT other) {
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Chunk, _impl_.globals_count_)
       + sizeof(Chunk::_impl_.globals_count_)
-      - PROTOBUF_FIELD_OFFSET(Chunk, _impl_.function_)>(
-          reinterpret_cast<char*>(&_impl_.function_),
-          reinterpret_cast<char*>(&other->_impl_.function_));
+      - PROTOBUF_FIELD_OFFSET(Chunk, _impl_.closure_)>(
+          reinterpret_cast<char*>(&_impl_.closure_),
+          reinterpret_cast<char*>(&other->_impl_.closure_));
 }
 
 ::google::protobuf::Metadata Chunk::GetMetadata() const {
