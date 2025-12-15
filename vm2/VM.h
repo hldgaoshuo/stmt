@@ -11,7 +11,6 @@
 #include "Frame.h"
 
 typedef enum {
-    OP_RETURN,
     OP_CONSTANT,
     OP_NEGATE,
     OP_ADD,
@@ -38,6 +37,7 @@ typedef enum {
     OP_JUMP,
     OP_LOOP,
     OP_CALL,
+    OP_RETURN,
 } OpCode;
 
 enum class Error {
@@ -51,7 +51,9 @@ public:
 
     // frames
     std::vector<Frame*> frames;
+    void frame_show();
     void frame_push(Frame* frame);
+    Frame* frame_pop();
 
     // constants
     std::vector<Object::Object*> constants;
@@ -60,12 +62,14 @@ public:
 
     // stack
     std::vector<Object::Object*> stack;
+    void stack_show();
     void stack_push(Object::Object* value);
     Object::Object* stack_pop();
     Object::Object* stack_peek(uint8_t num);
     void stack_set(uint8_t index, Object::Object* value);
     Object::Object* stack_get(uint8_t index);
     uint8_t stack_base_pointer(uint8_t offset);
+    void stack_resize(std::size_t offset);
 
     // globals
     std::vector<Object::Object*> globals;

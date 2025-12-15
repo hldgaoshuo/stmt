@@ -614,6 +614,127 @@ static bool test_while() {
     return true;
 }
 
+static bool test_call() {
+    const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
+    std::string code;
+    code.push_back(OP_CONSTANT); code.push_back(1);
+    code.push_back(OP_SET_GLOBAL); code.push_back(0);
+    code.push_back(OP_GET_GLOBAL); code.push_back(0);
+    code.push_back(OP_CALL); code.push_back(0);
+    code.push_back(OP_POP);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
+
+    const auto c1 = chunk->add_constants();
+    c1->set_literal_int(1);
+    const auto c2 = chunk->add_constants();
+    auto fun_pt = new Object::Function();
+    std::string code_pt;
+    code_pt.push_back(OP_CONSTANT); code_pt.push_back(0);
+    code_pt.push_back(OP_PRINT);
+    code_pt.push_back(OP_NIL);
+    code_pt.push_back(OP_RETURN);
+    fun_pt->set_code(code_pt);
+    fun_pt->set_num_params(0);
+    c2->set_allocated_literal_function(fun_pt);
+
+    chunk->set_globals_count(1);
+
+    auto vm = VM(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
+        fmt::print("Error occurred: {}\n", static_cast<int>(err));
+        return false;
+    }
+    return true;
+}
+
+static bool test_call_arg() {
+    const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
+    std::string code;
+    code.push_back(OP_CONSTANT); code.push_back(0);
+    code.push_back(OP_SET_GLOBAL); code.push_back(0);
+    code.push_back(OP_GET_GLOBAL); code.push_back(0);
+    code.push_back(OP_CONSTANT); code.push_back(1);
+    code.push_back(OP_CONSTANT); code.push_back(2);
+    code.push_back(OP_CALL); code.push_back(2);
+    code.push_back(OP_POP);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
+
+    const auto c1 = chunk->add_constants();
+    auto fun_pt = new Object::Function();
+    std::string code_pt;
+    code_pt.push_back(OP_GET_LOCAL); code_pt.push_back(0);
+    code_pt.push_back(OP_GET_LOCAL); code_pt.push_back(1);
+    code_pt.push_back(OP_ADD);
+    code_pt.push_back(OP_PRINT);
+    code_pt.push_back(OP_NIL);
+    code_pt.push_back(OP_RETURN);
+    fun_pt->set_code(code_pt);
+    fun_pt->set_num_params(2);
+    c1->set_allocated_literal_function(fun_pt);
+    const auto c2 = chunk->add_constants();
+    c2->set_literal_int(1);
+    const auto c3 = chunk->add_constants();
+    c3->set_literal_int(2);
+
+    chunk->set_globals_count(1);
+
+    auto vm = VM(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
+        fmt::print("Error occurred: {}\n", static_cast<int>(err));
+        return false;
+    }
+    return true;
+}
+
+static bool test_call_arg_return() {
+    const auto chunk = new Object::Chunk();
+
+    auto fun = new Object::Function();
+    std::string code;
+    code.push_back(OP_CONSTANT); code.push_back(0);
+    code.push_back(OP_SET_GLOBAL); code.push_back(0);
+    code.push_back(OP_GET_GLOBAL); code.push_back(0);
+    code.push_back(OP_CONSTANT); code.push_back(1);
+    code.push_back(OP_CONSTANT); code.push_back(2);
+    code.push_back(OP_CALL); code.push_back(2);
+    code.push_back(OP_PRINT);
+    fun->set_code(code);
+    chunk->set_allocated_function(fun);
+
+    const auto c1 = chunk->add_constants();
+    auto fun_pt = new Object::Function();
+    std::string code_pt;
+    code_pt.push_back(OP_GET_LOCAL); code_pt.push_back(0);
+    code_pt.push_back(OP_GET_LOCAL); code_pt.push_back(1);
+    code_pt.push_back(OP_ADD);
+    code_pt.push_back(OP_RETURN);
+    fun_pt->set_code(code_pt);
+    fun_pt->set_num_params(2);
+    c1->set_allocated_literal_function(fun_pt);
+    const auto c2 = chunk->add_constants();
+    c2->set_literal_int(1);
+    const auto c3 = chunk->add_constants();
+    c3->set_literal_int(2);
+
+    chunk->set_globals_count(1);
+
+    auto vm = VM(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
+        fmt::print("Error occurred: {}\n", static_cast<int>(err));
+        return false;
+    }
+    return true;
+}
+
 int main() {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -642,6 +763,9 @@ int main() {
         {"test_and", test_and},
         {"test_or", test_or},
         {"test_while", test_while},
+        {"test_call", test_call},
+        {"test_call_arg", test_call_arg},
+        {"test_call_arg_return", test_call_arg_return},
     };
 
     for (auto &t : tests) {

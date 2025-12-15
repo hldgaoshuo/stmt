@@ -1,8 +1,7 @@
 package compiler
 
 const (
-	OP_RETURN uint8 = iota
-	OP_CONSTANT
+	OP_CONSTANT uint8 = iota
 	OP_NEGATE
 	OP_ADD
 	OP_SUBTRACT
@@ -30,11 +29,11 @@ const (
 	OP_OR
 	OP_LOOP
 	OP_CALL
+	OP_RETURN
 )
 
 // op 可能有多个操作数
 var operandWidths = map[uint8][]int{
-	OP_RETURN:     {},
 	OP_CONSTANT:   {1},
 	OP_NEGATE:     {},
 	OP_ADD:        {},
@@ -62,4 +61,5 @@ var operandWidths = map[uint8][]int{
 	OP_OR:         {},
 	OP_LOOP:       {1},
 	OP_CALL:       {1},
+	OP_RETURN:     {},
 }

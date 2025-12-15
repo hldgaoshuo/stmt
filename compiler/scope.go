@@ -2,13 +2,16 @@ package compiler
 
 import "encoding/binary"
 
+// todo 需要一个新的字段，标识当前作用域是否为 main，如果 main 中包含 return，需要在编译阶段报错
 type Scope struct {
-	Code []uint8
+	Code       []uint8
+	HaveReturn bool
 }
 
-func NewScope() *Scope {
+func NewScope(haveReturn bool) *Scope {
 	return &Scope{
-		Code: []uint8{},
+		Code:       []uint8{},
+		HaveReturn: haveReturn,
 	}
 }
 

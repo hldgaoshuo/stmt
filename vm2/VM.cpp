@@ -26,6 +26,11 @@ VM::VM(Object::Chunk* chunk) {
 void VM::frame_push(Frame* frame) {
     frames.push_back(frame);
 }
+Frame* VM::frame_pop() {
+    frames.pop_back();
+    auto frame = frames.back();
+    return frame;
+}
 
 void VM::_constant_add(Object::Object* value) {
     retain(value);
@@ -40,7 +45,7 @@ void VM::stack_push(Object::Object* value) {
     stack.push_back(value);
 }
 Object::Object* VM::stack_pop() {
-    Object::Object* value = stack.back();
+    auto value = stack.back();
     stack.pop_back();
     return value;
 }
@@ -57,8 +62,11 @@ Object::Object* VM::stack_get(uint8_t index) {
 }
 uint8_t VM::stack_base_pointer(uint8_t offset) {
     auto size = stack.size();
-    auto result = size - 1 - offset;
+    auto result = size - offset;
     return result;
+}
+void VM::stack_resize(std::size_t offset) {
+    stack.resize(offset);
 }
 
 void VM::retain(Object::Object* obj) {
@@ -122,7 +130,7 @@ Error VM::interpret() {
                     result->set_literal_string(a->literal_string() + b->literal_string());
                 }
                 else {
-                    fmt::print("Invalid operands for OP_ADD\n");
+                    fmt::print("Invalid operands for OP_ADD, a is ({}), b is ({})\n", a->DebugString(), b->DebugString());
                     return Error::ERROR;
                 }
                 stack_push(result);
@@ -415,6 +423,9 @@ Error VM::interpret() {
                 else if (value->has_literal_nil()) {
                     fmt::print("nil\n");
                 }
+                else if (value->has_literal_function()) {
+                    fmt::print("function {}\n", value->DebugString());
+                }
                 break;
             }
             case OP_SET_GLOBAL: {
@@ -430,13 +441,13 @@ Error VM::interpret() {
                 break;
             }
             case OP_SET_LOCAL: {
-                auto local_index = frame->code_next();
+                auto local_index = frame->code_next() + frame->base_pointer;
                 auto local_value = stack_pop();
                 stack_set(local_index, local_value);
                 break;
             }
             case OP_GET_LOCAL: {
-                auto local_index = frame->code_next();
+                auto local_index = frame->code_next() + frame->base_pointer;
                 auto local_value = stack_get(local_index);
                 stack_push(local_value);
                 break;
@@ -475,6 +486,15 @@ Error VM::interpret() {
                 frame_push(frame);
                 break;
             }
+            case OP_RETURN: {
+                auto result = stack_pop();
+                // fmt::print("OP_RETURN result: {}\n", result->DebugString());
+                // fmt::print("OP_RETURN current frame base_pointer: {}\n", frame->base_pointer);
+                stack_resize(frame->base_pointer);
+                stack_push(result);
+                frame = frame_pop();
+                break;
+            }
             default: {
                 fmt::print("Unknown opcode {}\n", instruction);
                 return Error::ERROR;
@@ -482,4 +502,53 @@ Error VM::interpret() {
         }
     }
     return Error::SUCCESS;
+}
+
+void VM::stack_show() {
+    fmt::print("== Stack Debug Info ==\n");
+    for (std::size_t i = 0; i < stack.size(); ++i) {
+        Object::Object* obj = stack[i];
+        fmt::print("[{}] ", i);
+        if (obj->has_literal_int()) {
+            fmt::print("int: {}\n", obj->literal_int());
+        }
+        else if (obj->has_literal_float()) {
+            fmt::print("float: {}\n", obj->literal_float());
+        }
+        else if (obj->has_literal_string()) {
+            fmt::print("string: {}\n", obj->literal_string());
+        }
+        else if (obj->has_literal_bool()) {
+            fmt::print("bool: {}\n", obj->literal_bool());
+        }
+        else if (obj->has_literal_nil()) {
+            fmt::print("nil\n");
+        }
+        else if (obj->has_literal_function()) {
+            fmt::print("function {}\n", obj->DebugString());
+        }
+        else {
+            fmt::print("unknown type\n");
+        }
+    }
+    fmt::print("======================\n");
+}
+
+void VM::frame_show() {
+    fmt::print("== Frames Debug Info ==\n");
+    for (std::size_t i = 0; i < frames.size(); ++i) {
+        Frame* frame = frames[i];
+        fmt::print("[Frame {}] IP: {}, Base Pointer: {}, Function bytes: ",
+                   i,
+                   frame->ip,
+                   frame->base_pointer);
+        const std::string& code = frame->function->code();
+        fmt::print("[");
+        for (std::size_t j = 0; j < code.size(); ++j) {
+            if (j > 0) fmt::print(", ");
+            fmt::print("{}", static_cast<uint8_t>(code[j]));
+        }
+        fmt::print("]\n");
+    }
+    fmt::print("======================\n");
 }

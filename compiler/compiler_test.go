@@ -605,6 +605,84 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 							Code: []uint8{
 								OP_CONSTANT, 0,
 								OP_PRINT,
+								OP_NIL,
+								OP_RETURN,
+							},
+							NumParams: 0,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "function return nil",
+			source: `
+			fun pt() {
+				print 1;
+				return;
+			}
+			`,
+			code: []uint8{
+				OP_CONSTANT, 1,
+				OP_SET_GLOBAL, 0,
+			},
+			constants: []*object.Object{
+				{
+					ObjectType: object.ObjectType_OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+				},
+				{
+					ObjectType: object.ObjectType_OBJ_FUNCTION,
+					Literal: &object.Object_LiteralFunction{
+						LiteralFunction: &object.Function{
+							Code: []uint8{
+								OP_CONSTANT, 0,
+								OP_PRINT,
+								OP_NIL,
+								OP_RETURN,
+							},
+							NumParams: 0,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "function return value",
+			source: `
+			fun pt() {
+				print 1;
+				return 2;
+			}
+			`,
+			code: []uint8{
+				OP_CONSTANT, 2,
+				OP_SET_GLOBAL, 0,
+			},
+			constants: []*object.Object{
+				{
+					ObjectType: object.ObjectType_OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+				},
+				{
+					ObjectType: object.ObjectType_OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 2,
+					},
+				},
+				{
+					ObjectType: object.ObjectType_OBJ_FUNCTION,
+					Literal: &object.Object_LiteralFunction{
+						LiteralFunction: &object.Function{
+							Code: []uint8{
+								OP_CONSTANT, 0,
+								OP_PRINT,
+								OP_CONSTANT, 1,
+								OP_RETURN,
 							},
 							NumParams: 0,
 						},
@@ -641,9 +719,105 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 							Code: []uint8{
 								OP_CONSTANT, 0,
 								OP_PRINT,
+								OP_NIL,
+								OP_RETURN,
 							},
 							NumParams: 0,
 						},
+					},
+				},
+			},
+		},
+		{
+			name: "call arg",
+			source: `
+			fun pt(a, b) {
+				print a + b;
+			}
+			pt(1, 2);
+			`,
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_SET_GLOBAL, 0,
+				OP_GET_GLOBAL, 0,
+				OP_CONSTANT, 1,
+				OP_CONSTANT, 2,
+				OP_CALL, 2,
+				OP_POP,
+			},
+			constants: []*object.Object{
+				{
+					ObjectType: object.ObjectType_OBJ_FUNCTION,
+					Literal: &object.Object_LiteralFunction{
+						LiteralFunction: &object.Function{
+							Code: []uint8{
+								OP_GET_LOCAL, 0,
+								OP_GET_LOCAL, 1,
+								OP_ADD,
+								OP_PRINT,
+								OP_NIL,
+								OP_RETURN,
+							},
+							NumParams: 2,
+						},
+					},
+				},
+				{
+					ObjectType: object.ObjectType_OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+				},
+				{
+					ObjectType: object.ObjectType_OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 2,
+					},
+				},
+			},
+		},
+		{
+			name: "call arg return",
+			source: `
+			fun add(a, b) {
+				return a + b;
+			}
+			print add(1, 2);
+			`,
+			code: []uint8{
+				OP_CONSTANT, 0,
+				OP_SET_GLOBAL, 0,
+				OP_GET_GLOBAL, 0,
+				OP_CONSTANT, 1,
+				OP_CONSTANT, 2,
+				OP_CALL, 2,
+				OP_PRINT,
+			},
+			constants: []*object.Object{
+				{
+					ObjectType: object.ObjectType_OBJ_FUNCTION,
+					Literal: &object.Object_LiteralFunction{
+						LiteralFunction: &object.Function{
+							Code: []uint8{
+								OP_GET_LOCAL, 0,
+								OP_GET_LOCAL, 1,
+								OP_ADD,
+								OP_RETURN,
+							},
+							NumParams: 2,
+						},
+					},
+				},
+				{
+					ObjectType: object.ObjectType_OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+				},
+				{
+					ObjectType: object.ObjectType_OBJ_INT,
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 2,
 					},
 				},
 			},

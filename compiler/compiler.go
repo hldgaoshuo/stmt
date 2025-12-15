@@ -26,7 +26,7 @@ func (c *Compiler) Compile() ([]uint8, []*object.Object, error) {
 			return nil, nil, err
 		}
 	}
-	mainScope := NewScope()
+	mainScope := NewScope(false)
 	for _, node := range c.ast {
 		err := c.compile(node, symbolTable, mainScope)
 		if err != nil {
@@ -337,10 +337,14 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 				return err
 			}
 		}
-		_scope := NewScope()
+		_scope := NewScope(false)
 		err = c.compile(_node.Body, _symbolTable, _scope)
 		if err != nil {
 			return err
+		}
+		if !_scope.HaveReturn {
+			_scope.CodeEmit(OP_NIL)
+			_scope.CodeEmit(OP_RETURN)
 		}
 		obj := &object.Object{
 			ObjectType: object.ObjectType_OBJ_FUNCTION,
@@ -375,6 +379,18 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 			}
 		}
 		scope.CodeEmit(OP_CALL, len(_node.Arguments))
+		return nil
+	case *ast.Return:
+		scope.HaveReturn = true
+		if _node.Expression != nil {
+			err := c.compile(_node.Expression, symbolTable, scope)
+			if err != nil {
+				return err
+			}
+		} else {
+			scope.CodeEmit(OP_NIL)
+		}
+		scope.CodeEmit(OP_RETURN)
 		return nil
 	default:
 		return ErrInvalidNodeType
