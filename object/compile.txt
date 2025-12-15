@@ -1,2 +1,0 @@
-protoc -I. --go_out=. object.proto
-protoc -I. --cpp_out=../vm2 object.proto

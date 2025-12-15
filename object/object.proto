@@ -13,11 +13,16 @@ enum ObjectType {
   OBJ_NIL = 3;
   OBJ_STRING = 4;
   OBJ_FUNCTION = 5;
+  OBJ_CLOSURE = 6;
 }
 
 message Function {
   bytes code = 1;
   uint64 num_params = 2;
+}
+
+message Closure {
+  Function function = 1;
 }
 
 message Object {
@@ -30,6 +35,7 @@ message Object {
     string literal_nil = 6;
     string literal_string = 7;
     Function literal_function = 8;
+    Closure literal_closure = 9;
   }
 }
 

@@ -30,6 +30,7 @@ const (
 	ObjectType_OBJ_NIL      ObjectType = 3
 	ObjectType_OBJ_STRING   ObjectType = 4
 	ObjectType_OBJ_FUNCTION ObjectType = 5
+	ObjectType_OBJ_CLOSURE  ObjectType = 6
 )
 
 // Enum value maps for ObjectType.
@@ -41,6 +42,7 @@ var (
 		3: "OBJ_NIL",
 		4: "OBJ_STRING",
 		5: "OBJ_FUNCTION",
+		6: "OBJ_CLOSURE",
 	}
 	ObjectType_value = map[string]int32{
 		"OBJ_INT":      0,
@@ -49,6 +51,7 @@ var (
 		"OBJ_NIL":      3,
 		"OBJ_STRING":   4,
 		"OBJ_FUNCTION": 5,
+		"OBJ_CLOSURE":  6,
 	}
 )
 
@@ -131,6 +134,50 @@ func (x *Function) GetNumParams() uint64 {
 	return 0
 }
 
+type Closure struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Function      *Function              `protobuf:"bytes,1,opt,name=function,proto3" json:"function,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Closure) Reset() {
+	*x = Closure{}
+	mi := &file_object_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Closure) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Closure) ProtoMessage() {}
+
+func (x *Closure) ProtoReflect() protoreflect.Message {
+	mi := &file_object_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Closure.ProtoReflect.Descriptor instead.
+func (*Closure) Descriptor() ([]byte, []int) {
+	return file_object_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Closure) GetFunction() *Function {
+	if x != nil {
+		return x.Function
+	}
+	return nil
+}
+
 type Object struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	ObjectType ObjectType             `protobuf:"varint,1,opt,name=object_type,json=objectType,proto3,enum=Object.ObjectType" json:"object_type,omitempty"`
@@ -143,6 +190,7 @@ type Object struct {
 	//	*Object_LiteralNil
 	//	*Object_LiteralString
 	//	*Object_LiteralFunction
+	//	*Object_LiteralClosure
 	Literal       isObject_Literal `protobuf_oneof:"literal"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -150,7 +198,7 @@ type Object struct {
 
 func (x *Object) Reset() {
 	*x = Object{}
-	mi := &file_object_proto_msgTypes[1]
+	mi := &file_object_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -162,7 +210,7 @@ func (x *Object) String() string {
 func (*Object) ProtoMessage() {}
 
 func (x *Object) ProtoReflect() protoreflect.Message {
-	mi := &file_object_proto_msgTypes[1]
+	mi := &file_object_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -175,7 +223,7 @@ func (x *Object) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Object.ProtoReflect.Descriptor instead.
 func (*Object) Descriptor() ([]byte, []int) {
-	return file_object_proto_rawDescGZIP(), []int{1}
+	return file_object_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Object) GetObjectType() ObjectType {
@@ -253,6 +301,15 @@ func (x *Object) GetLiteralFunction() *Function {
 	return nil
 }
 
+func (x *Object) GetLiteralClosure() *Closure {
+	if x != nil {
+		if x, ok := x.Literal.(*Object_LiteralClosure); ok {
+			return x.LiteralClosure
+		}
+	}
+	return nil
+}
+
 type isObject_Literal interface {
 	isObject_Literal()
 }
@@ -281,6 +338,10 @@ type Object_LiteralFunction struct {
 	LiteralFunction *Function `protobuf:"bytes,8,opt,name=literal_function,json=literalFunction,proto3,oneof"`
 }
 
+type Object_LiteralClosure struct {
+	LiteralClosure *Closure `protobuf:"bytes,9,opt,name=literal_closure,json=literalClosure,proto3,oneof"`
+}
+
 func (*Object_LiteralInt) isObject_Literal() {}
 
 func (*Object_LiteralFloat) isObject_Literal() {}
@@ -293,6 +354,8 @@ func (*Object_LiteralString) isObject_Literal() {}
 
 func (*Object_LiteralFunction) isObject_Literal() {}
 
+func (*Object_LiteralClosure) isObject_Literal() {}
+
 type Chunk struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Function      *Function              `protobuf:"bytes,1,opt,name=function,proto3" json:"function,omitempty"`
@@ -304,7 +367,7 @@ type Chunk struct {
 
 func (x *Chunk) Reset() {
 	*x = Chunk{}
-	mi := &file_object_proto_msgTypes[2]
+	mi := &file_object_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -316,7 +379,7 @@ func (x *Chunk) String() string {
 func (*Chunk) ProtoMessage() {}
 
 func (x *Chunk) ProtoReflect() protoreflect.Message {
-	mi := &file_object_proto_msgTypes[2]
+	mi := &file_object_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -329,7 +392,7 @@ func (x *Chunk) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Chunk.ProtoReflect.Descriptor instead.
 func (*Chunk) Descriptor() ([]byte, []int) {
-	return file_object_proto_rawDescGZIP(), []int{2}
+	return file_object_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Chunk) GetFunction() *Function {
@@ -361,7 +424,9 @@ const file_object_proto_rawDesc = "" +
 	"\bFunction\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\fR\x04code\x12\x1d\n" +
 	"\n" +
-	"num_params\x18\x02 \x01(\x04R\tnumParams\"\xdf\x02\n" +
+	"num_params\x18\x02 \x01(\x04R\tnumParams\"7\n" +
+	"\aClosure\x12,\n" +
+	"\bfunction\x18\x01 \x01(\v2\x10.Object.FunctionR\bfunction\"\x9b\x03\n" +
 	"\x06Object\x123\n" +
 	"\vobject_type\x18\x01 \x01(\x0e2\x12.Object.ObjectTypeR\n" +
 	"objectType\x12\x1b\n" +
@@ -373,12 +438,13 @@ const file_object_proto_rawDesc = "" +
 	"\vliteral_nil\x18\x06 \x01(\tH\x00R\n" +
 	"literalNil\x12'\n" +
 	"\x0eliteral_string\x18\a \x01(\tH\x00R\rliteralString\x12=\n" +
-	"\x10literal_function\x18\b \x01(\v2\x10.Object.FunctionH\x00R\x0fliteralFunctionB\t\n" +
+	"\x10literal_function\x18\b \x01(\v2\x10.Object.FunctionH\x00R\x0fliteralFunction\x12:\n" +
+	"\x0fliteral_closure\x18\t \x01(\v2\x0f.Object.ClosureH\x00R\x0eliteralClosureB\t\n" +
 	"\aliteral\"\x88\x01\n" +
 	"\x05Chunk\x12,\n" +
 	"\bfunction\x18\x01 \x01(\v2\x10.Object.FunctionR\bfunction\x12,\n" +
 	"\tconstants\x18\x02 \x03(\v2\x0e.Object.ObjectR\tconstants\x12#\n" +
-	"\rglobals_count\x18\x03 \x01(\x04R\fglobalsCount*e\n" +
+	"\rglobals_count\x18\x03 \x01(\x04R\fglobalsCount*v\n" +
 	"\n" +
 	"ObjectType\x12\v\n" +
 	"\aOBJ_INT\x10\x00\x12\r\n" +
@@ -387,7 +453,8 @@ const file_object_proto_rawDesc = "" +
 	"\aOBJ_NIL\x10\x03\x12\x0e\n" +
 	"\n" +
 	"OBJ_STRING\x10\x04\x12\x10\n" +
-	"\fOBJ_FUNCTION\x10\x05B\x04Z\x02./b\x06proto3"
+	"\fOBJ_FUNCTION\x10\x05\x12\x0f\n" +
+	"\vOBJ_CLOSURE\x10\x06B\x04Z\x02./b\x06proto3"
 
 var (
 	file_object_proto_rawDescOnce sync.Once
@@ -402,23 +469,26 @@ func file_object_proto_rawDescGZIP() []byte {
 }
 
 var file_object_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_object_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_object_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_object_proto_goTypes = []any{
 	(ObjectType)(0),  // 0: Object.ObjectType
 	(*Function)(nil), // 1: Object.Function
-	(*Object)(nil),   // 2: Object.Object
-	(*Chunk)(nil),    // 3: Object.Chunk
+	(*Closure)(nil),  // 2: Object.Closure
+	(*Object)(nil),   // 3: Object.Object
+	(*Chunk)(nil),    // 4: Object.Chunk
 }
 var file_object_proto_depIdxs = []int32{
-	0, // 0: Object.Object.object_type:type_name -> Object.ObjectType
-	1, // 1: Object.Object.literal_function:type_name -> Object.Function
-	1, // 2: Object.Chunk.function:type_name -> Object.Function
-	2, // 3: Object.Chunk.constants:type_name -> Object.Object
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	1, // 0: Object.Closure.function:type_name -> Object.Function
+	0, // 1: Object.Object.object_type:type_name -> Object.ObjectType
+	1, // 2: Object.Object.literal_function:type_name -> Object.Function
+	2, // 3: Object.Object.literal_closure:type_name -> Object.Closure
+	1, // 4: Object.Chunk.function:type_name -> Object.Function
+	3, // 5: Object.Chunk.constants:type_name -> Object.Object
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_object_proto_init() }
@@ -426,13 +496,14 @@ func file_object_proto_init() {
 	if File_object_proto != nil {
 		return
 	}
-	file_object_proto_msgTypes[1].OneofWrappers = []any{
+	file_object_proto_msgTypes[2].OneofWrappers = []any{
 		(*Object_LiteralInt)(nil),
 		(*Object_LiteralFloat)(nil),
 		(*Object_LiteralBool)(nil),
 		(*Object_LiteralNil)(nil),
 		(*Object_LiteralString)(nil),
 		(*Object_LiteralFunction)(nil),
+		(*Object_LiteralClosure)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -440,7 +511,7 @@ func file_object_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_object_proto_rawDesc), len(file_object_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

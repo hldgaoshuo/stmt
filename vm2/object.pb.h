@@ -56,6 +56,9 @@ namespace Object {
 class Chunk;
 struct ChunkDefaultTypeInternal;
 extern ChunkDefaultTypeInternal _Chunk_default_instance_;
+class Closure;
+struct ClosureDefaultTypeInternal;
+extern ClosureDefaultTypeInternal _Closure_default_instance_;
 class Function;
 struct FunctionDefaultTypeInternal;
 extern FunctionDefaultTypeInternal _Function_default_instance_;
@@ -76,6 +79,7 @@ enum ObjectType : int {
   OBJ_NIL = 3,
   OBJ_STRING = 4,
   OBJ_FUNCTION = 5,
+  OBJ_CLOSURE = 6,
   ObjectType_INT_MIN_SENTINEL_DO_NOT_USE_ =
       std::numeric_limits<::int32_t>::min(),
   ObjectType_INT_MAX_SENTINEL_DO_NOT_USE_ =
@@ -85,8 +89,8 @@ enum ObjectType : int {
 bool ObjectType_IsValid(int value);
 extern const uint32_t ObjectType_internal_data_[];
 constexpr ObjectType ObjectType_MIN = static_cast<ObjectType>(0);
-constexpr ObjectType ObjectType_MAX = static_cast<ObjectType>(5);
-constexpr int ObjectType_ARRAYSIZE = 5 + 1;
+constexpr ObjectType ObjectType_MAX = static_cast<ObjectType>(6);
+constexpr int ObjectType_ARRAYSIZE = 6 + 1;
 const ::google::protobuf::EnumDescriptor*
 ObjectType_descriptor();
 template <typename T>
@@ -99,7 +103,7 @@ const std::string& ObjectType_Name(T value) {
 template <>
 inline const std::string& ObjectType_Name(ObjectType value) {
   return ::google::protobuf::internal::NameOfDenseEnum<ObjectType_descriptor,
-                                                 0, 5>(
+                                                 0, 6>(
       static_cast<int>(value));
 }
 inline bool ObjectType_Parse(absl::string_view name, ObjectType* value) {
@@ -320,6 +324,202 @@ class Function final : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
+class Closure final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:Object.Closure) */ {
+ public:
+  inline Closure() : Closure(nullptr) {}
+  ~Closure() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(Closure* msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(Closure));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR Closure(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline Closure(const Closure& from) : Closure(nullptr, from) {}
+  inline Closure(Closure&& from) noexcept
+      : Closure(nullptr, std::move(from)) {}
+  inline Closure& operator=(const Closure& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Closure& operator=(Closure&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Closure& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const Closure* internal_default_instance() {
+    return reinterpret_cast<const Closure*>(
+        &_Closure_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 1;
+  friend void swap(Closure& a, Closure& b) { a.Swap(&b); }
+  inline void Swap(Closure* other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Closure* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Closure* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<Closure>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const Closure& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const Closure& from) { Closure::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(Closure* other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "Object.Closure"; }
+
+ protected:
+  explicit Closure(::google::protobuf::Arena* arena);
+  Closure(::google::protobuf::Arena* arena, const Closure& from);
+  Closure(::google::protobuf::Arena* arena, Closure&& from) noexcept
+      : Closure(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
+  static constexpr auto InternalNewImpl_();
+  static const ::google::protobuf::internal::ClassDataFull _class_data_;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kFunctionFieldNumber = 1,
+  };
+  // .Object.Function function = 1;
+  bool has_function() const;
+  void clear_function() ;
+  const ::Object::Function& function() const;
+  PROTOBUF_NODISCARD ::Object::Function* release_function();
+  ::Object::Function* mutable_function();
+  void set_allocated_function(::Object::Function* value);
+  void unsafe_arena_set_allocated_function(::Object::Function* value);
+  ::Object::Function* unsafe_arena_release_function();
+
+  private:
+  const ::Object::Function& _internal_function() const;
+  ::Object::Function* _internal_mutable_function();
+
+  public:
+  // @@protoc_insertion_point(class_scope:Object.Closure)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      0, 1, 1,
+      0, 2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const Closure& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::Object::Function* function_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_object_2eproto;
+};
+// -------------------------------------------------------------------
+
 class Object final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:Object.Object) */ {
  public:
@@ -382,13 +582,14 @@ class Object final : public ::google::protobuf::Message
     kLiteralNil = 6,
     kLiteralString = 7,
     kLiteralFunction = 8,
+    kLiteralClosure = 9,
     LITERAL_NOT_SET = 0,
   };
   static inline const Object* internal_default_instance() {
     return reinterpret_cast<const Object*>(
         &_Object_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 1;
+  static constexpr int kIndexInFileMessages = 2;
   friend void swap(Object& a, Object& b) { a.Swap(&b); }
   inline void Swap(Object* other) {
     if (other == this) return;
@@ -483,6 +684,7 @@ class Object final : public ::google::protobuf::Message
     kLiteralNilFieldNumber = 6,
     kLiteralStringFieldNumber = 7,
     kLiteralFunctionFieldNumber = 8,
+    kLiteralClosureFieldNumber = 9,
   };
   // uint64 ref_count = 2;
   void clear_ref_count() ;
@@ -590,6 +792,25 @@ class Object final : public ::google::protobuf::Message
   ::Object::Function* _internal_mutable_literal_function();
 
   public:
+  // .Object.Closure literal_closure = 9;
+  bool has_literal_closure() const;
+  private:
+  bool _internal_has_literal_closure() const;
+
+  public:
+  void clear_literal_closure() ;
+  const ::Object::Closure& literal_closure() const;
+  PROTOBUF_NODISCARD ::Object::Closure* release_literal_closure();
+  ::Object::Closure* mutable_literal_closure();
+  void set_allocated_literal_closure(::Object::Closure* value);
+  void unsafe_arena_set_allocated_literal_closure(::Object::Closure* value);
+  ::Object::Closure* unsafe_arena_release_literal_closure();
+
+  private:
+  const ::Object::Closure& _internal_literal_closure() const;
+  ::Object::Closure* _internal_mutable_literal_closure();
+
+  public:
   void clear_literal();
   LiteralCase literal_case() const;
   // @@protoc_insertion_point(class_scope:Object.Object)
@@ -601,11 +822,12 @@ class Object final : public ::google::protobuf::Message
   void set_has_literal_nil();
   void set_has_literal_string();
   void set_has_literal_function();
+  void set_has_literal_closure();
   inline bool has_literal() const;
   inline void clear_has_literal();
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      1, 8, 1,
+      1, 9, 2,
       55, 2>
       _table_;
 
@@ -634,6 +856,7 @@ class Object final : public ::google::protobuf::Message
       ::google::protobuf::internal::ArenaStringPtr literal_nil_;
       ::google::protobuf::internal::ArenaStringPtr literal_string_;
       ::Object::Function* literal_function_;
+      ::Object::Closure* literal_closure_;
     } literal_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t _oneof_case_[1];
@@ -703,7 +926,7 @@ class Chunk final : public ::google::protobuf::Message
     return reinterpret_cast<const Chunk*>(
         &_Chunk_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 2;
+  static constexpr int kIndexInFileMessages = 3;
   friend void swap(Chunk& a, Chunk& b) { a.Swap(&b); }
   inline void Swap(Chunk* other) {
     if (other == this) return;
@@ -954,6 +1177,106 @@ inline ::uint64_t Function::_internal_num_params() const {
 inline void Function::_internal_set_num_params(::uint64_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.num_params_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// Closure
+
+// .Object.Function function = 1;
+inline bool Closure::has_function() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  PROTOBUF_ASSUME(!value || _impl_.function_ != nullptr);
+  return value;
+}
+inline void Closure::clear_function() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.function_ != nullptr) _impl_.function_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline const ::Object::Function& Closure::_internal_function() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  const ::Object::Function* p = _impl_.function_;
+  return p != nullptr ? *p : reinterpret_cast<const ::Object::Function&>(::Object::_Function_default_instance_);
+}
+inline const ::Object::Function& Closure::function() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:Object.Closure.function)
+  return _internal_function();
+}
+inline void Closure::unsafe_arena_set_allocated_function(::Object::Function* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.function_);
+  }
+  _impl_.function_ = reinterpret_cast<::Object::Function*>(value);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Object.Closure.function)
+}
+inline ::Object::Function* Closure::release_function() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::Object::Function* released = _impl_.function_;
+  _impl_.function_ = nullptr;
+  if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
+    auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
+    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    if (GetArena() == nullptr) {
+      delete old;
+    }
+  } else {
+    if (GetArena() != nullptr) {
+      released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    }
+  }
+  return released;
+}
+inline ::Object::Function* Closure::unsafe_arena_release_function() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:Object.Closure.function)
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::Object::Function* temp = _impl_.function_;
+  _impl_.function_ = nullptr;
+  return temp;
+}
+inline ::Object::Function* Closure::_internal_mutable_function() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.function_ == nullptr) {
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::Object::Function>(GetArena());
+    _impl_.function_ = reinterpret_cast<::Object::Function*>(p);
+  }
+  return _impl_.function_;
+}
+inline ::Object::Function* Closure::mutable_function() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  _impl_._has_bits_[0] |= 0x00000001u;
+  ::Object::Function* _msg = _internal_mutable_function();
+  // @@protoc_insertion_point(field_mutable:Object.Closure.function)
+  return _msg;
+}
+inline void Closure::set_allocated_function(::Object::Function* value) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (message_arena == nullptr) {
+    delete (_impl_.function_);
+  }
+
+  if (value != nullptr) {
+    ::google::protobuf::Arena* submessage_arena = (value)->GetArena();
+    if (message_arena != submessage_arena) {
+      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
+    }
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+
+  _impl_.function_ = reinterpret_cast<::Object::Function*>(value);
+  // @@protoc_insertion_point(field_set_allocated:Object.Closure.function)
 }
 
 // -------------------------------------------------------------------
@@ -1349,6 +1672,85 @@ inline ::Object::Function* Object::_internal_mutable_literal_function() {
 inline ::Object::Function* Object::mutable_literal_function() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::Object::Function* _msg = _internal_mutable_literal_function();
   // @@protoc_insertion_point(field_mutable:Object.Object.literal_function)
+  return _msg;
+}
+
+// .Object.Closure literal_closure = 9;
+inline bool Object::has_literal_closure() const {
+  return literal_case() == kLiteralClosure;
+}
+inline bool Object::_internal_has_literal_closure() const {
+  return literal_case() == kLiteralClosure;
+}
+inline void Object::set_has_literal_closure() {
+  _impl_._oneof_case_[0] = kLiteralClosure;
+}
+inline void Object::clear_literal_closure() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (literal_case() == kLiteralClosure) {
+    if (GetArena() == nullptr) {
+      delete _impl_.literal_.literal_closure_;
+    } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.literal_.literal_closure_);
+    }
+    clear_has_literal();
+  }
+}
+inline ::Object::Closure* Object::release_literal_closure() {
+  // @@protoc_insertion_point(field_release:Object.Object.literal_closure)
+  if (literal_case() == kLiteralClosure) {
+    clear_has_literal();
+    auto* temp = _impl_.literal_.literal_closure_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.literal_.literal_closure_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Object::Closure& Object::_internal_literal_closure() const {
+  return literal_case() == kLiteralClosure ? *_impl_.literal_.literal_closure_ : reinterpret_cast<::Object::Closure&>(::Object::_Closure_default_instance_);
+}
+inline const ::Object::Closure& Object::literal_closure() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:Object.Object.literal_closure)
+  return _internal_literal_closure();
+}
+inline ::Object::Closure* Object::unsafe_arena_release_literal_closure() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:Object.Object.literal_closure)
+  if (literal_case() == kLiteralClosure) {
+    clear_has_literal();
+    auto* temp = _impl_.literal_.literal_closure_;
+    _impl_.literal_.literal_closure_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void Object::unsafe_arena_set_allocated_literal_closure(::Object::Closure* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_literal();
+  if (value) {
+    set_has_literal_closure();
+    _impl_.literal_.literal_closure_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Object.Object.literal_closure)
+}
+inline ::Object::Closure* Object::_internal_mutable_literal_closure() {
+  if (literal_case() != kLiteralClosure) {
+    clear_literal();
+    set_has_literal_closure();
+    _impl_.literal_.literal_closure_ =
+        ::google::protobuf::Message::DefaultConstruct<::Object::Closure>(GetArena());
+  }
+  return _impl_.literal_.literal_closure_;
+}
+inline ::Object::Closure* Object::mutable_literal_closure() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::Object::Closure* _msg = _internal_mutable_literal_closure();
+  // @@protoc_insertion_point(field_mutable:Object.Object.literal_closure)
   return _msg;
 }
 
