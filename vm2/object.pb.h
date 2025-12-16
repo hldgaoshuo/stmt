@@ -225,6 +225,7 @@ class Function final : public ::google::protobuf::Message
   enum : int {
     kCodeFieldNumber = 1,
     kNumParamsFieldNumber = 2,
+    kNumUpvaluesFieldNumber = 3,
   };
   // bytes code = 1;
   void clear_code() ;
@@ -252,12 +253,22 @@ class Function final : public ::google::protobuf::Message
   void _internal_set_num_params(::uint64_t value);
 
   public:
+  // uint64 num_upvalues = 3;
+  void clear_num_upvalues() ;
+  ::uint64_t num_upvalues() const;
+  void set_num_upvalues(::uint64_t value);
+
+  private:
+  ::uint64_t _internal_num_upvalues() const;
+  void _internal_set_num_upvalues(::uint64_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:Object.Function)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
+      2, 3, 0,
       0, 2>
       _table_;
 
@@ -277,6 +288,7 @@ class Function final : public ::google::protobuf::Message
                           const Function& from_msg);
     ::google::protobuf::internal::ArenaStringPtr code_;
     ::uint64_t num_params_;
+    ::uint64_t num_upvalues_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -431,8 +443,26 @@ class Closure final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
+    kUpvaluesFieldNumber = 2,
     kFunctionFieldNumber = 1,
   };
+  // repeated .Object.Object upvalues = 2;
+  int upvalues_size() const;
+  private:
+  int _internal_upvalues_size() const;
+
+  public:
+  void clear_upvalues() ;
+  ::Object::Object* mutable_upvalues(int index);
+  ::google::protobuf::RepeatedPtrField<::Object::Object>* mutable_upvalues();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::Object::Object>& _internal_upvalues() const;
+  ::google::protobuf::RepeatedPtrField<::Object::Object>* _internal_mutable_upvalues();
+  public:
+  const ::Object::Object& upvalues(int index) const;
+  ::Object::Object* add_upvalues();
+  const ::google::protobuf::RepeatedPtrField<::Object::Object>& upvalues() const;
   // .Object.Function function = 1;
   bool has_function() const;
   void clear_function() ;
@@ -453,7 +483,7 @@ class Closure final : public ::google::protobuf::Message
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 1,
+      1, 2, 2,
       0, 2>
       _table_;
 
@@ -473,6 +503,7 @@ class Closure final : public ::google::protobuf::Message
                           const Closure& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedPtrField< ::Object::Object > upvalues_;
     ::Object::Function* function_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1128,6 +1159,28 @@ inline void Function::_internal_set_num_params(::uint64_t value) {
   _impl_.num_params_ = value;
 }
 
+// uint64 num_upvalues = 3;
+inline void Function::clear_num_upvalues() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.num_upvalues_ = ::uint64_t{0u};
+}
+inline ::uint64_t Function::num_upvalues() const {
+  // @@protoc_insertion_point(field_get:Object.Function.num_upvalues)
+  return _internal_num_upvalues();
+}
+inline void Function::set_num_upvalues(::uint64_t value) {
+  _internal_set_num_upvalues(value);
+  // @@protoc_insertion_point(field_set:Object.Function.num_upvalues)
+}
+inline ::uint64_t Function::_internal_num_upvalues() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.num_upvalues_;
+}
+inline void Function::_internal_set_num_upvalues(::uint64_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.num_upvalues_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // Closure
@@ -1226,6 +1279,55 @@ inline void Closure::set_allocated_function(::Object::Function* value) {
 
   _impl_.function_ = reinterpret_cast<::Object::Function*>(value);
   // @@protoc_insertion_point(field_set_allocated:Object.Closure.function)
+}
+
+// repeated .Object.Object upvalues = 2;
+inline int Closure::_internal_upvalues_size() const {
+  return _internal_upvalues().size();
+}
+inline int Closure::upvalues_size() const {
+  return _internal_upvalues_size();
+}
+inline void Closure::clear_upvalues() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.upvalues_.Clear();
+}
+inline ::Object::Object* Closure::mutable_upvalues(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:Object.Closure.upvalues)
+  return _internal_mutable_upvalues()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::Object::Object>* Closure::mutable_upvalues()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:Object.Closure.upvalues)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_upvalues();
+}
+inline const ::Object::Object& Closure::upvalues(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:Object.Closure.upvalues)
+  return _internal_upvalues().Get(index);
+}
+inline ::Object::Object* Closure::add_upvalues() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::Object::Object* _add = _internal_mutable_upvalues()->Add();
+  // @@protoc_insertion_point(field_add:Object.Closure.upvalues)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::Object::Object>& Closure::upvalues() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:Object.Closure.upvalues)
+  return _internal_upvalues();
+}
+inline const ::google::protobuf::RepeatedPtrField<::Object::Object>&
+Closure::_internal_upvalues() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.upvalues_;
+}
+inline ::google::protobuf::RepeatedPtrField<::Object::Object>*
+Closure::_internal_mutable_upvalues() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.upvalues_;
 }
 
 // -------------------------------------------------------------------

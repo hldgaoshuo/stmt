@@ -146,21 +146,21 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 				return err
 			}
 		}
-		symbolInfo, symbolScope, err := symbolTable.Define(_node.Name.Lexeme)
+		symbolIndex, symbolScope, err := symbolTable.Define(_node.Name.Lexeme)
 		if err != nil {
 			return err
 		}
-		err = scope.SymbolSetEmit(symbolInfo, symbolScope)
+		err = scope.SymbolSetEmit(symbolIndex, symbolScope)
 		if err != nil {
 			return err
 		}
 		return nil
 	case *ast.Variable:
-		symbolInfo, symbolScope, ok := symbolTable.Get(_node.Name.Lexeme)
-		if !ok {
+		symbolIndex, symbolScope, ex := symbolTable.Get(_node.Name.Lexeme)
+		if !ex {
 			return ErrVariableNotDefined
 		}
-		err := scope.SymbolGetEmit(symbolInfo, symbolScope)
+		err := scope.SymbolGetEmit(symbolIndex, symbolScope)
 		if err != nil {
 			return err
 		}
@@ -170,11 +170,11 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		if err != nil {
 			return err
 		}
-		symbolInfo, symbolScope, err := symbolTable.Assign(_node.Name.Lexeme)
-		if err != nil {
-			return err
+		symbolIndex, symbolScope, ex := symbolTable.Get(_node.Name.Lexeme)
+		if !ex {
+			return ErrVariableNotDefined
 		}
-		err = scope.SymbolSetEmit(symbolInfo, symbolScope)
+		err = scope.SymbolSetEmit(symbolIndex, symbolScope)
 		if err != nil {
 			return err
 		}
@@ -279,7 +279,7 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		scope.CodeEmit(OP_POP)
 		return nil
 	case *ast.Function:
-		symbolInfo, symbolScope, err := symbolTable.Define(_node.Name.Lexeme)
+		symbolIndex, symbolScope, err := symbolTable.Define(_node.Name.Lexeme)
 		if err != nil {
 			return err
 		}
@@ -311,7 +311,7 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		}
 		index := c.constantAdd(obj)
 		scope.CodeEmit(OP_CLOSURE, index)
-		err = scope.SymbolSetEmit(symbolInfo, symbolScope)
+		err = scope.SymbolSetEmit(symbolIndex, symbolScope)
 		if err != nil {
 			return err
 		}

@@ -9,10 +9,12 @@ option go_package = "./";
 message Function {
   bytes code = 1;
   uint64 num_params = 2;
+  uint64 num_upvalues = 3;
 }
 
 message Closure {
   Function function = 1;
+  repeated Object upvalues = 2;
 }
 
 message Object {

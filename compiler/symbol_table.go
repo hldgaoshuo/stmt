@@ -4,26 +4,45 @@ var Global *SymbolTable
 
 const (
 	GlobalScope string = "GLOBAL"
-	CloserScope string = "CLOSER"
+	UpScope     string = "UP"
 	LocalScope  string = "LOCAL"
 )
 
-type SymbolInfo struct {
+type LocalInfo struct {
 	Name  string
 	Index uint64
 }
 
+func NewLocalInfo(name string, index uint64) *LocalInfo {
+	return &LocalInfo{
+		Name:  name,
+		Index: index,
+	}
+}
+
+type UpInfo struct {
+	LocalIndex uint64
+	IsLocal    bool
+}
+
+func NewUpInfo(localIndex uint64, isLocal bool) *UpInfo {
+	return &UpInfo{
+		LocalIndex: localIndex,
+		IsLocal:    isLocal,
+	}
+}
+
 type SymbolTable struct {
-	Outer          *SymbolTable
-	Store          map[string]*SymbolInfo
-	NumDefinitions uint64
+	Outer       *SymbolTable
+	LocalValues map[string]*LocalInfo
+	UpValues    []*UpInfo
 }
 
 func NewSymbolTable(outer *SymbolTable) *SymbolTable {
 	inner := &SymbolTable{
-		Outer:          outer,
-		Store:          make(map[string]*SymbolInfo),
-		NumDefinitions: 0,
+		Outer:       outer,
+		LocalValues: map[string]*LocalInfo{},
+		UpValues:    []*UpInfo{},
 	}
 	if outer == nil {
 		Global = inner
@@ -32,76 +51,76 @@ func NewSymbolTable(outer *SymbolTable) *SymbolTable {
 }
 
 func (s *SymbolTable) DefineGlobal(name string) error {
-	if _, ok := s.Store[name]; ok {
+	if _, ex := s.LocalValues[name]; ex {
 		return ErrVariableAlreadyDefined
 	}
-	s.Store[name] = &SymbolInfo{
-		Name:  name,
-		Index: s.NumDefinitions,
-	}
-	s.NumDefinitions++
+	index := uint64(len(s.LocalValues))
+	localInfo := NewLocalInfo(name, index)
+	s.LocalValues[name] = localInfo
 	return nil
 }
 
-func (s *SymbolTable) Define(name string) (*SymbolInfo, string, error) {
+func (s *SymbolTable) Define(name string) (uint64, string, error) {
 	if s.Outer == nil {
-		info, ok := s.Store[name]
-		if !ok {
-			return nil, "", ErrVariableNotDefined
-		}
-		return info, GlobalScope, nil
+		localInfo := s.LocalValues[name]
+		return localInfo.Index, GlobalScope, nil
 	}
-
-	if _, ok := s.Store[name]; ok {
-		return nil, "", ErrVariableAlreadyDefined
+	if _, ex := s.LocalValues[name]; ex {
+		return 0, "", ErrVariableAlreadyDefined
 	}
-	info := &SymbolInfo{
-		Name:  name,
-		Index: s.NumDefinitions,
-	}
-	s.Store[name] = info
-	s.NumDefinitions++
-	return info, LocalScope, nil
+	index := uint64(len(s.LocalValues))
+	localInfo := NewLocalInfo(name, index)
+	s.LocalValues[name] = localInfo
+	return index, LocalScope, nil
 }
 
-func (s *SymbolTable) Assign(name string) (*SymbolInfo, string, error) {
-	if info, ok := s.Store[name]; ok {
+func (s *SymbolTable) Get(name string) (uint64, string, bool) {
+	if localInfo, ex := s.LocalValues[name]; ex {
 		if s.Outer == nil {
-			return info, GlobalScope, nil
+			return localInfo.Index, GlobalScope, true
 		}
-		return info, LocalScope, nil
+		return localInfo.Index, LocalScope, true
+	}
+	if s.Outer == nil {
+		return 0, "", false
 	}
 
-	if s.Outer == nil {
-		return nil, "", ErrVariableNotDefined
+	symbolIndex, symbolScope, ex := s.Outer.Get(name)
+	if !ex {
+		return 0, "", false
 	}
-	info, scope, err := s.Outer.Assign(name)
-	if err != nil {
-		return nil, "", err
+	switch symbolScope {
+	case GlobalScope:
+		return symbolIndex, GlobalScope, true
+	case LocalScope:
+		upInfo := s.UpValuesIndex(symbolIndex, true)
+		if upInfo != nil {
+			return upInfo.LocalIndex, UpScope, true
+		}
+		upIndex := s.UpValuesLen()
+		s.UpValuesAdd(symbolIndex, true)
+		return upIndex, UpScope, true
+	case UpScope:
+		return symbolIndex, UpScope, true
+	default:
+		return 0, "", false
 	}
-	if scope == GlobalScope {
-		return info, GlobalScope, nil
-	}
-	return info, CloserScope, nil
 }
 
-func (s *SymbolTable) Get(name string) (*SymbolInfo, string, bool) {
-	if info, ok := s.Store[name]; ok {
-		if s.Outer == nil {
-			return info, GlobalScope, true
-		}
-		return info, LocalScope, true
-	}
+func (s *SymbolTable) UpValuesLen() uint64 {
+	return uint64(len(s.UpValues))
+}
 
-	if s.Outer == nil {
-		return nil, "", false
+func (s *SymbolTable) UpValuesAdd(symbolIndex uint64, isLocal bool) {
+	upInfo := NewUpInfo(symbolIndex, isLocal)
+	s.UpValues = append(s.UpValues, upInfo)
+}
+
+func (s *SymbolTable) UpValuesIndex(symbolIndex uint64, isLocal bool) *UpInfo {
+	for _, upInfo := range s.UpValues {
+		if upInfo.LocalIndex == symbolIndex && upInfo.IsLocal == isLocal {
+			return upInfo
+		}
 	}
-	info, scope, ok := s.Outer.Get(name)
-	if !ok {
-		return nil, "", false
-	}
-	if scope == GlobalScope {
-		return info, GlobalScope, true
-	}
-	return info, CloserScope, true
+	return nil
 }

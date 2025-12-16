@@ -25,6 +25,7 @@ type Function struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          []byte                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
 	NumParams     uint64                 `protobuf:"varint,2,opt,name=num_params,json=numParams,proto3" json:"num_params,omitempty"`
+	NumUpvalues   uint64                 `protobuf:"varint,3,opt,name=num_upvalues,json=numUpvalues,proto3" json:"num_upvalues,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -73,9 +74,17 @@ func (x *Function) GetNumParams() uint64 {
 	return 0
 }
 
+func (x *Function) GetNumUpvalues() uint64 {
+	if x != nil {
+		return x.NumUpvalues
+	}
+	return 0
+}
+
 type Closure struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Function      *Function              `protobuf:"bytes,1,opt,name=function,proto3" json:"function,omitempty"`
+	Upvalues      []*Object              `protobuf:"bytes,2,rep,name=upvalues,proto3" json:"upvalues,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -113,6 +122,13 @@ func (*Closure) Descriptor() ([]byte, []int) {
 func (x *Closure) GetFunction() *Function {
 	if x != nil {
 		return x.Function
+	}
+	return nil
+}
+
+func (x *Closure) GetUpvalues() []*Object {
+	if x != nil {
+		return x.Upvalues
 	}
 	return nil
 }
@@ -351,13 +367,15 @@ var File_object_proto protoreflect.FileDescriptor
 
 const file_object_proto_rawDesc = "" +
 	"\n" +
-	"\fobject.proto\x12\x06Object\"=\n" +
+	"\fobject.proto\x12\x06Object\"`\n" +
 	"\bFunction\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\fR\x04code\x12\x1d\n" +
 	"\n" +
-	"num_params\x18\x02 \x01(\x04R\tnumParams\"7\n" +
+	"num_params\x18\x02 \x01(\x04R\tnumParams\x12!\n" +
+	"\fnum_upvalues\x18\x03 \x01(\x04R\vnumUpvalues\"c\n" +
 	"\aClosure\x12,\n" +
-	"\bfunction\x18\x01 \x01(\v2\x10.Object.FunctionR\bfunction\"\xe6\x02\n" +
+	"\bfunction\x18\x01 \x01(\v2\x10.Object.FunctionR\bfunction\x12*\n" +
+	"\bupvalues\x18\x02 \x03(\v2\x0e.Object.ObjectR\bupvalues\"\xe6\x02\n" +
 	"\x06Object\x12\x1b\n" +
 	"\tref_count\x18\x01 \x01(\x04R\brefCount\x12!\n" +
 	"\vliteral_int\x18\x02 \x01(\x03H\x00R\n" +
@@ -396,15 +414,16 @@ var file_object_proto_goTypes = []any{
 }
 var file_object_proto_depIdxs = []int32{
 	0, // 0: Object.Closure.function:type_name -> Object.Function
-	0, // 1: Object.Object.literal_function:type_name -> Object.Function
-	1, // 2: Object.Object.literal_closure:type_name -> Object.Closure
-	1, // 3: Object.Chunk.closure:type_name -> Object.Closure
-	2, // 4: Object.Chunk.constants:type_name -> Object.Object
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	2, // 1: Object.Closure.upvalues:type_name -> Object.Object
+	0, // 2: Object.Object.literal_function:type_name -> Object.Function
+	1, // 3: Object.Object.literal_closure:type_name -> Object.Closure
+	1, // 4: Object.Chunk.closure:type_name -> Object.Closure
+	2, // 5: Object.Chunk.constants:type_name -> Object.Object
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_object_proto_init() }

@@ -69,32 +69,32 @@ func (s *Scope) BinaryEmit(node *ast.Binary) error {
 	}
 }
 
-func (s *Scope) SymbolGetEmit(symbolInfo *SymbolInfo, symbolScope string) error {
+func (s *Scope) SymbolGetEmit(symbolIndex uint64, symbolScope string) error {
 	switch symbolScope {
 	case LocalScope:
-		s.CodeEmit(OP_GET_LOCAL, int(symbolInfo.Index))
+		s.CodeEmit(OP_GET_LOCAL, int(symbolIndex))
 		return nil
-	case CloserScope:
-		s.CodeEmit(OP_GET_UPVALUE, int(symbolInfo.Index))
+	case UpScope:
+		s.CodeEmit(OP_GET_UPVALUE, int(symbolIndex))
 		return nil
 	case GlobalScope:
-		s.CodeEmit(OP_GET_GLOBAL, int(symbolInfo.Index))
+		s.CodeEmit(OP_GET_GLOBAL, int(symbolIndex))
 		return nil
 	default:
 		return ErrInvalidSymbolScope
 	}
 }
 
-func (s *Scope) SymbolSetEmit(symbolInfo *SymbolInfo, symbolScope string) error {
+func (s *Scope) SymbolSetEmit(symbolIndex uint64, symbolScope string) error {
 	switch symbolScope {
 	case LocalScope:
-		s.CodeEmit(OP_SET_LOCAL, int(symbolInfo.Index))
+		s.CodeEmit(OP_SET_LOCAL, int(symbolIndex))
 		return nil
-	case CloserScope:
-		s.CodeEmit(OP_SET_UPVALUE, int(symbolInfo.Index))
+	case UpScope:
+		s.CodeEmit(OP_SET_UPVALUE, int(symbolIndex))
 		return nil
 	case GlobalScope:
-		s.CodeEmit(OP_SET_GLOBAL, int(symbolInfo.Index))
+		s.CodeEmit(OP_SET_GLOBAL, int(symbolIndex))
 		return nil
 	default:
 		return ErrInvalidSymbolScope
