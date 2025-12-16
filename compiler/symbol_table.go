@@ -4,13 +4,13 @@ var Global *SymbolTable
 
 const (
 	GlobalScope string = "GLOBAL"
+	CloserScope string = "CLOSER"
 	LocalScope  string = "LOCAL"
 )
 
 type SymbolInfo struct {
 	Name  string
 	Index uint64
-	Scope string
 }
 
 type SymbolTable struct {
@@ -20,58 +20,88 @@ type SymbolTable struct {
 }
 
 func NewSymbolTable(outer *SymbolTable) *SymbolTable {
-	t := &SymbolTable{
+	inner := &SymbolTable{
 		Outer:          outer,
 		Store:          make(map[string]*SymbolInfo),
 		NumDefinitions: 0,
 	}
 	if outer == nil {
-		Global = t
+		Global = inner
 	}
-	return t
+	return inner
 }
 
-func (s *SymbolTable) SetGlobal(name string) error {
+func (s *SymbolTable) DefineGlobal(name string) error {
 	if _, ok := s.Store[name]; ok {
 		return ErrVariableAlreadyDefined
 	}
 	s.Store[name] = &SymbolInfo{
 		Name:  name,
 		Index: s.NumDefinitions,
-		Scope: GlobalScope,
 	}
 	s.NumDefinitions++
 	return nil
 }
 
-func (s *SymbolTable) Set(name string) (*SymbolInfo, error) {
+func (s *SymbolTable) Define(name string) (*SymbolInfo, string, error) {
 	if s.Outer == nil {
 		info, ok := s.Store[name]
 		if !ok {
-			return nil, ErrVariableNotDefined
+			return nil, "", ErrVariableNotDefined
 		}
-		return info, nil
-	} else {
-		if _, ok := s.Store[name]; ok {
-			return nil, ErrVariableAlreadyDefined
-		}
-		info := &SymbolInfo{
-			Name:  name,
-			Index: s.NumDefinitions,
-			Scope: LocalScope,
-		}
-		s.Store[name] = info
-		s.NumDefinitions++
-		return info, nil
+		return info, GlobalScope, nil
 	}
+
+	if _, ok := s.Store[name]; ok {
+		return nil, "", ErrVariableAlreadyDefined
+	}
+	info := &SymbolInfo{
+		Name:  name,
+		Index: s.NumDefinitions,
+	}
+	s.Store[name] = info
+	s.NumDefinitions++
+	return info, LocalScope, nil
 }
 
-func (s *SymbolTable) Get(name string) (*SymbolInfo, bool) {
+func (s *SymbolTable) Assign(name string) (*SymbolInfo, string, error) {
 	if info, ok := s.Store[name]; ok {
-		return info, true
+		if s.Outer == nil {
+			return info, GlobalScope, nil
+		}
+		return info, LocalScope, nil
 	}
-	if s.Outer != nil {
-		return s.Outer.Get(name)
+
+	if s.Outer == nil {
+		return nil, "", ErrVariableNotDefined
 	}
-	return nil, false
+	info, scope, err := s.Outer.Assign(name)
+	if err != nil {
+		return nil, "", err
+	}
+	if scope == GlobalScope {
+		return info, GlobalScope, nil
+	}
+	return info, CloserScope, nil
+}
+
+func (s *SymbolTable) Get(name string) (*SymbolInfo, string, bool) {
+	if info, ok := s.Store[name]; ok {
+		if s.Outer == nil {
+			return info, GlobalScope, true
+		}
+		return info, LocalScope, true
+	}
+
+	if s.Outer == nil {
+		return nil, "", false
+	}
+	info, scope, ok := s.Outer.Get(name)
+	if !ok {
+		return nil, "", false
+	}
+	if scope == GlobalScope {
+		return info, GlobalScope, true
+	}
+	return info, CloserScope, true
 }

@@ -39,9 +39,9 @@ func (c *Compiler) Compile() ([]uint8, []*object.Object, error) {
 func (c *Compiler) collectGlobal(node ast.Node, symbolTable *SymbolTable) error {
 	switch _node := node.(type) {
 	case *ast.Var:
-		return symbolTable.SetGlobal(_node.Name.Lexeme)
+		return symbolTable.DefineGlobal(_node.Name.Lexeme)
 	case *ast.Function:
-		return symbolTable.SetGlobal(_node.Name.Lexeme)
+		return symbolTable.DefineGlobal(_node.Name.Lexeme)
 	default:
 		return nil
 	}
@@ -102,16 +102,11 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		if err != nil {
 			return err
 		}
-		switch _node.Operator.TokenType {
-		case token.MINUS:
-			scope.CodeEmit(OP_NEGATE)
-			return nil
-		case token.BANG:
-			scope.CodeEmit(OP_NOT)
-			return nil
-		default:
-			return ErrInvalidOperatorType
+		err = scope.UnaryEmit(_node)
+		if err != nil {
+			return err
 		}
+		return nil
 	case *ast.Binary:
 		err := c.compile(_node.Left, symbolTable, scope)
 		if err != nil {
@@ -121,40 +116,11 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		if err != nil {
 			return err
 		}
-		switch _node.Operator.TokenType {
-		case token.PLUS:
-			scope.CodeEmit(OP_ADD)
-			return nil
-		case token.MINUS:
-			scope.CodeEmit(OP_SUBTRACT)
-			return nil
-		case token.STAR:
-			scope.CodeEmit(OP_MULTIPLY)
-			return nil
-		case token.SLASH:
-			scope.CodeEmit(OP_DIVIDE)
-			return nil
-		case token.PERCENTAGE:
-			scope.CodeEmit(OP_MODULO)
-			return nil
-		case token.GREATER:
-			scope.CodeEmit(OP_GT)
-			return nil
-		case token.LESS:
-			scope.CodeEmit(OP_LT)
-			return nil
-		case token.EQUAL_EQUAL:
-			scope.CodeEmit(OP_EQ)
-			return nil
-		case token.GREATER_EQUAL:
-			scope.CodeEmit(OP_GE)
-			return nil
-		case token.LESS_EQUAL:
-			scope.CodeEmit(OP_LE)
-			return nil
-		default:
-			return ErrInvalidOperatorType
+		err = scope.BinaryEmit(_node)
+		if err != nil {
+			return err
 		}
+		return nil
 	case *ast.ExpressionStatement:
 		err := c.compile(_node.Expression, symbolTable, scope)
 		if err != nil {
@@ -180,54 +146,39 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 				return err
 			}
 		}
-		symbolInfo, err := symbolTable.Set(_node.Name.Lexeme)
+		symbolInfo, symbolScope, err := symbolTable.Define(_node.Name.Lexeme)
 		if err != nil {
 			return err
 		}
-		switch symbolInfo.Scope {
-		case LocalScope:
-			scope.CodeEmit(OP_SET_LOCAL, int(symbolInfo.Index))
-			return nil
-		case GlobalScope:
-			scope.CodeEmit(OP_SET_GLOBAL, int(symbolInfo.Index))
-			return nil
-		default:
-			return ErrInvalidSymbolScope
+		err = scope.SymbolSetEmit(symbolInfo, symbolScope)
+		if err != nil {
+			return err
 		}
+		return nil
 	case *ast.Variable:
-		symbolInfo, ok := symbolTable.Get(_node.Name.Lexeme)
+		symbolInfo, symbolScope, ok := symbolTable.Get(_node.Name.Lexeme)
 		if !ok {
 			return ErrVariableNotDefined
 		}
-		switch symbolInfo.Scope {
-		case LocalScope:
-			scope.CodeEmit(OP_GET_LOCAL, int(symbolInfo.Index))
-			return nil
-		case GlobalScope:
-			scope.CodeEmit(OP_GET_GLOBAL, int(symbolInfo.Index))
-			return nil
-		default:
-			return ErrInvalidSymbolScope
+		err := scope.SymbolGetEmit(symbolInfo, symbolScope)
+		if err != nil {
+			return err
 		}
+		return nil
 	case *ast.Assign:
 		err := c.compile(_node.Value, symbolTable, scope)
 		if err != nil {
 			return err
 		}
-		symbolInfo, ok := symbolTable.Get(_node.Name.Lexeme)
-		if !ok {
-			return ErrVariableNotDefined
+		symbolInfo, symbolScope, err := symbolTable.Assign(_node.Name.Lexeme)
+		if err != nil {
+			return err
 		}
-		switch symbolInfo.Scope {
-		case LocalScope:
-			scope.CodeEmit(OP_SET_LOCAL, int(symbolInfo.Index))
-			return nil
-		case GlobalScope:
-			scope.CodeEmit(OP_SET_GLOBAL, int(symbolInfo.Index))
-			return nil
-		default:
-			return ErrInvalidSymbolScope
+		err = scope.SymbolSetEmit(symbolInfo, symbolScope)
+		if err != nil {
+			return err
 		}
+		return nil
 	case *ast.Block:
 		_symbolTable := NewSymbolTable(symbolTable)
 		for _, statement := range _node.Declarations {
@@ -311,7 +262,12 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		}
 		offsetFalse := scope.CodeEmit(OP_JUMP_FALSE, 0)
 		scope.CodeEmit(OP_POP)
-		err = c.compile(_node.Body, symbolTable, scope)
+		for _, statement := range _node.Body.Declarations {
+			err = c.compile(statement, symbolTable, scope)
+			if err != nil {
+				return err
+			}
+		}
 		if err != nil {
 			return err
 		}
@@ -323,21 +279,23 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		scope.CodeEmit(OP_POP)
 		return nil
 	case *ast.Function:
-		symbolInfo, err := symbolTable.Set(_node.Name.Lexeme)
+		symbolInfo, symbolScope, err := symbolTable.Define(_node.Name.Lexeme)
 		if err != nil {
 			return err
 		}
 		_symbolTable := NewSymbolTable(symbolTable)
 		for _, param := range _node.Params {
-			_, err = _symbolTable.Set(param.Lexeme)
+			_, _, err = _symbolTable.Define(param.Lexeme)
 			if err != nil {
 				return err
 			}
 		}
 		_scope := NewScope(false)
-		err = c.compile(_node.Body, _symbolTable, _scope)
-		if err != nil {
-			return err
+		for _, statement := range _node.Body.Declarations {
+			err = c.compile(statement, _symbolTable, _scope)
+			if err != nil {
+				return err
+			}
 		}
 		if !_scope.HaveReturn {
 			_scope.CodeEmit(OP_NIL)
@@ -353,16 +311,11 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		}
 		index := c.constantAdd(obj)
 		scope.CodeEmit(OP_CLOSURE, index)
-		switch symbolInfo.Scope {
-		case LocalScope:
-			scope.CodeEmit(OP_SET_LOCAL, int(symbolInfo.Index))
-			return nil
-		case GlobalScope:
-			scope.CodeEmit(OP_SET_GLOBAL, int(symbolInfo.Index))
-			return nil
-		default:
-			return ErrInvalidSymbolScope
+		err = scope.SymbolSetEmit(symbolInfo, symbolScope)
+		if err != nil {
+			return err
 		}
+		return nil
 	case *ast.Call:
 		err := c.compile(_node.Callee, symbolTable, scope)
 		if err != nil {

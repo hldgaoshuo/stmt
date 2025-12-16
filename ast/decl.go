@@ -14,10 +14,9 @@ type Function struct {
 	Line   int
 	Name   *token.Token
 	Params []*token.Token
-	Body   Node
+	Body   *Block
 }
 
-// Class 这个节点真的很另类
 type Class struct {
 	Line       int
 	Name       *token.Token

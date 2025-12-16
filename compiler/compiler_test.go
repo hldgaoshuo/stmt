@@ -1,13 +1,54 @@
 package compiler
 
 import (
+	"fmt"
 	"reflect"
 	"stmt/ast"
 	object "stmt/object"
 	"stmt/parser"
 	"stmt/scanner"
+	"strings"
 	"testing"
 )
+
+func formatObjects(objects []*object.Object) string {
+	if len(objects) == 0 {
+		return "[]"
+	}
+
+	result := make([]string, len(objects))
+	for i, obj := range objects {
+		result[i] = formatObject(obj)
+	}
+	return "[" + strings.Join(result, ", ") + "]"
+}
+
+func formatObject(obj *object.Object) string {
+	if obj == nil {
+		return "nil"
+	}
+
+	switch literal := obj.Literal.(type) {
+	case *object.Object_LiteralInt:
+		return fmt.Sprintf("int(%d)", literal.LiteralInt)
+	case *object.Object_LiteralFloat:
+		return fmt.Sprintf("float(%g)", literal.LiteralFloat)
+	case *object.Object_LiteralString:
+		return fmt.Sprintf("string(%q)", literal.LiteralString)
+	case *object.Object_LiteralFunction:
+		fn := literal.LiteralFunction
+		return fmt.Sprintf("function(params=%d, code=%v)", fn.NumParams, fn.Code)
+	case *object.Object_LiteralBool:
+		if literal.LiteralBool {
+			return "bool(true)"
+		}
+		return "bool(false)"
+	case *object.Object_LiteralNil:
+		return "nil"
+	default:
+		return "unknown"
+	}
+}
 
 func TestCompiler_CompileExpr(t *testing.T) {
 	tests := []struct {
@@ -795,10 +836,10 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(code, tt.code) {
-				t.Errorf("Compile() \n code: %v \n want: %v", code, tt.code)
+				t.Errorf("Compile() \n code: \n %v \n want: \n %v", code, tt.code)
 			}
 			if !reflect.DeepEqual(constants, tt.constants) {
-				t.Errorf("Compile() constants = %v, want %v", constants, tt.constants)
+				t.Errorf("Compile() \n constants: \n %v \n want: \n %v", formatObjects(constants), formatObjects(tt.constants))
 			}
 		})
 	}

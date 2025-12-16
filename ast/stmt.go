@@ -20,7 +20,7 @@ type If struct {
 type While struct {
 	Line      int
 	Condition Node
-	Body      Node
+	Body      *Block
 }
 type Return struct {
 	Line       int

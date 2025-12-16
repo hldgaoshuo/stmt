@@ -247,7 +247,7 @@ func (p *Parser) print() (ast.Node, error) {
 	}, nil
 }
 
-func (p *Parser) block() (ast.Node, error) {
+func (p *Parser) block() (*ast.Block, error) {
 	kw := p.previous()
 	var decls []ast.Node
 	for !p.check(token.RIGHT_BRACE) && !p.isAtEnd() {
@@ -314,7 +314,11 @@ func (p *Parser) while() (ast.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	body, err := p.statement()
+	_, err = p.consume(token.LEFT_BRACE, "Expect '{' before while body.")
+	if err != nil {
+		return nil, err
+	}
+	body, err := p.block()
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +371,11 @@ func (p *Parser) for_() (ast.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	body, err := p.statement()
+	_, err = p.consume(token.LEFT_BRACE, "Expect '{' before for body.")
+	if err != nil {
+		return nil, err
+	}
+	body, err := p.block()
 	if err != nil {
 		return nil, err
 	}
@@ -384,7 +392,7 @@ func (p *Parser) for_() (ast.Node, error) {
 			Value: true,
 		}
 	}
-	body = &ast.While{
+	while := &ast.While{
 		Line:      kw.Line,
 		Body:      body,
 		Condition: condition,
@@ -392,7 +400,7 @@ func (p *Parser) for_() (ast.Node, error) {
 	if initializer != nil {
 		body = &ast.Block{
 			Line:         kw.Line,
-			Declarations: []ast.Node{initializer, body},
+			Declarations: []ast.Node{initializer, while},
 		}
 	}
 	return body, nil

@@ -671,6 +671,36 @@ func TestParser_declaration(t *testing.T) {
 		err    error
 	}{
 		{
+			name: "function",
+			source: `
+			fun breakfast() {
+				print "Eggs a-fryin'!";
+			}
+			`,
+			want: &ast.Function{
+				Line: 2,
+				Name: &token.Token{
+					TokenType: token.IDENTIFIER,
+					Lexeme:    "breakfast",
+					Line:      2,
+					Literal:   nil,
+				},
+				Params: nil,
+				Body: &ast.Block{
+					Line: 2,
+					Declarations: []ast.Node{
+						&ast.Print{
+							Line: 3,
+							Expression: &ast.Literal{
+								Value: "Eggs a-fryin'!",
+							},
+						},
+					},
+				},
+			},
+			err: nil,
+		},
+		{
 			name: "class",
 			source: `
 			class Breakfast {
