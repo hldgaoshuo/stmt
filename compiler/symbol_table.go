@@ -93,14 +93,11 @@ func (s *SymbolTable) Get(name string) (uint64, string, bool) {
 	case GlobalScope:
 		return symbolIndex, GlobalScope, true
 	case LocalScope:
-		upInfo := s.UpValuesIndex(symbolIndex, true)
-		if upInfo != nil {
-			return upInfo.LocalIndex, UpScope, true
-		}
 		upIndex := s.UpValuesLen()
 		s.UpValuesAdd(symbolIndex, true)
 		return upIndex, UpScope, true
 	case UpScope:
+		s.UpValuesAdd(symbolIndex, false)
 		return symbolIndex, UpScope, true
 	default:
 		return 0, "", false
@@ -112,7 +109,10 @@ func (s *SymbolTable) UpValuesLen() uint64 {
 }
 
 func (s *SymbolTable) UpValuesAdd(symbolIndex uint64, isLocal bool) {
-	upInfo := NewUpInfo(symbolIndex, isLocal)
+	upInfo := s.UpValuesIndex(symbolIndex, isLocal)
+	if upInfo == nil {
+		upInfo = NewUpInfo(symbolIndex, isLocal)
+	}
 	s.UpValues = append(s.UpValues, upInfo)
 }
 
