@@ -93,34 +93,35 @@ func (s *SymbolTable) Get(name string) (uint64, string, bool) {
 	case GlobalScope:
 		return symbolIndex, GlobalScope, true
 	case LocalScope:
-		upIndex := s.UpValuesLen()
-		s.UpValuesAdd(symbolIndex, true)
+		upIndex := s.UpValuesAdd(symbolIndex, true)
 		return upIndex, UpScope, true
 	case UpScope:
-		s.UpValuesAdd(symbolIndex, false)
-		return symbolIndex, UpScope, true
+		upIndex := s.UpValuesAdd(symbolIndex, false)
+		return upIndex, UpScope, true
 	default:
 		return 0, "", false
 	}
+}
+
+func (s *SymbolTable) UpValuesAdd(symbolIndex uint64, isLocal bool) uint64 {
+	upIndex := s.UpValuesIndex(symbolIndex, isLocal)
+	if upIndex == -1 {
+		upIndex = s.UpValuesLen()
+		upInfo := NewUpInfo(symbolIndex, isLocal)
+		s.UpValues = append(s.UpValues, upInfo)
+	}
+	return upIndex
 }
 
 func (s *SymbolTable) UpValuesLen() uint64 {
 	return uint64(len(s.UpValues))
 }
 
-func (s *SymbolTable) UpValuesAdd(symbolIndex uint64, isLocal bool) {
-	upInfo := s.UpValuesIndex(symbolIndex, isLocal)
-	if upInfo == nil {
-		upInfo = NewUpInfo(symbolIndex, isLocal)
-	}
-	s.UpValues = append(s.UpValues, upInfo)
-}
-
-func (s *SymbolTable) UpValuesIndex(symbolIndex uint64, isLocal bool) *UpInfo {
-	for _, upInfo := range s.UpValues {
+func (s *SymbolTable) UpValuesIndex(symbolIndex uint64, isLocal bool) uint64 {
+	for upIndex, upInfo := range s.UpValues {
 		if upInfo.LocalIndex == symbolIndex && upInfo.IsLocal == isLocal {
-			return upInfo
+			return uint64(upIndex)
 		}
 	}
-	return nil
+	return -1
 }
