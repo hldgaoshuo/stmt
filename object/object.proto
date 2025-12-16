@@ -6,16 +6,6 @@ option go_package = "./";
 
 // todo 目前这个包的代码，既是 IR，也是值系统
 
-enum ObjectType {
-  OBJ_INT = 0;
-  OBJ_FLOAT = 1;
-  OBJ_BOOL = 2;
-  OBJ_NIL = 3;
-  OBJ_STRING = 4;
-  OBJ_FUNCTION = 5;
-  OBJ_CLOSURE = 6;
-}
-
 message Function {
   bytes code = 1;
   uint64 num_params = 2;
@@ -26,16 +16,15 @@ message Closure {
 }
 
 message Object {
-  ObjectType object_type = 1;
-  uint64 ref_count = 2;
+  uint64 ref_count = 1;
   oneof literal {
-    int64 literal_int = 3;
-    double literal_float = 4;
-    bool literal_bool = 5;
-    string literal_nil = 6;
-    string literal_string = 7;
-    Function literal_function = 8;
-    Closure literal_closure = 9;
+    int64 literal_int = 2;
+    double literal_float = 3;
+    bool literal_bool = 4;
+    string literal_nil = 5;
+    string literal_string = 6;
+    Function literal_function = 7;
+    Closure literal_closure = 8;
   }
 }
 

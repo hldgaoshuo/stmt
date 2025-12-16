@@ -56,7 +56,6 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 				Literal: &object.Object_LiteralInt{
 					LiteralInt: value,
 				},
-				ObjectType: object.ObjectType_OBJ_INT,
 			}
 			index := c.constantAdd(obj)
 			scope.CodeEmit(OP_CONSTANT, index)
@@ -66,7 +65,6 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 				Literal: &object.Object_LiteralFloat{
 					LiteralFloat: value,
 				},
-				ObjectType: object.ObjectType_OBJ_FLOAT,
 			}
 			index := c.constantAdd(obj)
 			scope.CodeEmit(OP_CONSTANT, index)
@@ -86,7 +84,6 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 				Literal: &object.Object_LiteralString{
 					LiteralString: value,
 				},
-				ObjectType: object.ObjectType_OBJ_STRING,
 			}
 			index := c.constantAdd(obj)
 			scope.CodeEmit(OP_CONSTANT, index)
@@ -347,7 +344,6 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 			_scope.CodeEmit(OP_RETURN)
 		}
 		obj := &object.Object{
-			ObjectType: object.ObjectType_OBJ_FUNCTION,
 			Literal: &object.Object_LiteralFunction{
 				LiteralFunction: &object.Function{
 					Code:      _scope.Code,

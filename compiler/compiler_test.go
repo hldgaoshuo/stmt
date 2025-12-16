@@ -26,7 +26,6 @@ func TestCompiler_CompileExpr(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -39,7 +38,6 @@ func TestCompiler_CompileExpr(t *testing.T) {
 					Literal: &object.Object_LiteralFloat{
 						LiteralFloat: 1.2,
 					},
-					ObjectType: object.ObjectType_OBJ_FLOAT,
 				},
 			},
 		},
@@ -52,7 +50,6 @@ func TestCompiler_CompileExpr(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -68,7 +65,6 @@ func TestCompiler_CompileExpr(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -85,13 +81,11 @@ func TestCompiler_CompileExpr(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 2,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -135,13 +129,11 @@ func TestCompiler_CompileExpr(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 2,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -154,7 +146,6 @@ func TestCompiler_CompileExpr(t *testing.T) {
 					Literal: &object.Object_LiteralString{
 						LiteralString: "abc",
 					},
-					ObjectType: object.ObjectType_OBJ_STRING,
 				},
 			},
 		},
@@ -213,13 +204,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 2,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -235,7 +224,6 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -260,7 +248,6 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -281,7 +268,6 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -302,7 +288,6 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -334,13 +319,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 2,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -361,13 +344,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 2,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -391,13 +372,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 2,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -420,13 +399,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 2,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -455,13 +432,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 10,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 20,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -493,13 +468,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 10,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 20,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -564,19 +537,16 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 0,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 5,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
-					ObjectType: object.ObjectType_OBJ_INT,
 				},
 			},
 		},
@@ -593,13 +563,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			},
 			constants: []*object.Object{
 				{
-					ObjectType: object.ObjectType_OBJ_INT,
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
 				},
 				{
-					ObjectType: object.ObjectType_OBJ_FUNCTION,
 					Literal: &object.Object_LiteralFunction{
 						LiteralFunction: &object.Function{
 							Code: []uint8{
@@ -628,13 +596,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			},
 			constants: []*object.Object{
 				{
-					ObjectType: object.ObjectType_OBJ_INT,
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
 				},
 				{
-					ObjectType: object.ObjectType_OBJ_FUNCTION,
 					Literal: &object.Object_LiteralFunction{
 						LiteralFunction: &object.Function{
 							Code: []uint8{
@@ -663,19 +629,16 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			},
 			constants: []*object.Object{
 				{
-					ObjectType: object.ObjectType_OBJ_INT,
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
 				},
 				{
-					ObjectType: object.ObjectType_OBJ_INT,
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 2,
 					},
 				},
 				{
-					ObjectType: object.ObjectType_OBJ_FUNCTION,
 					Literal: &object.Object_LiteralFunction{
 						LiteralFunction: &object.Function{
 							Code: []uint8{
@@ -707,13 +670,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			},
 			constants: []*object.Object{
 				{
-					ObjectType: object.ObjectType_OBJ_INT,
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
 				},
 				{
-					ObjectType: object.ObjectType_OBJ_FUNCTION,
 					Literal: &object.Object_LiteralFunction{
 						LiteralFunction: &object.Function{
 							Code: []uint8{
@@ -747,7 +708,6 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			},
 			constants: []*object.Object{
 				{
-					ObjectType: object.ObjectType_OBJ_FUNCTION,
 					Literal: &object.Object_LiteralFunction{
 						LiteralFunction: &object.Function{
 							Code: []uint8{
@@ -763,13 +723,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					},
 				},
 				{
-					ObjectType: object.ObjectType_OBJ_INT,
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
 				},
 				{
-					ObjectType: object.ObjectType_OBJ_INT,
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 2,
 					},
@@ -795,7 +753,6 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			},
 			constants: []*object.Object{
 				{
-					ObjectType: object.ObjectType_OBJ_FUNCTION,
 					Literal: &object.Object_LiteralFunction{
 						LiteralFunction: &object.Function{
 							Code: []uint8{
@@ -809,13 +766,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 					},
 				},
 				{
-					ObjectType: object.ObjectType_OBJ_INT,
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 1,
 					},
 				},
 				{
-					ObjectType: object.ObjectType_OBJ_INT,
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 2,
 					},

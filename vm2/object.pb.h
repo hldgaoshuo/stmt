@@ -28,7 +28,6 @@
 #include "google/protobuf/message_lite.h"
 #include "google/protobuf/repeated_field.h"  // IWYU pragma: export
 #include "google/protobuf/extension_set.h"  // IWYU pragma: export
-#include "google/protobuf/generated_enum_reflection.h"
 #include "google/protobuf/unknown_field_set.h"
 // @@protoc_insertion_point(includes)
 
@@ -72,44 +71,6 @@ namespace protobuf {
 }  // namespace google
 
 namespace Object {
-enum ObjectType : int {
-  OBJ_INT = 0,
-  OBJ_FLOAT = 1,
-  OBJ_BOOL = 2,
-  OBJ_NIL = 3,
-  OBJ_STRING = 4,
-  OBJ_FUNCTION = 5,
-  OBJ_CLOSURE = 6,
-  ObjectType_INT_MIN_SENTINEL_DO_NOT_USE_ =
-      std::numeric_limits<::int32_t>::min(),
-  ObjectType_INT_MAX_SENTINEL_DO_NOT_USE_ =
-      std::numeric_limits<::int32_t>::max(),
-};
-
-bool ObjectType_IsValid(int value);
-extern const uint32_t ObjectType_internal_data_[];
-constexpr ObjectType ObjectType_MIN = static_cast<ObjectType>(0);
-constexpr ObjectType ObjectType_MAX = static_cast<ObjectType>(6);
-constexpr int ObjectType_ARRAYSIZE = 6 + 1;
-const ::google::protobuf::EnumDescriptor*
-ObjectType_descriptor();
-template <typename T>
-const std::string& ObjectType_Name(T value) {
-  static_assert(std::is_same<T, ObjectType>::value ||
-                    std::is_integral<T>::value,
-                "Incorrect type passed to ObjectType_Name().");
-  return ObjectType_Name(static_cast<ObjectType>(value));
-}
-template <>
-inline const std::string& ObjectType_Name(ObjectType value) {
-  return ::google::protobuf::internal::NameOfDenseEnum<ObjectType_descriptor,
-                                                 0, 6>(
-      static_cast<int>(value));
-}
-inline bool ObjectType_Parse(absl::string_view name, ObjectType* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<ObjectType>(
-      ObjectType_descriptor(), name, value);
-}
 
 // ===================================================================
 
@@ -576,13 +537,13 @@ class Object final : public ::google::protobuf::Message
     return *internal_default_instance();
   }
   enum LiteralCase {
-    kLiteralInt = 3,
-    kLiteralFloat = 4,
-    kLiteralBool = 5,
-    kLiteralNil = 6,
-    kLiteralString = 7,
-    kLiteralFunction = 8,
-    kLiteralClosure = 9,
+    kLiteralInt = 2,
+    kLiteralFloat = 3,
+    kLiteralBool = 4,
+    kLiteralNil = 5,
+    kLiteralString = 6,
+    kLiteralFunction = 7,
+    kLiteralClosure = 8,
     LITERAL_NOT_SET = 0,
   };
   static inline const Object* internal_default_instance() {
@@ -676,17 +637,16 @@ class Object final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kRefCountFieldNumber = 2,
-    kObjectTypeFieldNumber = 1,
-    kLiteralIntFieldNumber = 3,
-    kLiteralFloatFieldNumber = 4,
-    kLiteralBoolFieldNumber = 5,
-    kLiteralNilFieldNumber = 6,
-    kLiteralStringFieldNumber = 7,
-    kLiteralFunctionFieldNumber = 8,
-    kLiteralClosureFieldNumber = 9,
+    kRefCountFieldNumber = 1,
+    kLiteralIntFieldNumber = 2,
+    kLiteralFloatFieldNumber = 3,
+    kLiteralBoolFieldNumber = 4,
+    kLiteralNilFieldNumber = 5,
+    kLiteralStringFieldNumber = 6,
+    kLiteralFunctionFieldNumber = 7,
+    kLiteralClosureFieldNumber = 8,
   };
-  // uint64 ref_count = 2;
+  // uint64 ref_count = 1;
   void clear_ref_count() ;
   ::uint64_t ref_count() const;
   void set_ref_count(::uint64_t value);
@@ -696,17 +656,7 @@ class Object final : public ::google::protobuf::Message
   void _internal_set_ref_count(::uint64_t value);
 
   public:
-  // .Object.ObjectType object_type = 1;
-  void clear_object_type() ;
-  ::Object::ObjectType object_type() const;
-  void set_object_type(::Object::ObjectType value);
-
-  private:
-  ::Object::ObjectType _internal_object_type() const;
-  void _internal_set_object_type(::Object::ObjectType value);
-
-  public:
-  // int64 literal_int = 3;
+  // int64 literal_int = 2;
   bool has_literal_int() const;
   void clear_literal_int() ;
   ::int64_t literal_int() const;
@@ -717,7 +667,7 @@ class Object final : public ::google::protobuf::Message
   void _internal_set_literal_int(::int64_t value);
 
   public:
-  // double literal_float = 4;
+  // double literal_float = 3;
   bool has_literal_float() const;
   void clear_literal_float() ;
   double literal_float() const;
@@ -728,7 +678,7 @@ class Object final : public ::google::protobuf::Message
   void _internal_set_literal_float(double value);
 
   public:
-  // bool literal_bool = 5;
+  // bool literal_bool = 4;
   bool has_literal_bool() const;
   void clear_literal_bool() ;
   bool literal_bool() const;
@@ -739,7 +689,7 @@ class Object final : public ::google::protobuf::Message
   void _internal_set_literal_bool(bool value);
 
   public:
-  // string literal_nil = 6;
+  // string literal_nil = 5;
   bool has_literal_nil() const;
   void clear_literal_nil() ;
   const std::string& literal_nil() const;
@@ -756,7 +706,7 @@ class Object final : public ::google::protobuf::Message
   std::string* _internal_mutable_literal_nil();
 
   public:
-  // string literal_string = 7;
+  // string literal_string = 6;
   bool has_literal_string() const;
   void clear_literal_string() ;
   const std::string& literal_string() const;
@@ -773,7 +723,7 @@ class Object final : public ::google::protobuf::Message
   std::string* _internal_mutable_literal_string();
 
   public:
-  // .Object.Function literal_function = 8;
+  // .Object.Function literal_function = 7;
   bool has_literal_function() const;
   private:
   bool _internal_has_literal_function() const;
@@ -792,7 +742,7 @@ class Object final : public ::google::protobuf::Message
   ::Object::Function* _internal_mutable_literal_function();
 
   public:
-  // .Object.Closure literal_closure = 9;
+  // .Object.Closure literal_closure = 8;
   bool has_literal_closure() const;
   private:
   bool _internal_has_literal_closure() const;
@@ -827,7 +777,7 @@ class Object final : public ::google::protobuf::Message
   inline void clear_has_literal();
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      1, 9, 2,
+      0, 8, 2,
       55, 2>
       _table_;
 
@@ -846,7 +796,6 @@ class Object final : public ::google::protobuf::Message
                           ::google::protobuf::Arena* arena, const Impl_& from,
                           const Object& from_msg);
     ::uint64_t ref_count_;
-    int object_type_;
     union LiteralUnion {
       constexpr LiteralUnion() : _constinit_{} {}
       ::google::protobuf::internal::ConstantInitialized _constinit_;
@@ -1283,29 +1232,7 @@ inline void Closure::set_allocated_function(::Object::Function* value) {
 
 // Object
 
-// .Object.ObjectType object_type = 1;
-inline void Object::clear_object_type() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.object_type_ = 0;
-}
-inline ::Object::ObjectType Object::object_type() const {
-  // @@protoc_insertion_point(field_get:Object.Object.object_type)
-  return _internal_object_type();
-}
-inline void Object::set_object_type(::Object::ObjectType value) {
-  _internal_set_object_type(value);
-  // @@protoc_insertion_point(field_set:Object.Object.object_type)
-}
-inline ::Object::ObjectType Object::_internal_object_type() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return static_cast<::Object::ObjectType>(_impl_.object_type_);
-}
-inline void Object::_internal_set_object_type(::Object::ObjectType value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.object_type_ = value;
-}
-
-// uint64 ref_count = 2;
+// uint64 ref_count = 1;
 inline void Object::clear_ref_count() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.ref_count_ = ::uint64_t{0u};
@@ -1327,7 +1254,7 @@ inline void Object::_internal_set_ref_count(::uint64_t value) {
   _impl_.ref_count_ = value;
 }
 
-// int64 literal_int = 3;
+// int64 literal_int = 2;
 inline bool Object::has_literal_int() const {
   return literal_case() == kLiteralInt;
 }
@@ -1360,7 +1287,7 @@ inline ::int64_t Object::_internal_literal_int() const {
   return ::int64_t{0};
 }
 
-// double literal_float = 4;
+// double literal_float = 3;
 inline bool Object::has_literal_float() const {
   return literal_case() == kLiteralFloat;
 }
@@ -1393,7 +1320,7 @@ inline double Object::_internal_literal_float() const {
   return 0;
 }
 
-// bool literal_bool = 5;
+// bool literal_bool = 4;
 inline bool Object::has_literal_bool() const {
   return literal_case() == kLiteralBool;
 }
@@ -1426,7 +1353,7 @@ inline bool Object::_internal_literal_bool() const {
   return false;
 }
 
-// string literal_nil = 6;
+// string literal_nil = 5;
 inline bool Object::has_literal_nil() const {
   return literal_case() == kLiteralNil;
 }
@@ -1511,7 +1438,7 @@ inline void Object::set_allocated_literal_nil(std::string* value) {
   // @@protoc_insertion_point(field_set_allocated:Object.Object.literal_nil)
 }
 
-// string literal_string = 7;
+// string literal_string = 6;
 inline bool Object::has_literal_string() const {
   return literal_case() == kLiteralString;
 }
@@ -1596,7 +1523,7 @@ inline void Object::set_allocated_literal_string(std::string* value) {
   // @@protoc_insertion_point(field_set_allocated:Object.Object.literal_string)
 }
 
-// .Object.Function literal_function = 8;
+// .Object.Function literal_function = 7;
 inline bool Object::has_literal_function() const {
   return literal_case() == kLiteralFunction;
 }
@@ -1675,7 +1602,7 @@ inline ::Object::Function* Object::mutable_literal_function() ABSL_ATTRIBUTE_LIF
   return _msg;
 }
 
-// .Object.Closure literal_closure = 9;
+// .Object.Closure literal_closure = 8;
 inline bool Object::has_literal_closure() const {
   return literal_case() == kLiteralClosure;
 }
@@ -1941,19 +1868,6 @@ inline void Chunk::_internal_set_globals_count(::uint64_t value) {
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace Object
 
-
-namespace google {
-namespace protobuf {
-
-template <>
-struct is_proto_enum<::Object::ObjectType> : std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor<::Object::ObjectType>() {
-  return ::Object::ObjectType_descriptor();
-}
-
-}  // namespace protobuf
-}  // namespace google
 
 // @@protoc_insertion_point(global_scope)
 

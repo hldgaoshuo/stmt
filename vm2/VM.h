@@ -70,6 +70,7 @@ public:
     void stack_set(uint8_t index, Object::Object* value);
     Object::Object* stack_get(uint8_t index);
     uint8_t stack_base_pointer(uint8_t offset);
+    static uint8_t stack_local_index(Frame* frame);
     void stack_resize(std::size_t offset);
 
     // globals

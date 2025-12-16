@@ -65,6 +65,9 @@ uint8_t VM::stack_base_pointer(uint8_t offset) {
     auto result = size - offset;
     return result;
 }
+uint8_t VM::stack_local_index(Frame* frame) {
+    return frame->code_next() + frame->base_pointer;
+}
 void VM::stack_resize(std::size_t offset) {
     stack.resize(offset);
 }
@@ -441,13 +444,13 @@ Error VM::interpret() {
                 break;
             }
             case OP_SET_LOCAL: {
-                auto local_index = frame->code_next() + frame->base_pointer;
+                auto local_index = stack_local_index(frame);
                 auto local_value = stack_pop();
                 stack_set(local_index, local_value);
                 break;
             }
             case OP_GET_LOCAL: {
-                auto local_index = frame->code_next() + frame->base_pointer;
+                auto local_index = stack_local_index(frame);
                 auto local_value = stack_get(local_index);
                 stack_push(local_value);
                 break;

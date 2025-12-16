@@ -82,7 +82,6 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr Object::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : ref_count_{::uint64_t{0u}},
-        object_type_{static_cast< ::Object::ObjectType >(0)},
         literal_{},
         _cached_size_{0},
         _oneof_case_{} {}
@@ -134,7 +133,8 @@ struct ChunkDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ChunkDefaultTypeInternal _Chunk_default_instance_;
 }  // namespace Object
-static const ::_pb::EnumDescriptor* file_level_enum_descriptors_object_2eproto[1];
+static constexpr const ::_pb::EnumDescriptor**
+    file_level_enum_descriptors_object_2eproto = nullptr;
 static constexpr const ::_pb::ServiceDescriptor**
     file_level_service_descriptors_object_2eproto = nullptr;
 const ::uint32_t
@@ -168,7 +168,6 @@ const ::uint32_t
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::Object::Object, _impl_.object_type_),
         PROTOBUF_FIELD_OFFSET(::Object::Object, _impl_.ref_count_),
         ::_pbi::kInvalidFieldOffsetTag,
         ::_pbi::kInvalidFieldOffsetTag,
@@ -199,7 +198,7 @@ static const ::_pbi::MigrationSchema
         {0, -1, -1, sizeof(::Object::Function)},
         {10, 19, -1, sizeof(::Object::Closure)},
         {20, -1, -1, sizeof(::Object::Object)},
-        {38, 49, -1, sizeof(::Object::Chunk)},
+        {37, 48, -1, sizeof(::Object::Chunk)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::Object::_Function_default_instance_._instance,
@@ -211,27 +210,23 @@ const char descriptor_table_protodef_object_2eproto[] ABSL_ATTRIBUTE_SECTION_VAR
     protodesc_cold) = {
     "\n\014object.proto\022\006Object\",\n\010Function\022\014\n\004co"
     "de\030\001 \001(\014\022\022\n\nnum_params\030\002 \001(\004\"-\n\007Closure\022"
-    "\"\n\010function\030\001 \001(\0132\020.Object.Function\"\242\002\n\006"
-    "Object\022\'\n\013object_type\030\001 \001(\0162\022.Object.Obj"
-    "ectType\022\021\n\tref_count\030\002 \001(\004\022\025\n\013literal_in"
-    "t\030\003 \001(\003H\000\022\027\n\rliteral_float\030\004 \001(\001H\000\022\026\n\014li"
-    "teral_bool\030\005 \001(\010H\000\022\025\n\013literal_nil\030\006 \001(\tH"
-    "\000\022\030\n\016literal_string\030\007 \001(\tH\000\022,\n\020literal_f"
-    "unction\030\010 \001(\0132\020.Object.FunctionH\000\022*\n\017lit"
-    "eral_closure\030\t \001(\0132\017.Object.ClosureH\000B\t\n"
-    "\007literal\"c\n\005Chunk\022 \n\007closure\030\001 \001(\0132\017.Obj"
-    "ect.Closure\022!\n\tconstants\030\002 \003(\0132\016.Object."
-    "Object\022\025\n\rglobals_count\030\003 \001(\004*v\n\nObjectT"
-    "ype\022\013\n\007OBJ_INT\020\000\022\r\n\tOBJ_FLOAT\020\001\022\014\n\010OBJ_B"
-    "OOL\020\002\022\013\n\007OBJ_NIL\020\003\022\016\n\nOBJ_STRING\020\004\022\020\n\014OB"
-    "J_FUNCTION\020\005\022\017\n\013OBJ_CLOSURE\020\006B\004Z\002./b\006pro"
-    "to3"
+    "\"\n\010function\030\001 \001(\0132\020.Object.Function\"\371\001\n\006"
+    "Object\022\021\n\tref_count\030\001 \001(\004\022\025\n\013literal_int"
+    "\030\002 \001(\003H\000\022\027\n\rliteral_float\030\003 \001(\001H\000\022\026\n\014lit"
+    "eral_bool\030\004 \001(\010H\000\022\025\n\013literal_nil\030\005 \001(\tH\000"
+    "\022\030\n\016literal_string\030\006 \001(\tH\000\022,\n\020literal_fu"
+    "nction\030\007 \001(\0132\020.Object.FunctionH\000\022*\n\017lite"
+    "ral_closure\030\010 \001(\0132\017.Object.ClosureH\000B\t\n\007"
+    "literal\"c\n\005Chunk\022 \n\007closure\030\001 \001(\0132\017.Obje"
+    "ct.Closure\022!\n\tconstants\030\002 \003(\0132\016.Object.O"
+    "bject\022\025\n\rglobals_count\030\003 \001(\004B\004Z\002./b\006prot"
+    "o3"
 };
 static ::absl::once_flag descriptor_table_object_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_object_2eproto = {
     false,
     false,
-    643,
+    482,
     descriptor_table_protodef_object_2eproto,
     "object.proto",
     &descriptor_table_object_2eproto_once,
@@ -245,15 +240,6 @@ PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_object_2eproto
     file_level_service_descriptors_object_2eproto,
 };
 namespace Object {
-const ::google::protobuf::EnumDescriptor* ObjectType_descriptor() {
-  ::google::protobuf::internal::AssignDescriptors(&descriptor_table_object_2eproto);
-  return file_level_enum_descriptors_object_2eproto[0];
-}
-PROTOBUF_CONSTINIT const uint32_t ObjectType_internal_data_[] = {
-    458752u, 0u, };
-bool ObjectType_IsValid(int value) {
-  return 0 <= value && value <= 6;
-}
 // ===================================================================
 
 class Function::_Internal {
@@ -819,13 +805,7 @@ Object::Object(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
-  ::memcpy(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, ref_count_),
-           reinterpret_cast<const char *>(&from._impl_) +
-               offsetof(Impl_, ref_count_),
-           offsetof(Impl_, object_type_) -
-               offsetof(Impl_, ref_count_) +
-               sizeof(Impl_::object_type_));
+  _impl_.ref_count_ = from._impl_.ref_count_;
   switch (literal_case()) {
     case LITERAL_NOT_SET:
       break;
@@ -863,12 +843,7 @@ inline PROTOBUF_NDEBUG_INLINE Object::Impl_::Impl_(
 
 inline void Object::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, ref_count_),
-           0,
-           offsetof(Impl_, object_type_) -
-               offsetof(Impl_, ref_count_) +
-               sizeof(Impl_::object_type_));
+  _impl_.ref_count_ = {};
 }
 Object::~Object() {
   // @@protoc_insertion_point(destructor:Object.Object)
@@ -968,15 +943,15 @@ const ::google::protobuf::internal::ClassData* Object::GetClassData() const {
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 9, 2, 55, 2> Object::_table_ = {
+const ::_pbi::TcParseTable<0, 8, 2, 55, 2> Object::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    9, 8,  // max_field_number, fast_idx_mask
+    8, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294966784,  // skipmap
+    4294967040,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    9,  // num_field_entries
+    8,  // num_field_entries
     2,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     _class_data_.base(),
@@ -986,47 +961,41 @@ const ::_pbi::TcParseTable<1, 9, 2, 55, 2> Object::_table_ = {
     ::_pbi::TcParser::GetTable<::Object::Object>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint64 ref_count = 2;
+    // uint64 ref_count = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(Object, _impl_.ref_count_), 63>(),
-     {16, 63, 0, PROTOBUF_FIELD_OFFSET(Object, _impl_.ref_count_)}},
-    // .Object.ObjectType object_type = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Object, _impl_.object_type_), 63>(),
-     {8, 63, 0, PROTOBUF_FIELD_OFFSET(Object, _impl_.object_type_)}},
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(Object, _impl_.ref_count_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // .Object.ObjectType object_type = 1;
-    {PROTOBUF_FIELD_OFFSET(Object, _impl_.object_type_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kOpenEnum)},
-    // uint64 ref_count = 2;
+    // uint64 ref_count = 1;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.ref_count_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUInt64)},
-    // int64 literal_int = 3;
+    // int64 literal_int = 2;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_int_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kInt64)},
-    // double literal_float = 4;
+    // double literal_float = 3;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_float_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kDouble)},
-    // bool literal_bool = 5;
+    // bool literal_bool = 4;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_bool_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kBool)},
-    // string literal_nil = 6;
+    // string literal_nil = 5;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_nil_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kUtf8String | ::_fl::kRepAString)},
-    // string literal_string = 7;
+    // string literal_string = 6;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_string_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kUtf8String | ::_fl::kRepAString)},
-    // .Object.Function literal_function = 8;
+    // .Object.Function literal_function = 7;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_function_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
-    // .Object.Closure literal_closure = 9;
+    // .Object.Closure literal_closure = 8;
     {PROTOBUF_FIELD_OFFSET(Object, _impl_.literal_.literal_closure_), _Internal::kOneofCaseOffset + 0, 1,
     (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
   }}, {{
     {::_pbi::TcParser::GetTable<::Object::Function>()},
     {::_pbi::TcParser::GetTable<::Object::Closure>()},
   }}, {{
-    "\15\0\0\0\0\0\13\16\0\0\0\0\0\0\0\0"
+    "\15\0\0\0\0\13\16\0\0\0\0\0\0\0\0\0"
     "Object.Object"
     "literal_nil"
     "literal_string"
@@ -1040,9 +1009,7 @@ PROTOBUF_NOINLINE void Object::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&_impl_.ref_count_, 0, static_cast<::size_t>(
-      reinterpret_cast<char*>(&_impl_.object_type_) -
-      reinterpret_cast<char*>(&_impl_.ref_count_)) + sizeof(_impl_.object_type_));
+  _impl_.ref_count_ = ::uint64_t{0u};
   clear_literal();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -1062,62 +1029,55 @@ PROTOBUF_NOINLINE void Object::Clear() {
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
-          // .Object.ObjectType object_type = 1;
-          if (this_._internal_object_type() != 0) {
-            target = stream->EnsureSpace(target);
-            target = ::_pbi::WireFormatLite::WriteEnumToArray(
-                1, this_._internal_object_type(), target);
-          }
-
-          // uint64 ref_count = 2;
+          // uint64 ref_count = 1;
           if (this_._internal_ref_count() != 0) {
             target = stream->EnsureSpace(target);
             target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
-                2, this_._internal_ref_count(), target);
+                1, this_._internal_ref_count(), target);
           }
 
           switch (this_.literal_case()) {
             case kLiteralInt: {
               target = ::google::protobuf::internal::WireFormatLite::
-                  WriteInt64ToArrayWithField<3>(
+                  WriteInt64ToArrayWithField<2>(
                       stream, this_._internal_literal_int(), target);
               break;
             }
             case kLiteralFloat: {
               target = stream->EnsureSpace(target);
               target = ::_pbi::WireFormatLite::WriteDoubleToArray(
-                  4, this_._internal_literal_float(), target);
+                  3, this_._internal_literal_float(), target);
               break;
             }
             case kLiteralBool: {
               target = stream->EnsureSpace(target);
               target = ::_pbi::WireFormatLite::WriteBoolToArray(
-                  5, this_._internal_literal_bool(), target);
+                  4, this_._internal_literal_bool(), target);
               break;
             }
             case kLiteralNil: {
               const std::string& _s = this_._internal_literal_nil();
               ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
                   _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "Object.Object.literal_nil");
-              target = stream->WriteStringMaybeAliased(6, _s, target);
+              target = stream->WriteStringMaybeAliased(5, _s, target);
               break;
             }
             case kLiteralString: {
               const std::string& _s = this_._internal_literal_string();
               ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
                   _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "Object.Object.literal_string");
-              target = stream->WriteStringMaybeAliased(7, _s, target);
+              target = stream->WriteStringMaybeAliased(6, _s, target);
               break;
             }
             case kLiteralFunction: {
               target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-                  8, *this_._impl_.literal_.literal_function_, this_._impl_.literal_.literal_function_->GetCachedSize(), target,
+                  7, *this_._impl_.literal_.literal_function_, this_._impl_.literal_.literal_function_->GetCachedSize(), target,
                   stream);
               break;
             }
             case kLiteralClosure: {
               target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-                  9, *this_._impl_.literal_.literal_closure_, this_._impl_.literal_.literal_closure_->GetCachedSize(), target,
+                  8, *this_._impl_.literal_.literal_closure_, this_._impl_.literal_.literal_closure_->GetCachedSize(), target,
                   stream);
               break;
             }
@@ -1147,55 +1107,49 @@ PROTOBUF_NOINLINE void Object::Clear() {
           // Prevent compiler warnings about cached_has_bits being unused
           (void)cached_has_bits;
 
-          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
            {
-            // uint64 ref_count = 2;
+            // uint64 ref_count = 1;
             if (this_._internal_ref_count() != 0) {
               total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
                   this_._internal_ref_count());
             }
-            // .Object.ObjectType object_type = 1;
-            if (this_._internal_object_type() != 0) {
-              total_size += 1 +
-                            ::_pbi::WireFormatLite::EnumSize(this_._internal_object_type());
-            }
           }
           switch (this_.literal_case()) {
-            // int64 literal_int = 3;
+            // int64 literal_int = 2;
             case kLiteralInt: {
               total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(
                   this_._internal_literal_int());
               break;
             }
-            // double literal_float = 4;
+            // double literal_float = 3;
             case kLiteralFloat: {
               total_size += 9;
               break;
             }
-            // bool literal_bool = 5;
+            // bool literal_bool = 4;
             case kLiteralBool: {
               total_size += 2;
               break;
             }
-            // string literal_nil = 6;
+            // string literal_nil = 5;
             case kLiteralNil: {
               total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
                                               this_._internal_literal_nil());
               break;
             }
-            // string literal_string = 7;
+            // string literal_string = 6;
             case kLiteralString: {
               total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
                                               this_._internal_literal_string());
               break;
             }
-            // .Object.Function literal_function = 8;
+            // .Object.Function literal_function = 7;
             case kLiteralFunction: {
               total_size += 1 +
                             ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.literal_.literal_function_);
               break;
             }
-            // .Object.Closure literal_closure = 9;
+            // .Object.Closure literal_closure = 8;
             case kLiteralClosure: {
               total_size += 1 +
                             ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.literal_.literal_closure_);
@@ -1220,9 +1174,6 @@ void Object::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::
 
   if (from._internal_ref_count() != 0) {
     _this->_impl_.ref_count_ = from._impl_.ref_count_;
-  }
-  if (from._internal_object_type() != 0) {
-    _this->_impl_.object_type_ = from._impl_.object_type_;
   }
   if (const uint32_t oneof_from_case = from._impl_._oneof_case_[0]) {
     const uint32_t oneof_to_case = _this->_impl_._oneof_case_[0];
@@ -1297,12 +1248,7 @@ void Object::CopyFrom(const Object& from) {
 void Object::InternalSwap(Object* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Object, _impl_.object_type_)
-      + sizeof(Object::_impl_.object_type_)
-      - PROTOBUF_FIELD_OFFSET(Object, _impl_.ref_count_)>(
-          reinterpret_cast<char*>(&_impl_.ref_count_),
-          reinterpret_cast<char*>(&other->_impl_.ref_count_));
+        swap(_impl_.ref_count_, other->_impl_.ref_count_);
   swap(_impl_.literal_, other->_impl_.literal_);
   swap(_impl_._oneof_case_[0], other->_impl_._oneof_case_[0]);
 }
