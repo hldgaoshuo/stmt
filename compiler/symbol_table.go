@@ -110,17 +110,17 @@ func (s *SymbolTable) UpValuesAdd(symbolIndex uint64, isLocal bool) uint64 {
 		upInfo := NewUpInfo(symbolIndex, isLocal)
 		s.UpValues = append(s.UpValues, upInfo)
 	}
-	return upIndex
+	return uint64(upIndex)
 }
 
-func (s *SymbolTable) UpValuesLen() uint64 {
-	return uint64(len(s.UpValues))
+func (s *SymbolTable) UpValuesLen() int {
+	return len(s.UpValues)
 }
 
-func (s *SymbolTable) UpValuesIndex(symbolIndex uint64, isLocal bool) uint64 {
+func (s *SymbolTable) UpValuesIndex(symbolIndex uint64, isLocal bool) int {
 	for upIndex, upInfo := range s.UpValues {
 		if upInfo.LocalIndex == symbolIndex && upInfo.IsLocal == isLocal {
-			return uint64(upIndex)
+			return upIndex
 		}
 	}
 	return -1

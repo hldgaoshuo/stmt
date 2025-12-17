@@ -39,6 +39,8 @@ typedef enum {
     OP_CALL,
     OP_RETURN,
     OP_CLOSURE,
+    OP_GET_UPVALUE,
+    OP_SET_UPVALUE,
 } OpCode;
 
 enum class Error {

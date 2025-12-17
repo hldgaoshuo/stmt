@@ -37,7 +37,7 @@ func formatObject(obj *object.Object) string {
 		return fmt.Sprintf("string(%q)", literal.LiteralString)
 	case *object.Object_LiteralFunction:
 		fn := literal.LiteralFunction
-		return fmt.Sprintf("function(params=%d, code=%v)", fn.NumParams, fn.Code)
+		return fmt.Sprintf("function(params=%d, upvalues=%d, code=%v)", fn.NumParams, fn.NumUpvalues, fn.Code)
 	case *object.Object_LiteralBool:
 		if literal.LiteralBool {
 			return "bool(true)"
@@ -814,6 +814,167 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 				{
 					Literal: &object.Object_LiteralInt{
 						LiteralInt: 2,
+					},
+				},
+			},
+		},
+		{
+			name: "closure",
+			source: `
+			fun outer() {
+				var x = "outside";
+				fun inner() {
+					print x;
+				}
+				inner();
+			}
+			outer();
+			`,
+			code: []uint8{
+				OP_CLOSURE, 2,
+				OP_SET_GLOBAL, 0,
+				OP_GET_GLOBAL, 0,
+				OP_CALL, 0,
+				OP_POP,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralString{
+						LiteralString: "outside",
+					},
+				},
+				{
+					Literal: &object.Object_LiteralFunction{
+						LiteralFunction: &object.Function{
+							Code: []uint8{
+								OP_GET_UPVALUE, 0,
+								OP_PRINT,
+								OP_NIL,
+								OP_RETURN,
+							},
+							NumParams:   0,
+							NumUpvalues: 1,
+						},
+					},
+				},
+				{
+					Literal: &object.Object_LiteralFunction{
+						LiteralFunction: &object.Function{
+							Code: []uint8{
+								OP_CONSTANT, 0,
+								OP_SET_LOCAL, 0,
+								OP_CLOSURE, 1,
+								1, 0,
+								OP_SET_LOCAL, 1,
+								OP_GET_LOCAL, 1,
+								OP_CALL, 0,
+								OP_POP,
+								OP_NIL,
+								OP_RETURN,
+							},
+							NumParams:   0,
+							NumUpvalues: 0,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "closure 1",
+			source: `
+			fun outer() {
+				var a = 1;
+				var b = 2;
+				fun middle() {
+					var c = 3;
+					var d = 4;
+					fun inner() {
+						print a + c + b + d;
+					}
+				}
+			}
+			`,
+			code: []uint8{
+				OP_CLOSURE, 6,
+				OP_SET_GLOBAL, 0,
+			},
+			constants: []*object.Object{
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 1,
+					},
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 2,
+					},
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 3,
+					},
+				},
+				{
+					Literal: &object.Object_LiteralInt{
+						LiteralInt: 4,
+					},
+				},
+				{
+					Literal: &object.Object_LiteralFunction{
+						LiteralFunction: &object.Function{
+							Code: []uint8{
+								OP_GET_UPVALUE, 0,
+								OP_GET_UPVALUE, 1,
+								OP_ADD,
+								OP_GET_UPVALUE, 2,
+								OP_ADD,
+								OP_GET_UPVALUE, 3,
+								OP_ADD,
+								OP_PRINT,
+								OP_NIL,
+								OP_RETURN,
+							},
+							NumParams:   0,
+							NumUpvalues: 4,
+						},
+					},
+				},
+				{
+					Literal: &object.Object_LiteralFunction{
+						LiteralFunction: &object.Function{
+							Code: []uint8{
+								OP_CONSTANT, 2,
+								OP_SET_LOCAL, 0,
+								OP_CONSTANT, 3,
+								OP_SET_LOCAL, 1,
+								OP_CLOSURE, 4,
+								0, 0, 1, 0, 0, 1, 1, 1,
+								OP_SET_LOCAL, 2,
+								OP_NIL,
+								OP_RETURN,
+							},
+							NumParams:   0,
+							NumUpvalues: 2,
+						},
+					},
+				},
+				{
+					Literal: &object.Object_LiteralFunction{
+						LiteralFunction: &object.Function{
+							Code: []uint8{
+								OP_CONSTANT, 0,
+								OP_SET_LOCAL, 0,
+								OP_CONSTANT, 1,
+								OP_SET_LOCAL, 1,
+								OP_CLOSURE, 5,
+								1, 0, 1, 1,
+								OP_SET_LOCAL, 2,
+								OP_NIL,
+								OP_RETURN,
+							},
+							NumParams:   0,
+							NumUpvalues: 0,
+						},
 					},
 				},
 			},

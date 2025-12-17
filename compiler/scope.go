@@ -101,6 +101,10 @@ func (s *Scope) SymbolSetEmit(symbolIndex uint64, symbolScope string) error {
 	}
 }
 
+func (s *Scope) CodeEmitClosureMeta(meta uint8) {
+	s.Code = append(s.Code, meta)
+}
+
 func (s *Scope) CodePatch(offset int, op uint8) error {
 	_op := s.Code[offset]
 	if _op != op {

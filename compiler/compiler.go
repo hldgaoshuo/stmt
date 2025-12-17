@@ -304,13 +304,22 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		obj := &object.Object{
 			Literal: &object.Object_LiteralFunction{
 				LiteralFunction: &object.Function{
-					Code:      _scope.Code,
-					NumParams: uint64(len(_node.Params)),
+					Code:        _scope.Code,
+					NumParams:   uint64(len(_node.Params)),
+					NumUpvalues: uint64(len(_symbolTable.UpValues)),
 				},
 			},
 		}
 		index := c.constantAdd(obj)
 		scope.CodeEmit(OP_CLOSURE, index)
+		for _, upInfo := range _symbolTable.UpValues {
+			if upInfo.IsLocal {
+				scope.CodeEmitClosureMeta(1)
+			} else {
+				scope.CodeEmitClosureMeta(0)
+			}
+			scope.CodeEmitClosureMeta(uint8(upInfo.LocalIndex))
+		}
 		err = scope.SymbolSetEmit(symbolIndex, symbolScope)
 		if err != nil {
 			return err

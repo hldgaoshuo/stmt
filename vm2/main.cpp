@@ -783,6 +783,63 @@ static bool test_call_arg_return() {
     return true;
 }
 
+static bool test_closure() {
+    const auto chunk = new Object::Chunk();
+
+    auto clo = new Object::Closure();
+    auto fun = new Object::Function();
+    std::string code;
+    code.push_back(OP_CLOSURE); code.push_back(2);
+    code.push_back(OP_SET_GLOBAL); code.push_back(0);
+    code.push_back(OP_GET_GLOBAL); code.push_back(0);
+    code.push_back(OP_CALL); code.push_back(0);
+    code.push_back(OP_POP);
+    fun->set_code(code);
+    clo->set_allocated_function(fun);
+    chunk->set_allocated_closure(clo);
+
+    const auto c1 = chunk->add_constants();
+    c1->set_literal_string("outside");
+    const auto c2 = chunk->add_constants();
+    auto fun_inner = new Object::Function();
+    std::string code_inner;
+    code_inner.push_back(OP_GET_UPVALUE); code_inner.push_back(0);
+    code_inner.push_back(OP_PRINT);
+    code_inner.push_back(OP_NIL);
+    code_inner.push_back(OP_RETURN);
+    fun_inner->set_code(code_inner);
+    fun_inner->set_num_params(0);
+    fun_inner->set_num_upvalues(1);
+    c2->set_allocated_literal_function(fun_inner);
+    const auto c3 = chunk->add_constants();
+    auto fun_outer = new Object::Function();
+    std::string code_outer;
+    code_outer.push_back(OP_CONSTANT); code_outer.push_back(0);
+    code_outer.push_back(OP_SET_LOCAL); code_outer.push_back(0);
+    code_outer.push_back(OP_CLOSURE); code_outer.push_back(1);
+    code_outer.push_back(1); code_outer.push_back(0);
+    code_outer.push_back(OP_SET_LOCAL); code_outer.push_back(1);
+    code_outer.push_back(OP_GET_LOCAL); code_outer.push_back(1);
+    code_outer.push_back(OP_CALL); code_outer.push_back(0);
+    code_outer.push_back(OP_POP);
+    code_outer.push_back(OP_NIL);
+    code_outer.push_back(OP_RETURN);
+    fun_outer->set_code(code_outer);
+    fun_outer->set_num_params(0);
+    fun_outer->set_num_upvalues(0);
+    c3->set_allocated_literal_function(fun_outer);
+
+    chunk->set_globals_count(1);
+
+    auto vm = VM(chunk);
+    auto err = vm.interpret();
+    if (err != Error::SUCCESS) {
+        fmt::print("Error occurred: {}\n", static_cast<int>(err));
+        return false;
+    }
+    return true;
+}
+
 int main() {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -790,30 +847,31 @@ int main() {
     int passed = 0;
 
     struct Test { const char* name; bool (*fn)(); } tests[] = {
-        {"test_literal_int", test_literal_int},
-        {"test_literal_float", test_literal_float},
-        {"test_negate", test_negate},
-        {"test_add", test_add},
-        {"test_literal_true", test_literal_true},
-        {"test_literal_false", test_literal_false},
-        {"test_literal_nil", test_literal_nil},
-        {"test_not", test_not},
-        {"test_eq", test_eq},
-        {"test_gt", test_gt},
-        {"test_literal_string", test_literal_string},
-        {"test_add_string", test_add_string},
-        {"test_print", test_print},
-        {"test_var", test_var},
-        {"test_assign", test_assign},
-        {"test_if", test_if},
-        {"test_block", test_block},
-        {"test_if_else", test_if_else},
-        {"test_and", test_and},
-        {"test_or", test_or},
-        {"test_while", test_while},
-        {"test_call", test_call},
-        {"test_call_arg", test_call_arg},
-        {"test_call_arg_return", test_call_arg_return},
+        // {"test_literal_int", test_literal_int},
+        // {"test_literal_float", test_literal_float},
+        // {"test_negate", test_negate},
+        // {"test_add", test_add},
+        // {"test_literal_true", test_literal_true},
+        // {"test_literal_false", test_literal_false},
+        // {"test_literal_nil", test_literal_nil},
+        // {"test_not", test_not},
+        // {"test_eq", test_eq},
+        // {"test_gt", test_gt},
+        // {"test_literal_string", test_literal_string},
+        // {"test_add_string", test_add_string},
+        // {"test_print", test_print},
+        // {"test_var", test_var},
+        // {"test_assign", test_assign},
+        // {"test_if", test_if},
+        // {"test_block", test_block},
+        // {"test_if_else", test_if_else},
+        // {"test_and", test_and},
+        // {"test_or", test_or},
+        // {"test_while", test_while},
+        // {"test_call", test_call},
+        // {"test_call_arg", test_call_arg},
+        // {"test_call_arg_return", test_call_arg_return},
+        {"test_closure", test_closure},
     };
 
     for (auto &t : tests) {

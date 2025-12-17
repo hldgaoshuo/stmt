@@ -509,8 +509,37 @@ Error VM::interpret() {
                 auto obj = new Object::Object();
                 auto closure = new Object::Closure();
                 closure->set_allocated_function(function);
+
+                for (uint64_t i = 0; i < function->num_upvalues(); i++) {
+                    auto is_local = frame->code_next();
+                    auto index = frame->code_next();
+                    auto upvalue = new Object::Object();
+                    if (is_local == 1) {
+                        auto local_index = frame->base_pointer + index;
+                        auto local_value = stack_get(local_index);
+                        upvalue->CopyFrom(*local_value);
+                    } else {
+                        auto parent_upvalue = frame->closure->upvalues(index);
+                        upvalue->CopyFrom(parent_upvalue);
+                    }
+                    closure->add_upvalues()->CopyFrom(*upvalue);
+                }
+
                 obj->set_allocated_literal_closure(closure);
                 stack_push(obj);
+                break;
+            }
+            case OP_GET_UPVALUE: {
+                auto upvalue_index = frame->code_next();
+                auto upvalue = frame->closure->mutable_upvalues(upvalue_index);
+                stack_push(upvalue);
+                break;
+            }
+            case OP_SET_UPVALUE: {
+                auto upvalue_index = frame->code_next();
+                auto value = stack_pop();
+                auto upvalue = frame->closure->mutable_upvalues(upvalue_index);
+                upvalue->CopyFrom(*value);
                 break;
             }
             default: {
