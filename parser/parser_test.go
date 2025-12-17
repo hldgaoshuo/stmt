@@ -117,7 +117,7 @@ func TestParser_Expression(t *testing.T) {
 						Line:      1,
 					},
 				},
-				Arguments: []ast.Node{
+				Arguments: []ast.Expr{
 					&ast.Literal{
 						Value: int64(123),
 					},
@@ -137,7 +137,7 @@ func TestParser_Expression(t *testing.T) {
 						Line:      1,
 					},
 				},
-				Arguments: []ast.Node{
+				Arguments: []ast.Expr{
 					&ast.Literal{
 						Value: int64(123),
 					},
@@ -537,7 +537,7 @@ func TestParser_statement(t *testing.T) {
 				},
 				Body: &ast.Block{
 					Line: 2,
-					Declarations: []ast.Node{
+					Declarations: []ast.Stmt{
 						&ast.ExpressionStatement{
 							Expression: &ast.Literal{
 								Value: int64(123),
@@ -578,7 +578,7 @@ func TestParser_statement(t *testing.T) {
 				},
 				ThenBranch: &ast.Block{
 					Line: 2,
-					Declarations: []ast.Node{
+					Declarations: []ast.Stmt{
 						&ast.ExpressionStatement{
 							Expression: &ast.Literal{
 								Value: int64(123),
@@ -622,7 +622,7 @@ func TestParser_statement(t *testing.T) {
 				},
 				ThenBranch: &ast.Block{
 					Line: 2,
-					Declarations: []ast.Node{
+					Declarations: []ast.Stmt{
 						&ast.ExpressionStatement{
 							Expression: &ast.Literal{
 								Value: int64(123),
@@ -632,7 +632,7 @@ func TestParser_statement(t *testing.T) {
 				},
 				ElseBranch: &ast.Block{
 					Line: 4,
-					Declarations: []ast.Node{
+					Declarations: []ast.Stmt{
 						&ast.ExpressionStatement{
 							Expression: &ast.Literal{
 								Value: "abc",
@@ -688,7 +688,7 @@ func TestParser_declaration(t *testing.T) {
 				Params: nil,
 				Body: &ast.Block{
 					Line: 2,
-					Declarations: []ast.Node{
+					Declarations: []ast.Stmt{
 						&ast.Print{
 							Line: 3,
 							Expression: &ast.Literal{
@@ -747,7 +747,7 @@ func TestParser_declaration(t *testing.T) {
 						Params: nil,
 						Body: &ast.Block{
 							Line: 3,
-							Declarations: []ast.Node{
+							Declarations: []ast.Stmt{
 								&ast.Print{
 									Line: 4,
 									Expression: &ast.Literal{
@@ -793,7 +793,7 @@ func TestParser_declaration(t *testing.T) {
 						Params: nil,
 						Body: &ast.Block{
 							Line: 3,
-							Declarations: []ast.Node{
+							Declarations: []ast.Stmt{
 								&ast.Print{
 									Line: 4,
 									Expression: &ast.Literal{
@@ -821,7 +821,7 @@ func TestParser_declaration(t *testing.T) {
 						},
 						Body: &ast.Block{
 							Line: 6,
-							Declarations: []ast.Node{
+							Declarations: []ast.Stmt{
 								&ast.Print{
 									Line: 7,
 									Expression: &ast.Binary{

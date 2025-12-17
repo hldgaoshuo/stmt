@@ -38,7 +38,7 @@ func (p *Parser) Parse() ([]ast.Node, error) {
 	return decls, nil
 }
 
-func (p *Parser) declaration() (ast.Node, error) {
+func (p *Parser) declaration() (ast.Stmt, error) {
 	if p.match(token.CLASS) {
 		return p.class()
 	}
@@ -51,7 +51,7 @@ func (p *Parser) declaration() (ast.Node, error) {
 	return p.statement()
 }
 
-func (p *Parser) class() (ast.Node, error) {
+func (p *Parser) class() (ast.Stmt, error) {
 	kw := p.previous()
 	name, err := p.consume(token.IDENTIFIER, "Expect class name.")
 	if err != nil {
@@ -127,7 +127,7 @@ func (p *Parser) _method() (*ast.Function, error) {
 	}, nil
 }
 
-func (p *Parser) fun() (ast.Node, error) {
+func (p *Parser) fun() (ast.Stmt, error) {
 	kw := p.previous()
 	name, err := p.consume(token.IDENTIFIER, "Expect function name.")
 	if err != nil {
@@ -179,13 +179,13 @@ func (p *Parser) _parameters() ([]*token.Token, error) {
 	return parameters, nil
 }
 
-func (p *Parser) var_() (ast.Node, error) {
+func (p *Parser) var_() (ast.Stmt, error) {
 	kw := p.previous()
 	name, err := p.consume(token.IDENTIFIER, "Expect variable name.")
 	if err != nil {
 		return nil, err
 	}
-	var initializer ast.Node
+	var initializer ast.Expr
 	if p.match(token.EQUAL) {
 		initializer, err = p.Expression()
 		if err != nil {
@@ -203,7 +203,7 @@ func (p *Parser) var_() (ast.Node, error) {
 	}, nil
 }
 
-func (p *Parser) statement() (ast.Node, error) {
+func (p *Parser) statement() (ast.Stmt, error) {
 	if p.match(token.PRINT) {
 		return p.print()
 	}
@@ -231,7 +231,7 @@ func (p *Parser) statement() (ast.Node, error) {
 	return p.expressionStatement()
 }
 
-func (p *Parser) print() (ast.Node, error) {
+func (p *Parser) print() (ast.Stmt, error) {
 	kw := p.previous()
 	value, err := p.Expression()
 	if err != nil {
@@ -249,7 +249,7 @@ func (p *Parser) print() (ast.Node, error) {
 
 func (p *Parser) block() (*ast.Block, error) {
 	kw := p.previous()
-	var decls []ast.Node
+	var decls []ast.Stmt
 	for !p.check(token.RIGHT_BRACE) && !p.isAtEnd() {
 		decl, err := p.declaration()
 		if err != nil {
@@ -267,7 +267,7 @@ func (p *Parser) block() (*ast.Block, error) {
 	}, nil
 }
 
-func (p *Parser) if_() (ast.Node, error) {
+func (p *Parser) if_() (ast.Stmt, error) {
 	kw := p.previous()
 	_, err := p.consume(token.LEFT_PAREN, "Expect '(' after 'if'.")
 	if err != nil {
@@ -281,13 +281,21 @@ func (p *Parser) if_() (ast.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	thenBranch, err := p.statement()
+	_, err = p.consume(token.LEFT_BRACE, "Expect '{' before then branch.")
 	if err != nil {
 		return nil, err
 	}
-	var elseBranch ast.Node
+	thenBranch, err := p.block()
+	if err != nil {
+		return nil, err
+	}
+	var elseBranch *ast.Block
 	if p.match(token.ELSE) {
-		elseBranch, err = p.statement()
+		_, err = p.consume(token.LEFT_BRACE, "Expect '{' before else branch.")
+		if err != nil {
+			return nil, err
+		}
+		elseBranch, err = p.block()
 		if err != nil {
 			return nil, err
 		}
@@ -300,7 +308,7 @@ func (p *Parser) if_() (ast.Node, error) {
 	}, nil
 }
 
-func (p *Parser) while() (ast.Node, error) {
+func (p *Parser) while() (ast.Stmt, error) {
 	kw := p.previous()
 	_, err := p.consume(token.LEFT_PAREN, "Expect '(' after 'while'.")
 	if err != nil {
@@ -329,13 +337,13 @@ func (p *Parser) while() (ast.Node, error) {
 	}, nil
 }
 
-func (p *Parser) for_() (ast.Node, error) {
+func (p *Parser) for_() (ast.Stmt, error) {
 	kw := p.previous()
 	_, err := p.consume(token.LEFT_PAREN, "Expect '(' after 'for'.")
 	if err != nil {
 		return nil, err
 	}
-	var initializer ast.Node
+	var initializer ast.Stmt
 	if p.match(token.SEMICOLON) {
 		initializer = nil
 	} else if p.match(token.VAR) {
@@ -349,7 +357,7 @@ func (p *Parser) for_() (ast.Node, error) {
 			return nil, err
 		}
 	}
-	var condition ast.Node
+	var condition ast.Expr
 	if !p.match(token.SEMICOLON) {
 		condition, err = p.Expression()
 		if err != nil {
@@ -360,7 +368,7 @@ func (p *Parser) for_() (ast.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	var increment ast.Node
+	var increment ast.Expr
 	if !p.match(token.RIGHT_PAREN) {
 		increment, err = p.Expression()
 		if err != nil {
@@ -382,7 +390,7 @@ func (p *Parser) for_() (ast.Node, error) {
 	if increment != nil {
 		body = &ast.Block{
 			Line: kw.Line,
-			Declarations: []ast.Node{body, &ast.ExpressionStatement{
+			Declarations: []ast.Stmt{body, &ast.ExpressionStatement{
 				Expression: increment,
 			}},
 		}
@@ -400,15 +408,15 @@ func (p *Parser) for_() (ast.Node, error) {
 	if initializer != nil {
 		body = &ast.Block{
 			Line:         kw.Line,
-			Declarations: []ast.Node{initializer, while},
+			Declarations: []ast.Stmt{initializer, while},
 		}
 	}
 	return body, nil
 }
 
-func (p *Parser) return_() (ast.Node, error) {
+func (p *Parser) return_() (ast.Stmt, error) {
 	kw := p.previous()
-	var value ast.Node
+	var value ast.Expr
 	var err error
 	if !p.check(token.SEMICOLON) {
 		value, err = p.Expression()
@@ -426,7 +434,7 @@ func (p *Parser) return_() (ast.Node, error) {
 	}, nil
 }
 
-func (p *Parser) break_() (ast.Node, error) {
+func (p *Parser) break_() (ast.Stmt, error) {
 	kw := p.previous()
 	_, err := p.consume(token.SEMICOLON, "Expect ';' after 'break'.")
 	if err != nil {
@@ -437,7 +445,7 @@ func (p *Parser) break_() (ast.Node, error) {
 	}, nil
 }
 
-func (p *Parser) continue_() (ast.Node, error) {
+func (p *Parser) continue_() (ast.Stmt, error) {
 	kw := p.previous()
 	_, err := p.consume(token.SEMICOLON, "Expect ';' after 'continue'.")
 	if err != nil {
@@ -448,7 +456,7 @@ func (p *Parser) continue_() (ast.Node, error) {
 	}, nil
 }
 
-func (p *Parser) expressionStatement() (ast.Node, error) {
+func (p *Parser) expressionStatement() (ast.Stmt, error) {
 	expr, err := p.Expression()
 	if err != nil {
 		return nil, err
@@ -462,11 +470,11 @@ func (p *Parser) expressionStatement() (ast.Node, error) {
 	}, nil
 }
 
-func (p *Parser) Expression() (ast.Node, error) {
+func (p *Parser) Expression() (ast.Expr, error) {
 	return p.assignment()
 }
 
-func (p *Parser) assignment() (ast.Node, error) {
+func (p *Parser) assignment() (ast.Expr, error) {
 	expr, err := p.or()
 	if err != nil {
 		return nil, err
@@ -497,7 +505,7 @@ func (p *Parser) assignment() (ast.Node, error) {
 	return expr, nil
 }
 
-func (p *Parser) or() (ast.Node, error) {
+func (p *Parser) or() (ast.Expr, error) {
 	left, err := p.and()
 	if err != nil {
 		return nil, err
@@ -517,7 +525,7 @@ func (p *Parser) or() (ast.Node, error) {
 	return left, nil
 }
 
-func (p *Parser) and() (ast.Node, error) {
+func (p *Parser) and() (ast.Expr, error) {
 	left, err := p.equality()
 	if err != nil {
 		return nil, err
@@ -537,7 +545,7 @@ func (p *Parser) and() (ast.Node, error) {
 	return left, nil
 }
 
-func (p *Parser) equality() (ast.Node, error) {
+func (p *Parser) equality() (ast.Expr, error) {
 	left, err := p.comparison()
 	if err != nil {
 		return nil, err
@@ -557,7 +565,7 @@ func (p *Parser) equality() (ast.Node, error) {
 	return left, nil
 }
 
-func (p *Parser) comparison() (ast.Node, error) {
+func (p *Parser) comparison() (ast.Expr, error) {
 	left, err := p.term()
 	if err != nil {
 		return nil, err
@@ -577,7 +585,7 @@ func (p *Parser) comparison() (ast.Node, error) {
 	return left, nil
 }
 
-func (p *Parser) term() (ast.Node, error) {
+func (p *Parser) term() (ast.Expr, error) {
 	left, err := p.factor()
 	if err != nil {
 		return nil, err
@@ -597,7 +605,7 @@ func (p *Parser) term() (ast.Node, error) {
 	return left, nil
 }
 
-func (p *Parser) factor() (ast.Node, error) {
+func (p *Parser) factor() (ast.Expr, error) {
 	left, err := p.unary()
 	if err != nil {
 		return nil, err
@@ -617,7 +625,7 @@ func (p *Parser) factor() (ast.Node, error) {
 	return left, nil
 }
 
-func (p *Parser) unary() (ast.Node, error) {
+func (p *Parser) unary() (ast.Expr, error) {
 	if p.match(token.BANG, token.MINUS) {
 		operator := p.previous()
 		right, err := p.unary()
@@ -632,14 +640,14 @@ func (p *Parser) unary() (ast.Node, error) {
 	return p.call()
 }
 
-func (p *Parser) call() (ast.Node, error) {
+func (p *Parser) call() (ast.Expr, error) {
 	expr, err := p.primary()
 	if err != nil {
 		return nil, err
 	}
 	for {
 		if p.match(token.LEFT_PAREN) {
-			var arguments []ast.Node
+			var arguments []ast.Expr
 			if !p.check(token.RIGHT_PAREN) {
 				arguments, err = p._arguments()
 				if err != nil {
@@ -670,8 +678,8 @@ func (p *Parser) call() (ast.Node, error) {
 	return expr, nil
 }
 
-func (p *Parser) _arguments() ([]ast.Node, error) {
-	var arguments []ast.Node
+func (p *Parser) _arguments() ([]ast.Expr, error) {
+	var arguments []ast.Expr
 	for {
 		argument, err := p.Expression()
 		if err != nil {
@@ -685,7 +693,7 @@ func (p *Parser) _arguments() ([]ast.Node, error) {
 	return arguments, nil
 }
 
-func (p *Parser) primary() (ast.Node, error) {
+func (p *Parser) primary() (ast.Expr, error) {
 	if p.match(token.FALSE) {
 		return &ast.Literal{
 			Value: false,
