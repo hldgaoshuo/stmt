@@ -22,6 +22,7 @@ func TestParser_Expression(t *testing.T) {
 			name:   "false",
 			source: "false",
 			want: &ast.Literal{
+				Line:  1,
 				Value: false,
 			},
 			err: nil,
@@ -30,6 +31,7 @@ func TestParser_Expression(t *testing.T) {
 			name:   "true",
 			source: "true",
 			want: &ast.Literal{
+				Line:  1,
 				Value: true,
 			},
 			err: nil,
@@ -38,6 +40,7 @@ func TestParser_Expression(t *testing.T) {
 			name:   "nil",
 			source: "nil",
 			want: &ast.Literal{
+				Line:  1,
 				Value: nil,
 			},
 			err: nil,
@@ -46,6 +49,7 @@ func TestParser_Expression(t *testing.T) {
 			name:   "123",
 			source: "123",
 			want: &ast.Literal{
+				Line:  1,
 				Value: int64(123),
 			},
 			err: nil,
@@ -54,6 +58,7 @@ func TestParser_Expression(t *testing.T) {
 			name:   "12.3",
 			source: "12.3",
 			want: &ast.Literal{
+				Line:  1,
 				Value: 12.3,
 			},
 			err: nil,
@@ -62,6 +67,7 @@ func TestParser_Expression(t *testing.T) {
 			name:   `"abc"`,
 			source: `"abc"`,
 			want: &ast.Literal{
+				Line:  1,
 				Value: "abc",
 			},
 			err: nil,
@@ -70,6 +76,7 @@ func TestParser_Expression(t *testing.T) {
 			name:   "abc",
 			source: "abc",
 			want: &ast.Variable{
+				Line: 1,
 				Name: &token.Token{
 					TokenType: token.IDENTIFIER,
 					Lexeme:    "abc",
@@ -83,7 +90,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "(123)",
 			source: "(123)",
 			want: &ast.Grouping{
+				Line: 1,
 				Expression: &ast.Literal{
+					Line:  1,
 					Value: int64(123),
 				},
 			},
@@ -93,7 +102,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "lucky()",
 			source: "lucky()",
 			want: &ast.Call{
+				Line: 1,
 				Callee: &ast.Variable{
+					Line: 1,
 					Name: &token.Token{
 						TokenType: token.IDENTIFIER,
 						Lexeme:    "lucky",
@@ -109,7 +120,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "lucky(123)",
 			source: "lucky(123)",
 			want: &ast.Call{
+				Line: 1,
 				Callee: &ast.Variable{
+					Line: 1,
 					Name: &token.Token{
 						TokenType: token.IDENTIFIER,
 						Lexeme:    "lucky",
@@ -119,6 +132,7 @@ func TestParser_Expression(t *testing.T) {
 				},
 				Arguments: []ast.Expr{
 					&ast.Literal{
+						Line:  1,
 						Value: int64(123),
 					},
 				},
@@ -129,7 +143,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "lucky(123, 12.3)",
 			source: "lucky(123, 12.3)",
 			want: &ast.Call{
+				Line: 1,
 				Callee: &ast.Variable{
+					Line: 1,
 					Name: &token.Token{
 						TokenType: token.IDENTIFIER,
 						Lexeme:    "lucky",
@@ -139,9 +155,11 @@ func TestParser_Expression(t *testing.T) {
 				},
 				Arguments: []ast.Expr{
 					&ast.Literal{
+						Line:  1,
 						Value: int64(123),
 					},
 					&ast.Literal{
+						Line:  1,
 						Value: 12.3,
 					},
 				},
@@ -152,6 +170,7 @@ func TestParser_Expression(t *testing.T) {
 			name:   "-123",
 			source: "-123",
 			want: &ast.Unary{
+				Line: 1,
 				Operator: &token.Token{
 					TokenType: token.MINUS,
 					Lexeme:    "-",
@@ -159,6 +178,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: int64(123),
 				},
 			},
@@ -168,7 +188,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "4*2",
 			source: "4*2",
 			want: &ast.Binary{
+				Line: 1,
 				Left: &ast.Literal{
+					Line:  1,
 					Value: int64(4),
 				},
 				Operator: &token.Token{
@@ -178,6 +200,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: int64(2),
 				},
 			},
@@ -187,7 +210,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "4/2",
 			source: "4/2",
 			want: &ast.Binary{
+				Line: 1,
 				Left: &ast.Literal{
+					Line:  1,
 					Value: int64(4),
 				},
 				Operator: &token.Token{
@@ -197,6 +222,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: int64(2),
 				},
 			},
@@ -206,7 +232,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "4+2",
 			source: "4+2",
 			want: &ast.Binary{
+				Line: 1,
 				Left: &ast.Literal{
+					Line:  1,
 					Value: int64(4),
 				},
 				Operator: &token.Token{
@@ -216,6 +244,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: int64(2),
 				},
 			},
@@ -225,7 +254,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "4-2",
 			source: "4-2",
 			want: &ast.Binary{
+				Line: 1,
 				Left: &ast.Literal{
+					Line:  1,
 					Value: int64(4),
 				},
 				Operator: &token.Token{
@@ -235,6 +266,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: int64(2),
 				},
 			},
@@ -244,7 +276,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "4>2",
 			source: "4>2",
 			want: &ast.Binary{
+				Line: 1,
 				Left: &ast.Literal{
+					Line:  1,
 					Value: int64(4),
 				},
 				Operator: &token.Token{
@@ -254,6 +288,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: int64(2),
 				},
 			},
@@ -263,7 +298,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "4>=2",
 			source: "4>=2",
 			want: &ast.Binary{
+				Line: 1,
 				Left: &ast.Literal{
+					Line:  1,
 					Value: int64(4),
 				},
 				Operator: &token.Token{
@@ -273,6 +310,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: int64(2),
 				},
 			},
@@ -282,7 +320,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "4<2",
 			source: "4<2",
 			want: &ast.Binary{
+				Line: 1,
 				Left: &ast.Literal{
+					Line:  1,
 					Value: int64(4),
 				},
 				Operator: &token.Token{
@@ -292,6 +332,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: int64(2),
 				},
 			},
@@ -301,7 +342,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "4<=2",
 			source: "4<=2",
 			want: &ast.Binary{
+				Line: 1,
 				Left: &ast.Literal{
+					Line:  1,
 					Value: int64(4),
 				},
 				Operator: &token.Token{
@@ -311,6 +354,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: int64(2),
 				},
 			},
@@ -320,7 +364,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "4==2",
 			source: "4==2",
 			want: &ast.Binary{
+				Line: 1,
 				Left: &ast.Literal{
+					Line:  1,
 					Value: int64(4),
 				},
 				Operator: &token.Token{
@@ -330,6 +376,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: int64(2),
 				},
 			},
@@ -339,7 +386,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "4!=2",
 			source: "4!=2",
 			want: &ast.Binary{
+				Line: 1,
 				Left: &ast.Literal{
+					Line:  1,
 					Value: int64(4),
 				},
 				Operator: &token.Token{
@@ -349,6 +398,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: int64(2),
 				},
 			},
@@ -358,7 +408,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "true and true",
 			source: "true and true",
 			want: &ast.Logical{
+				Line: 1,
 				Left: &ast.Literal{
+					Line:  1,
 					Value: true,
 				},
 				Operator: &token.Token{
@@ -368,6 +420,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: true,
 				},
 			},
@@ -377,7 +430,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "true or true",
 			source: "true or true",
 			want: &ast.Logical{
+				Line: 1,
 				Left: &ast.Literal{
+					Line:  1,
 					Value: true,
 				},
 				Operator: &token.Token{
@@ -387,6 +442,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Right: &ast.Literal{
+					Line:  1,
 					Value: true,
 				},
 			},
@@ -396,6 +452,7 @@ func TestParser_Expression(t *testing.T) {
 			name:   "abc=123",
 			source: "abc=123",
 			want: &ast.Assign{
+				Line: 1,
 				Name: &token.Token{
 					TokenType: token.IDENTIFIER,
 					Lexeme:    "abc",
@@ -403,6 +460,7 @@ func TestParser_Expression(t *testing.T) {
 					Line:      1,
 				},
 				Value: &ast.Literal{
+					Line:  1,
 					Value: int64(123),
 				},
 			},
@@ -412,7 +470,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "get",
 			source: "someObject.someProperty",
 			want: &ast.Get{
+				Line: 1,
 				Object: &ast.Variable{
+					Line: 1,
 					Name: &token.Token{
 						TokenType: token.IDENTIFIER,
 						Lexeme:    "someObject",
@@ -433,7 +493,9 @@ func TestParser_Expression(t *testing.T) {
 			name:   "set",
 			source: "someObject.someProperty = value;",
 			want: &ast.Set{
+				Line: 1,
 				Object: &ast.Variable{
+					Line: 1,
 					Name: &token.Token{
 						TokenType: token.IDENTIFIER,
 						Lexeme:    "someObject",
@@ -448,6 +510,7 @@ func TestParser_Expression(t *testing.T) {
 					Literal:   nil,
 				},
 				Value: &ast.Variable{
+					Line: 1,
 					Name: &token.Token{
 						TokenType: token.IDENTIFIER,
 						Lexeme:    "value",
@@ -491,6 +554,7 @@ func TestParser_statement(t *testing.T) {
 			want: &ast.Print{
 				Line: 1,
 				Expression: &ast.Literal{
+					Line:  1,
 					Value: int64(123),
 				},
 			},
@@ -502,6 +566,7 @@ func TestParser_statement(t *testing.T) {
 			want: &ast.Return{
 				Line: 1,
 				Expression: &ast.Literal{
+					Line:  1,
 					Value: int64(123),
 				},
 			},
@@ -517,7 +582,9 @@ func TestParser_statement(t *testing.T) {
 			want: &ast.While{
 				Line: 2,
 				Condition: &ast.Binary{
+					Line: 2,
 					Left: &ast.Variable{
+						Line: 2,
 						Name: &token.Token{
 							TokenType: token.IDENTIFIER,
 							Lexeme:    "i",
@@ -532,6 +599,7 @@ func TestParser_statement(t *testing.T) {
 						Line:      2,
 					},
 					Right: &ast.Literal{
+						Line:  2,
 						Value: int64(2),
 					},
 				},
@@ -539,7 +607,9 @@ func TestParser_statement(t *testing.T) {
 					Line: 2,
 					Declarations: []ast.Stmt{
 						&ast.ExpressionStatement{
+							Line: 3,
 							Expression: &ast.Literal{
+								Line:  3,
 								Value: int64(123),
 							},
 						},
@@ -558,7 +628,9 @@ func TestParser_statement(t *testing.T) {
 			want: &ast.If{
 				Line: 2,
 				Condition: &ast.Binary{
+					Line: 2,
 					Left: &ast.Variable{
+						Line: 2,
 						Name: &token.Token{
 							TokenType: token.IDENTIFIER,
 							Lexeme:    "i",
@@ -573,6 +645,7 @@ func TestParser_statement(t *testing.T) {
 						Line:      2,
 					},
 					Right: &ast.Literal{
+						Line:  2,
 						Value: int64(2),
 					},
 				},
@@ -580,7 +653,9 @@ func TestParser_statement(t *testing.T) {
 					Line: 2,
 					Declarations: []ast.Stmt{
 						&ast.ExpressionStatement{
+							Line: 3,
 							Expression: &ast.Literal{
+								Line:  3,
 								Value: int64(123),
 							},
 						},
@@ -602,7 +677,9 @@ func TestParser_statement(t *testing.T) {
 			want: &ast.If{
 				Line: 2,
 				Condition: &ast.Binary{
+					Line: 2,
 					Left: &ast.Variable{
+						Line: 2,
 						Name: &token.Token{
 							TokenType: token.IDENTIFIER,
 							Lexeme:    "i",
@@ -617,6 +694,7 @@ func TestParser_statement(t *testing.T) {
 						Line:      2,
 					},
 					Right: &ast.Literal{
+						Line:  2,
 						Value: int64(2),
 					},
 				},
@@ -624,7 +702,9 @@ func TestParser_statement(t *testing.T) {
 					Line: 2,
 					Declarations: []ast.Stmt{
 						&ast.ExpressionStatement{
+							Line: 3,
 							Expression: &ast.Literal{
+								Line:  3,
 								Value: int64(123),
 							},
 						},
@@ -634,7 +714,9 @@ func TestParser_statement(t *testing.T) {
 					Line: 4,
 					Declarations: []ast.Stmt{
 						&ast.ExpressionStatement{
+							Line: 5,
 							Expression: &ast.Literal{
+								Line:  5,
 								Value: "abc",
 							},
 						},
@@ -692,6 +774,7 @@ func TestParser_declaration(t *testing.T) {
 						&ast.Print{
 							Line: 3,
 							Expression: &ast.Literal{
+								Line:  3,
 								Value: "Eggs a-fryin'!",
 							},
 						},
@@ -751,6 +834,7 @@ func TestParser_declaration(t *testing.T) {
 								&ast.Print{
 									Line: 4,
 									Expression: &ast.Literal{
+										Line:  4,
 										Value: "Eggs a-fryin'!",
 									},
 								},
@@ -797,6 +881,7 @@ func TestParser_declaration(t *testing.T) {
 								&ast.Print{
 									Line: 4,
 									Expression: &ast.Literal{
+										Line:  4,
 										Value: "Eggs a-fryin'!",
 									},
 								},
@@ -825,8 +910,11 @@ func TestParser_declaration(t *testing.T) {
 								&ast.Print{
 									Line: 7,
 									Expression: &ast.Binary{
+										Line: 7,
 										Left: &ast.Binary{
+											Line: 7,
 											Left: &ast.Literal{
+												Line:  7,
 												Value: "Enjoy your breakfast, ",
 											},
 											Operator: &token.Token{
@@ -835,6 +923,7 @@ func TestParser_declaration(t *testing.T) {
 												Line:      7,
 											},
 											Right: &ast.Variable{
+												Line: 7,
 												Name: &token.Token{
 													TokenType: token.IDENTIFIER,
 													Lexeme:    "who",
@@ -849,6 +938,7 @@ func TestParser_declaration(t *testing.T) {
 											Line:      7,
 										},
 										Right: &ast.Literal{
+											Line:  7,
 											Value: ".",
 										},
 									},

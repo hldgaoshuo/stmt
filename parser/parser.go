@@ -461,11 +461,12 @@ func (p *Parser) expressionStatement() (ast.Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, err = p.consume(token.SEMICOLON, "Expect ';' after Expression.")
+	kw, err := p.consume(token.SEMICOLON, "Expect ';' after Expression.")
 	if err != nil {
 		return nil, err
 	}
 	return &ast.ExpressionStatement{
+		Line:       kw.Line,
 		Expression: expr,
 	}, nil
 }
@@ -488,11 +489,13 @@ func (p *Parser) assignment() (ast.Expr, error) {
 		switch _expr := expr.(type) {
 		case *ast.Variable:
 			return &ast.Assign{
+				Line:  equals.Line,
 				Name:  _expr.Name,
 				Value: value,
 			}, nil
 		case *ast.Get:
 			return &ast.Set{
+				Line:   equals.Line,
 				Name:   _expr.Name,
 				Object: _expr.Object,
 				Value:  value,
@@ -517,6 +520,7 @@ func (p *Parser) or() (ast.Expr, error) {
 			return nil, err
 		}
 		left = &ast.Logical{
+			Line:     operator.Line,
 			Left:     left,
 			Operator: operator,
 			Right:    right,
@@ -537,6 +541,7 @@ func (p *Parser) and() (ast.Expr, error) {
 			return nil, err
 		}
 		left = &ast.Logical{
+			Line:     operator.Line,
 			Left:     left,
 			Operator: operator,
 			Right:    right,
@@ -557,6 +562,7 @@ func (p *Parser) equality() (ast.Expr, error) {
 			return nil, err
 		}
 		left = &ast.Binary{
+			Line:     operator.Line,
 			Left:     left,
 			Operator: operator,
 			Right:    right,
@@ -577,6 +583,7 @@ func (p *Parser) comparison() (ast.Expr, error) {
 			return nil, err
 		}
 		left = &ast.Binary{
+			Line:     operator.Line,
 			Left:     left,
 			Operator: operator,
 			Right:    right,
@@ -597,6 +604,7 @@ func (p *Parser) term() (ast.Expr, error) {
 			return nil, err
 		}
 		left = &ast.Binary{
+			Line:     operator.Line,
 			Left:     left,
 			Operator: operator,
 			Right:    right,
@@ -617,6 +625,7 @@ func (p *Parser) factor() (ast.Expr, error) {
 			return nil, err
 		}
 		left = &ast.Binary{
+			Line:     operator.Line,
 			Left:     left,
 			Operator: operator,
 			Right:    right,
@@ -633,6 +642,7 @@ func (p *Parser) unary() (ast.Expr, error) {
 			return nil, err
 		}
 		return &ast.Unary{
+			Line:     operator.Line,
 			Operator: operator,
 			Right:    right,
 		}, nil
@@ -647,6 +657,7 @@ func (p *Parser) call() (ast.Expr, error) {
 	}
 	for {
 		if p.match(token.LEFT_PAREN) {
+			kw := p.previous()
 			var arguments []ast.Expr
 			if !p.check(token.RIGHT_PAREN) {
 				arguments, err = p._arguments()
@@ -659,6 +670,7 @@ func (p *Parser) call() (ast.Expr, error) {
 				return nil, err
 			}
 			expr = &ast.Call{
+				Line:      kw.Line,
 				Arguments: arguments,
 				Callee:    expr,
 			}
@@ -668,6 +680,7 @@ func (p *Parser) call() (ast.Expr, error) {
 				return nil, err
 			}
 			expr = &ast.Get{
+				Line:   name.Line,
 				Name:   name,
 				Object: expr,
 			}
@@ -695,38 +708,49 @@ func (p *Parser) _arguments() ([]ast.Expr, error) {
 
 func (p *Parser) primary() (ast.Expr, error) {
 	if p.match(token.FALSE) {
+		kw := p.previous()
 		return &ast.Literal{
+			Line:  kw.Line,
 			Value: false,
 		}, nil
 	}
 	if p.match(token.TRUE) {
+		kw := p.previous()
 		return &ast.Literal{
+			Line:  kw.Line,
 			Value: true,
 		}, nil
 	}
 	if p.match(token.NIL) {
+		kw := p.previous()
 		return &ast.Literal{
+			Line:  kw.Line,
 			Value: nil,
 		}, nil
 	}
 	if p.match(token.THIS) {
+		kw := p.previous()
 		return &ast.This{
+			Line:    kw.Line,
 			Keyword: p.previous(),
 		}, nil
 	}
 	if p.match(token.INT_LITERAL, token.FLOAT_LITERAL, token.STRING_LITERAL) {
 		token_ := p.previous()
 		return &ast.Literal{
+			Line:  token_.Line,
 			Value: token_.Literal,
 		}, nil
 	}
 	if p.match(token.IDENTIFIER) {
 		token_ := p.previous()
 		return &ast.Variable{
+			Line: token_.Line,
 			Name: token_,
 		}, nil
 	}
 	if p.match(token.LEFT_PAREN) {
+		kw := p.previous()
 		expr, err := p.Expression()
 		if err != nil {
 			return nil, err
@@ -736,11 +760,12 @@ func (p *Parser) primary() (ast.Expr, error) {
 			return nil, err
 		}
 		return &ast.Grouping{
+			Line:       kw.Line,
 			Expression: expr,
 		}, nil
 	}
 	if p.match(token.SUPER) {
-		keyword := p.previous()
+		kw := p.previous()
 		_, err := p.consume(token.DOT, "Expect '.' after 'super'.")
 		if err != nil {
 			return nil, err
@@ -750,7 +775,8 @@ func (p *Parser) primary() (ast.Expr, error) {
 			return nil, err
 		}
 		return &ast.Super{
-			Keyword: keyword,
+			Line:    kw.Line,
+			Keyword: kw,
 			Method:  method,
 		}, nil
 	}
