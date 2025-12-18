@@ -1,6 +1,7 @@
 package compiler2
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"stmt/ast"
@@ -210,8 +211,8 @@ func TestCompiler_CompileExpr(t *testing.T) {
 			}
 			compiler_ := New([]ast.Node{node})
 			code, constants, err := compiler_.Compile()
-			if err != tt.err {
-				t.Errorf("Compile() err = %v, want %v", code, tt.code)
+			if !errors.Is(err, tt.err) {
+				t.Errorf("Compile() err = %v, want %v", err, tt.err)
 			}
 			if !reflect.DeepEqual(code, tt.code) {
 				t.Errorf("Compile() code = %v, want %v", code, tt.code)
