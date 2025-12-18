@@ -1,4 +1,4 @@
-package compiler
+package compiler2
 
 const (
 	OP_CONSTANT uint8 = iota

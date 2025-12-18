@@ -1,4 +1,4 @@
-package compiler
+package compiler2
 
 var Global *SymbolTable
 
