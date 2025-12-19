@@ -23,6 +23,12 @@ type Int struct {
 	Literal int64
 }
 
+func NewInt(literal int64) *Int {
+	return &Int{
+		Literal: literal,
+	}
+}
+
 func (i *Int) String() string {
 	return fmt.Sprintf("Int(%d)", i.Literal)
 }
@@ -43,6 +49,12 @@ type Float struct {
 	Literal float64
 }
 
+func NewFloat(literal float64) *Float {
+	return &Float{
+		Literal: literal,
+	}
+}
+
 func (f *Float) String() string {
 	return fmt.Sprintf("Float(%f)", f.Literal)
 }
@@ -61,6 +73,12 @@ func (f *Float) WriteTo(w io.Writer) error {
 
 type String struct {
 	Literal string
+}
+
+func NewString(literal string) *String {
+	return &String{
+		Literal: literal,
+	}
 }
 
 func (s *String) String() string {
@@ -85,9 +103,17 @@ func (s *String) WriteTo(w io.Writer) error {
 }
 
 type Function struct {
-	Code        []byte
+	Code        []uint8
 	NumParams   uint64
 	NumUpvalues uint64
+}
+
+func NewFunction(code []uint8, numParams uint64, numUpvalues uint64) *Function {
+	return &Function{
+		Code:        code,
+		NumParams:   numParams,
+		NumUpvalues: numUpvalues,
+	}
 }
 
 func (f *Function) String() string {

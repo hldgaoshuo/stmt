@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"stmt/ast"
+	"stmt/opcode"
 	"stmt/token"
 	"stmt/value"
 )
@@ -52,35 +53,38 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 	case *ast.Literal:
 		switch value_ := _node.Value.(type) {
 		case int64:
-			obj := &value.Int{
-				Literal: value_,
-			}
+			obj := value.NewInt(value_)
 			index := c.constantAdd(obj)
-			scope.CodeEmit(OP_CONSTANT, index)
+			err := scope.ConstantEmit(index)
+			if err != nil {
+				return err
+			}
 			return nil
 		case float64:
-			obj := &value.Float{
-				Literal: value_,
-			}
+			obj := value.NewFloat(value_)
 			index := c.constantAdd(obj)
-			scope.CodeEmit(OP_CONSTANT, index)
+			err := scope.ConstantEmit(index)
+			if err != nil {
+				return err
+			}
 			return nil
 		case bool:
 			if value_ {
-				scope.CodeEmit(OP_TRUE)
+				scope.Emit(opcode.OP_TRUE)
 			} else {
-				scope.CodeEmit(OP_FALSE)
+				scope.Emit(opcode.OP_FALSE)
 			}
 			return nil
 		case nil:
-			scope.CodeEmit(OP_NIL)
+			scope.Emit(opcode.OP_NIL)
 			return nil
 		case string:
-			obj := &value.String{
-				Literal: value_,
-			}
+			obj := value.NewString(value_)
 			index := c.constantAdd(obj)
-			scope.CodeEmit(OP_CONSTANT, index)
+			err := scope.ConstantEmit(index)
+			if err != nil {
+				return err
+			}
 			return nil
 		default:
 			return ErrInvalidOperandType
@@ -121,7 +125,7 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 			return err
 		}
 		if _, ok := _node.Expression.(*ast.Assign); !ok {
-			scope.CodeEmit(OP_POP)
+			scope.Emit(opcode.OP_POP)
 		}
 		return nil
 	case *ast.Print:
@@ -129,11 +133,11 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		if err != nil {
 			return err
 		}
-		scope.CodeEmit(OP_PRINT)
+		scope.Emit(opcode.OP_PRINT)
 		return nil
 	case *ast.Var:
 		if _node.Initializer == nil {
-			scope.CodeEmit(OP_NIL)
+			scope.Emit(opcode.OP_NIL)
 		} else {
 			err := c.compile(_node.Initializer, symbolTable, scope)
 			if err != nil {
@@ -187,25 +191,25 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		if err != nil {
 			return err
 		}
-		offsetFalse := scope.CodeEmit(OP_JUMP_FALSE, 0)
-		scope.CodeEmit(OP_POP)
+		offsetFalse := scope.EmitWithOperand(opcode.OP_JUMP_FALSE, 0)
+		scope.Emit(opcode.OP_POP)
 		err = c.compile(_node.ThenBranch, symbolTable, scope)
 		if err != nil {
 			return err
 		}
-		offset := scope.CodeEmit(OP_JUMP, 0)
-		err = scope.CodePatch(offsetFalse, OP_JUMP_FALSE)
+		offset := scope.EmitWithOperand(opcode.OP_JUMP, 0)
+		err = scope.Patch(offsetFalse, opcode.OP_JUMP_FALSE)
 		if err != nil {
 			return err
 		}
-		scope.CodeEmit(OP_POP)
+		scope.Emit(opcode.OP_POP)
 		if _node.ElseBranch != nil {
 			err = c.compile(_node.ElseBranch, symbolTable, scope)
 			if err != nil {
 				return err
 			}
 		}
-		err = scope.CodePatch(offset, OP_JUMP)
+		err = scope.Patch(offset, opcode.OP_JUMP)
 		if err != nil {
 			return err
 		}
@@ -217,30 +221,30 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		}
 		switch _node.Operator.TokenType {
 		case token.AND:
-			offsetFalse := scope.CodeEmit(OP_JUMP_FALSE, 0)
-			scope.CodeEmit(OP_POP)
+			offsetFalse := scope.EmitWithOperand(opcode.OP_JUMP_FALSE, 0)
+			scope.Emit(opcode.OP_POP)
 			err = c.compile(_node.Right, symbolTable, scope)
 			if err != nil {
 				return err
 			}
-			err = scope.CodePatch(offsetFalse, OP_JUMP_FALSE)
+			err = scope.Patch(offsetFalse, opcode.OP_JUMP_FALSE)
 			if err != nil {
 				return err
 			}
 			return nil
 		case token.OR:
-			offsetFalse := scope.CodeEmit(OP_JUMP_FALSE, 0)
-			offset := scope.CodeEmit(OP_JUMP, 0)
-			err = scope.CodePatch(offsetFalse, OP_JUMP_FALSE)
+			offsetFalse := scope.EmitWithOperand(opcode.OP_JUMP_FALSE, 0)
+			offset := scope.EmitWithOperand(opcode.OP_JUMP, 0)
+			err = scope.Patch(offsetFalse, opcode.OP_JUMP_FALSE)
 			if err != nil {
 				return err
 			}
-			scope.CodeEmit(OP_POP)
+			scope.Emit(opcode.OP_POP)
 			err = c.compile(_node.Right, symbolTable, scope)
 			if err != nil {
 				return err
 			}
-			err = scope.CodePatch(offset, OP_JUMP)
+			err = scope.Patch(offset, opcode.OP_JUMP)
 			if err != nil {
 				return err
 			}
@@ -249,13 +253,13 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 			return ErrInvalidOperatorType
 		}
 	case *ast.While:
-		loop := scope.CodeOffset()
+		loop := scope.Offset()
 		err := c.compile(_node.Condition, symbolTable, scope)
 		if err != nil {
 			return err
 		}
-		offsetFalse := scope.CodeEmit(OP_JUMP_FALSE, 0)
-		scope.CodeEmit(OP_POP)
+		offsetFalse := scope.EmitWithOperand(opcode.OP_JUMP_FALSE, 0)
+		scope.Emit(opcode.OP_POP)
 		for _, statement := range _node.Body.Declarations {
 			err = c.compile(statement, symbolTable, scope)
 			if err != nil {
@@ -265,12 +269,12 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		if err != nil {
 			return err
 		}
-		scope.CodeEmit(OP_LOOP, loop)
-		err = scope.CodePatch(offsetFalse, OP_JUMP_FALSE)
+		scope.EmitWithOperand(opcode.OP_LOOP, loop)
+		err = scope.Patch(offsetFalse, opcode.OP_JUMP_FALSE)
 		if err != nil {
 			return err
 		}
-		scope.CodeEmit(OP_POP)
+		scope.Emit(opcode.OP_POP)
 		return nil
 	case *ast.Function:
 		symbolIndex, symbolScope, err := symbolTable.Define(_node.Name.Lexeme)
@@ -292,23 +296,14 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 			}
 		}
 		if !_scope.HaveReturn {
-			_scope.CodeEmit(OP_NIL)
-			_scope.CodeEmit(OP_RETURN)
+			_scope.Emit(opcode.OP_NIL)
+			_scope.Emit(opcode.OP_RETURN)
 		}
-		obj := &value.Function{
-			Code:        _scope.Code,
-			NumParams:   uint64(len(_node.Params)),
-			NumUpvalues: uint64(len(_symbolTable.UpValues)),
-		}
+		obj := value.NewFunction(_scope.Code, uint64(len(_node.Params)), uint64(len(_symbolTable.UpValues)))
 		index := c.constantAdd(obj)
-		scope.CodeEmit(OP_CLOSURE, index)
-		for _, upInfo := range _symbolTable.UpValues {
-			if upInfo.IsLocal {
-				scope.CodeEmitClosureMeta(1)
-			} else {
-				scope.CodeEmitClosureMeta(0)
-			}
-			scope.CodeEmitClosureMeta(uint8(upInfo.LocalIndex))
+		err = scope.ClosureEmit(index, _symbolTable.UpValues)
+		if err != nil {
+			return err
 		}
 		err = scope.SymbolSetEmit(symbolIndex, symbolScope)
 		if err != nil {
@@ -326,7 +321,7 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 				return err
 			}
 		}
-		scope.CodeEmit(OP_CALL, uint64(len(_node.Arguments)))
+		scope.EmitWithOperand(opcode.OP_CALL, uint64(len(_node.Arguments)))
 		return nil
 	case *ast.Return:
 		scope.HaveReturn = true
@@ -336,9 +331,9 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 				return err
 			}
 		} else {
-			scope.CodeEmit(OP_NIL)
+			scope.Emit(opcode.OP_NIL)
 		}
-		scope.CodeEmit(OP_RETURN)
+		scope.Emit(opcode.OP_RETURN)
 		return nil
 	default:
 		return ErrInvalidNodeType

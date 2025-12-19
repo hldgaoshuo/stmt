@@ -2,7 +2,9 @@ package compiler
 
 import (
 	"encoding/binary"
+	"math"
 	"stmt/ast"
+	"stmt/opcode"
 	"stmt/token"
 )
 
@@ -19,13 +21,30 @@ func NewScope(haveReturn bool) *Scope {
 	}
 }
 
+func (s *Scope) ConstantEmit(index uint64) error {
+	if index <= math.MaxUint8 {
+		s.EmitWithOperand(opcode.OP_CONSTANT, index)
+		return nil
+	} else if index <= math.MaxUint16 {
+		s.EmitWithOperand(opcode.OP_CONSTANT_2, index)
+		return nil
+	} else if index <= math.MaxUint32 {
+		s.EmitWithOperand(opcode.OP_CONSTANT_4, index)
+		return nil
+	} else if index <= math.MaxUint64 {
+		s.EmitWithOperand(opcode.OP_CONSTANT_8, index)
+		return nil
+	}
+	return ErrInvalidConstantIndex
+}
+
 func (s *Scope) UnaryEmit(node *ast.Unary) error {
 	switch node.Operator.TokenType {
 	case token.MINUS:
-		s.CodeEmit(OP_NEGATE)
+		s.Emit(opcode.OP_NEGATE)
 		return nil
 	case token.BANG:
-		s.CodeEmit(OP_NOT)
+		s.Emit(opcode.OP_NOT)
 		return nil
 	default:
 		return ErrInvalidOperatorType
@@ -35,34 +54,34 @@ func (s *Scope) UnaryEmit(node *ast.Unary) error {
 func (s *Scope) BinaryEmit(node *ast.Binary) error {
 	switch node.Operator.TokenType {
 	case token.PLUS:
-		s.CodeEmit(OP_ADD)
+		s.Emit(opcode.OP_ADD)
 		return nil
 	case token.MINUS:
-		s.CodeEmit(OP_SUBTRACT)
+		s.Emit(opcode.OP_SUBTRACT)
 		return nil
 	case token.STAR:
-		s.CodeEmit(OP_MULTIPLY)
+		s.Emit(opcode.OP_MULTIPLY)
 		return nil
 	case token.SLASH:
-		s.CodeEmit(OP_DIVIDE)
+		s.Emit(opcode.OP_DIVIDE)
 		return nil
 	case token.PERCENTAGE:
-		s.CodeEmit(OP_MODULO)
+		s.Emit(opcode.OP_MODULO)
 		return nil
 	case token.GREATER:
-		s.CodeEmit(OP_GT)
+		s.Emit(opcode.OP_GT)
 		return nil
 	case token.LESS:
-		s.CodeEmit(OP_LT)
+		s.Emit(opcode.OP_LT)
 		return nil
 	case token.EQUAL_EQUAL:
-		s.CodeEmit(OP_EQ)
+		s.Emit(opcode.OP_EQ)
 		return nil
 	case token.GREATER_EQUAL:
-		s.CodeEmit(OP_GE)
+		s.Emit(opcode.OP_GE)
 		return nil
 	case token.LESS_EQUAL:
-		s.CodeEmit(OP_LE)
+		s.Emit(opcode.OP_LE)
 		return nil
 	default:
 		return ErrInvalidOperatorType
@@ -72,13 +91,13 @@ func (s *Scope) BinaryEmit(node *ast.Binary) error {
 func (s *Scope) SymbolGetEmit(symbolIndex uint64, symbolScope string) error {
 	switch symbolScope {
 	case LocalScope:
-		s.CodeEmit(OP_GET_LOCAL, symbolIndex)
+		s.EmitWithOperand(opcode.OP_GET_LOCAL, symbolIndex)
 		return nil
 	case UpScope:
-		s.CodeEmit(OP_GET_UPVALUE, symbolIndex)
+		s.EmitWithOperand(opcode.OP_GET_UPVALUE, symbolIndex)
 		return nil
 	case GlobalScope:
-		s.CodeEmit(OP_GET_GLOBAL, symbolIndex)
+		s.EmitWithOperand(opcode.OP_GET_GLOBAL, symbolIndex)
 		return nil
 	default:
 		return ErrInvalidSymbolScope
@@ -88,73 +107,93 @@ func (s *Scope) SymbolGetEmit(symbolIndex uint64, symbolScope string) error {
 func (s *Scope) SymbolSetEmit(symbolIndex uint64, symbolScope string) error {
 	switch symbolScope {
 	case LocalScope:
-		s.CodeEmit(OP_SET_LOCAL, symbolIndex)
+		s.EmitWithOperand(opcode.OP_SET_LOCAL, symbolIndex)
 		return nil
 	case UpScope:
-		s.CodeEmit(OP_SET_UPVALUE, symbolIndex)
+		s.EmitWithOperand(opcode.OP_SET_UPVALUE, symbolIndex)
 		return nil
 	case GlobalScope:
-		s.CodeEmit(OP_SET_GLOBAL, symbolIndex)
+		s.EmitWithOperand(opcode.OP_SET_GLOBAL, symbolIndex)
 		return nil
 	default:
 		return ErrInvalidSymbolScope
 	}
 }
 
-func (s *Scope) CodeEmitClosureMeta(meta uint8) {
-	s.Code = append(s.Code, meta)
-}
-
-func (s *Scope) CodePatch(offset uint64, op uint8) error {
-	_op := s.Code[offset]
-	if _op != op {
-		return ErrOpCodeMismatch
+func (s *Scope) ClosureEmit(index uint64, upValues []*UpInfo) error {
+	if index <= math.MaxUint8 {
+		s.EmitWithOperand(opcode.OP_CLOSURE, index)
+	} else if index <= math.MaxUint16 {
+		s.EmitWithOperand(opcode.OP_CLOSURE_2, index)
+	} else if index <= math.MaxUint32 {
+		s.EmitWithOperand(opcode.OP_CLOSURE_4, index)
+	} else if index <= math.MaxUint64 {
+		s.EmitWithOperand(opcode.OP_CLOSURE_8, index)
+	} else {
+		return ErrInvalidClosureIndex
 	}
-	operand := s.CodeOffset()
-	Code := s.CodeMake(op, operand)
-	copy(s.Code[offset:], Code)
+	for _, upInfo := range upValues {
+		if upInfo.IsLocal {
+			s.EmitOther(1)
+		} else {
+			s.EmitOther(0)
+		}
+		s.EmitOther(uint8(upInfo.LocalIndex))
+	}
 	return nil
 }
 
-func (s *Scope) CodeEmit(op uint8, operands ...uint64) uint64 {
-	offset := s.CodeOffset()
-	Code := s.CodeMake(op, operands...)
+func (s *Scope) Emit(opcode uint8) uint64 {
+	offset := s.Offset()
+	s.Code = append(s.Code, opcode)
+	return offset
+}
+
+func (s *Scope) EmitWithOperand(opcode uint8, operand uint64) uint64 {
+	offset := s.Offset()
+	Code := CodeMake(opcode, operand)
 	s.Code = append(s.Code, Code...)
 	return offset
 }
 
-func (s *Scope) CodeOffset() uint64 {
+func (s *Scope) EmitOther(other uint8) {
+	s.Code = append(s.Code, other)
+}
+
+func (s *Scope) Patch(offset uint64, op uint8) error {
+	_op := s.Code[offset]
+	if _op != op {
+		return ErrOpcodeMismatch
+	}
+	operand := s.Offset()
+	Code := CodeMake(op, operand)
+	copy(s.Code[offset:], Code)
+	return nil
+}
+
+func (s *Scope) Offset() uint64 {
 	offset := len(s.Code)
 	return uint64(offset)
 }
 
-func (s *Scope) CodeMake(op uint8, operands ...uint64) []uint8 {
-	widths, ok := operandWidths[op]
+func CodeMake(op uint8, operand uint64) []uint8 {
+	width, ok := opcode.OperandWidth[op]
 	if !ok {
 		return []uint8{}
 	}
 
-	instructionLen := 1
-	for _, w := range widths {
-		instructionLen += w
-	}
-
-	instructions := make([]uint8, instructionLen)
+	instructions := make([]uint8, 1+width)
 	instructions[0] = op
 	offset := 1
-	for i, o := range operands {
-		width := widths[i]
-		switch width {
-		case 1:
-			instructions[offset] = uint8(o)
-		case 2:
-			binary.BigEndian.PutUint16(instructions[offset:], uint16(o))
-		case 3:
-			binary.BigEndian.PutUint32(instructions[offset:], uint32(o))
-		case 4:
-			binary.BigEndian.PutUint64(instructions[offset:], o)
-		}
-		offset += width
+	switch width {
+	case 1:
+		instructions[offset] = uint8(operand)
+	case 2:
+		binary.BigEndian.PutUint16(instructions[offset:], uint16(operand))
+	case 4:
+		binary.BigEndian.PutUint32(instructions[offset:], uint32(operand))
+	case 8:
+		binary.BigEndian.PutUint64(instructions[offset:], operand)
 	}
 
 	return instructions

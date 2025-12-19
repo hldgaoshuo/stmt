@@ -1,0 +1,82 @@
+package opcode
+
+const (
+	OP_CONSTANT uint8 = iota
+	OP_CONSTANT_2
+	OP_CONSTANT_4
+	OP_CONSTANT_8
+	OP_NEGATE
+	OP_ADD
+	OP_SUBTRACT
+	OP_MULTIPLY
+	OP_DIVIDE
+	OP_MODULO
+	OP_TRUE
+	OP_FALSE
+	OP_NIL
+	OP_NOT
+	OP_EQ
+	OP_GT
+	OP_LT
+	OP_GE
+	OP_LE
+	OP_POP
+	OP_PRINT
+	OP_SET_GLOBAL
+	OP_GET_GLOBAL
+	OP_SET_LOCAL
+	OP_GET_LOCAL
+	OP_JUMP_FALSE
+	OP_JUMP
+	OP_AND
+	OP_OR
+	OP_LOOP
+	OP_CALL
+	OP_RETURN
+	OP_CLOSURE
+	OP_CLOSURE_2
+	OP_CLOSURE_4
+	OP_CLOSURE_8
+	OP_GET_UPVALUE
+	OP_SET_UPVALUE
+)
+
+var OperandWidth = map[uint8]int{
+	OP_CONSTANT:    1,
+	OP_CONSTANT_2:  2,
+	OP_CONSTANT_4:  4,
+	OP_CONSTANT_8:  8,
+	OP_NEGATE:      0,
+	OP_ADD:         0,
+	OP_SUBTRACT:    0,
+	OP_MULTIPLY:    0,
+	OP_DIVIDE:      0,
+	OP_TRUE:        0,
+	OP_FALSE:       0,
+	OP_NIL:         0,
+	OP_NOT:         0,
+	OP_EQ:          0,
+	OP_GT:          0,
+	OP_LT:          0,
+	OP_GE:          0,
+	OP_LE:          0,
+	OP_POP:         0,
+	OP_PRINT:       0,
+	OP_SET_GLOBAL:  2,
+	OP_GET_GLOBAL:  2,
+	OP_SET_LOCAL:   2,
+	OP_GET_LOCAL:   2,
+	OP_JUMP_FALSE:  4,
+	OP_JUMP:        4,
+	OP_AND:         0,
+	OP_OR:          0,
+	OP_LOOP:        4,
+	OP_CALL:        2,
+	OP_RETURN:      0,
+	OP_CLOSURE:     1,
+	OP_CLOSURE_2:   2,
+	OP_CLOSURE_4:   4,
+	OP_CLOSURE_8:   8,
+	OP_GET_UPVALUE: 2,
+	OP_SET_UPVALUE: 2,
+}
