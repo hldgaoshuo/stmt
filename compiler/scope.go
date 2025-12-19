@@ -165,10 +165,17 @@ func (s *Scope) Patch(offset uint64, op uint8) error {
 	if _op != op {
 		return ErrOpcodeMismatch
 	}
-	operand := s.Offset()
-	Code := CodeMake(op, operand)
+	_offset := s.Offset()
+	length := _offset - offset - 5 // 所有 jump 指令长度为 5
+	Code := CodeMake(op, length)
 	copy(s.Code[offset:], Code)
 	return nil
+}
+
+func (s *Scope) Loop(init uint64) {
+	offset := s.Offset()
+	length := offset - init + 1
+	s.EmitWithOperand(opcode.OP_LOOP, length)
 }
 
 func (s *Scope) Offset() uint64 {
@@ -177,11 +184,7 @@ func (s *Scope) Offset() uint64 {
 }
 
 func CodeMake(op uint8, operand uint64) []uint8 {
-	width, ok := opcode.OperandWidth[op]
-	if !ok {
-		return []uint8{}
-	}
-
+	width := opcode.OperandWidth[op]
 	instructions := make([]uint8, 1+width)
 	instructions[0] = op
 	offset := 1

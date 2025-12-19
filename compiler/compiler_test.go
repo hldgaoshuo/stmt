@@ -375,121 +375,121 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 				value.NewInt(2),
 			},
 		},
-		// {
-		// 	name: "if",
-		// 	source: `
-		// 	if (true)
-		// 	{
-		// 		print 10;
-		// 	}
-		// 	print 20;
-		// 	`,
-		// 	code: newCode(
-		// 		CodeMake(OP_TRUE),
-		// 		CodeMake(OP_JUMP_FALSE, 9),
-		// 		CodeMake(OP_POP),
-		// 		CodeMake(OP_CONSTANT, 0),
-		// 		CodeMake(OP_PRINT),
-		// 		CodeMake(OP_JUMP, 10),
-		// 		CodeMake(OP_POP),
-		// 		CodeMake(OP_CONSTANT, 1),
-		// 		CodeMake(OP_PRINT),
-		// 	),
-		// 	constants: []value.Value{
-		// 		value.NewInt(10),
-		// 		value.NewInt(20),
-		// 	},
-		// },
-		// {
-		// 	name: "if else",
-		// 	source: `
-		// 	if (false)
-		// 	{
-		// 		print 10;
-		// 	}
-		// 	else
-		// 	{
-		// 		print 20;
-		// 	}
-		// 	`,
-		// 	code: newCode(
-		// 		CodeMake(OP_FALSE),
-		// 		CodeMake(OP_JUMP_FALSE, 9),
-		// 		CodeMake(OP_POP),
-		// 		CodeMake(OP_CONSTANT, 0),
-		// 		CodeMake(OP_PRINT),
-		// 		CodeMake(OP_JUMP, 13),
-		// 		CodeMake(OP_POP),
-		// 		CodeMake(OP_CONSTANT, 1),
-		// 		CodeMake(OP_PRINT),
-		// 	),
-		// 	constants: []value.Value{
-		// 		value.NewInt(10),
-		// 		value.NewInt(20),
-		// 	},
-		// },
-		// {
-		// 	name: "and",
-		// 	source: `
-		// 	true and true;
-		// 	`,
-		// 	code: newCode(
-		// 		CodeMake(OP_TRUE),
-		// 		CodeMake(OP_JUMP_FALSE, 5),
-		// 		CodeMake(OP_POP),
-		// 		CodeMake(OP_TRUE),
-		// 		CodeMake(OP_POP),
-		// 	),
-		// 	constants: []value.Value{},
-		// },
-		// {
-		// 	name: "or",
-		// 	source: `
-		// 	true or true;
-		// 	`,
-		// 	code: newCode(
-		// 		CodeMake(OP_TRUE),
-		// 		CodeMake(OP_JUMP_FALSE, 5),
-		// 		CodeMake(OP_JUMP, 7),
-		// 		CodeMake(OP_POP),
-		// 		CodeMake(OP_TRUE),
-		// 		CodeMake(OP_POP),
-		// 	),
-		// 	constants: []value.Value{},
-		// },
-		// {
-		// 	name: "while",
-		// 	source: `
-		// 	var i = 0;
-		// 	while (i < 5)
-		// 	{
-		// 		print i;
-		// 		i = i + 1;
-		// 	}
-		// 	`,
-		// 	code: newCode(
-		// 		CodeMake(OP_CONSTANT, 0),
-		// 		CodeMake(OP_SET_GLOBAL, 0),
-		// 		CodeMake(OP_GET_GLOBAL, 0),
-		// 		CodeMake(OP_CONSTANT, 1),
-		// 		CodeMake(OP_LT),
-		// 		CodeMake(OP_JUMP_FALSE, 24),
-		// 		CodeMake(OP_POP),
-		// 		CodeMake(OP_GET_GLOBAL, 0),
-		// 		CodeMake(OP_PRINT),
-		// 		CodeMake(OP_GET_GLOBAL, 0),
-		// 		CodeMake(OP_CONSTANT, 2),
-		// 		CodeMake(OP_ADD),
-		// 		CodeMake(OP_SET_GLOBAL, 0),
-		// 		CodeMake(OP_LOOP, 4),
-		// 		CodeMake(OP_POP),
-		// 	),
-		// 	constants: []value.Value{
-		// 		value.NewInt(0),
-		// 		value.NewInt(5),
-		// 		value.NewInt(1),
-		// 	},
-		// },
+		{
+			name: "if",
+			source: `
+			if (true)
+			{
+				print 10;
+			}
+			print 20;
+			`,
+			code: newCode(
+				toCode(opcode.OP_TRUE),
+				CodeMake(opcode.OP_JUMP_FALSE, 9),
+				toCode(opcode.OP_POP),
+				CodeMake(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_PRINT),
+				CodeMake(opcode.OP_JUMP, 1),
+				toCode(opcode.OP_POP),
+				CodeMake(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_PRINT),
+			),
+			constants: []value.Value{
+				value.NewInt(10),
+				value.NewInt(20),
+			},
+		},
+		{
+			name: "if else",
+			source: `
+			if (false)
+			{
+				print 10;
+			}
+			else
+			{
+				print 20;
+			}
+			`,
+			code: newCode(
+				toCode(opcode.OP_FALSE),
+				CodeMake(opcode.OP_JUMP_FALSE, 9),
+				toCode(opcode.OP_POP),
+				CodeMake(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_PRINT),
+				CodeMake(opcode.OP_JUMP, 4),
+				toCode(opcode.OP_POP),
+				CodeMake(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_PRINT),
+			),
+			constants: []value.Value{
+				value.NewInt(10),
+				value.NewInt(20),
+			},
+		},
+		{
+			name: "and",
+			source: `
+			true and true;
+			`,
+			code: newCode(
+				toCode(opcode.OP_TRUE),
+				CodeMake(opcode.OP_JUMP_FALSE, 2),
+				toCode(opcode.OP_POP),
+				toCode(opcode.OP_TRUE),
+				toCode(opcode.OP_POP),
+			),
+			constants: []value.Value{},
+		},
+		{
+			name: "or",
+			source: `
+			true or true;
+			`,
+			code: newCode(
+				toCode(opcode.OP_TRUE),
+				CodeMake(opcode.OP_JUMP_FALSE, 5),
+				CodeMake(opcode.OP_JUMP, 2),
+				toCode(opcode.OP_POP),
+				toCode(opcode.OP_TRUE),
+				toCode(opcode.OP_POP),
+			),
+			constants: []value.Value{},
+		},
+		{
+			name: "while",
+			source: `
+			var i = 0;
+			while (i < 5)
+			{
+				print i;
+				i = i + 1;
+			}
+			`,
+			code: newCode(
+				CodeMake(opcode.OP_CONSTANT, 0),
+				CodeMake(opcode.OP_SET_GLOBAL, 0),
+				CodeMake(opcode.OP_GET_GLOBAL, 0),
+				CodeMake(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_LT),
+				CodeMake(opcode.OP_JUMP_FALSE, 19),
+				toCode(opcode.OP_POP),
+				CodeMake(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_PRINT),
+				CodeMake(opcode.OP_GET_GLOBAL, 0),
+				CodeMake(opcode.OP_CONSTANT, 2),
+				toCode(opcode.OP_ADD),
+				CodeMake(opcode.OP_SET_GLOBAL, 0),
+				CodeMake(opcode.OP_LOOP, 26),
+				toCode(opcode.OP_POP),
+			),
+			constants: []value.Value{
+				value.NewInt(0),
+				value.NewInt(5),
+				value.NewInt(1),
+			},
+		},
 		// {
 		// 	name: "function",
 		// 	source: `

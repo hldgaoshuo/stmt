@@ -253,7 +253,7 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 			return ErrInvalidOperatorType
 		}
 	case *ast.While:
-		loop := scope.Offset()
+		init := scope.Offset()
 		err := c.compile(_node.Condition, symbolTable, scope)
 		if err != nil {
 			return err
@@ -269,7 +269,7 @@ func (c *Compiler) compile(node ast.Node, symbolTable *SymbolTable, scope *Scope
 		if err != nil {
 			return err
 		}
-		scope.EmitWithOperand(opcode.OP_LOOP, loop)
+		scope.Loop(init)
 		err = scope.Patch(offsetFalse, opcode.OP_JUMP_FALSE)
 		if err != nil {
 			return err
