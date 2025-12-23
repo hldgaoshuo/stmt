@@ -478,8 +478,11 @@ func TestVM_RunStmtDecl(t *testing.T) {
 					fun inner() {
 						print x;
 					}
+					inner();
 				}
+				middle();
 			}
+			outer();
 			`,
 			err:    nil,
 			result: "1" + "\n",
