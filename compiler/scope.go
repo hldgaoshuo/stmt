@@ -174,7 +174,7 @@ func (s *Scope) Patch(offset uint64, op uint8) error {
 
 func (s *Scope) Loop(init uint64) {
 	offset := s.Offset()
-	length := offset - init + 1
+	length := offset - init + 5 // 所有 jump 指令长度为 5
 	s.EmitWithOperand(opcode.OP_LOOP, length)
 }
 

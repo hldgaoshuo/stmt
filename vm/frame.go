@@ -3,20 +3,25 @@ package vm
 import (
 	"encoding/binary"
 	"stmt/opcode"
+	"stmt/value"
 )
 
 type Frame struct {
-	Closure     *Closure
+	Closure     *value.Closure
 	BasePointer uint64
 	Ip          uint64
 }
 
-func NewFrame(closure *Closure, basePointer uint64) *Frame {
+func NewFrame(closure *value.Closure, basePointer uint64) *Frame {
 	return &Frame{
 		Closure:     closure,
 		BasePointer: basePointer,
 		Ip:          0,
 	}
+}
+
+func (f *Frame) MoveIp(offset uint64) {
+	f.Ip += offset
 }
 
 func (f *Frame) CodeSize() uint64 {
@@ -41,21 +46,22 @@ func (f *Frame) Operand(op uint8) (uint64, error) {
 	}
 	function := f.Closure.Function
 	code := function.Code
+	ip := f.BasePointer + f.Ip
 	switch width {
 	case 1:
-		operand := uint64(code[f.Ip])
+		operand := uint64(code[ip])
 		f.Ip++
 		return operand, nil
 	case 2:
-		operand := uint64(binary.BigEndian.Uint16(code[f.Ip:]))
+		operand := uint64(binary.BigEndian.Uint16(code[ip:]))
 		f.Ip += 2
 		return operand, nil
 	case 4:
-		operand := uint64(binary.BigEndian.Uint32(code[f.Ip:]))
+		operand := uint64(binary.BigEndian.Uint32(code[ip:]))
 		f.Ip += 4
 		return operand, nil
 	case 8:
-		operand := binary.BigEndian.Uint64(code[f.Ip:])
+		operand := binary.BigEndian.Uint64(code[ip:])
 		f.Ip += 8
 		return operand, nil
 	default:

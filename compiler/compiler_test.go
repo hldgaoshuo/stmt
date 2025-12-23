@@ -38,7 +38,14 @@ func newCode(codeMatrix ...[]uint8) []uint8 {
 }
 
 func toCode(opcode uint8, operand ...uint64) []uint8 {
-	return []uint8{opcode}
+	if len(operand) == 0 {
+		return []uint8{opcode}
+	}
+
+	if len(operand) > 1 {
+		panic("operand too long")
+	}
+	return CodeMake(opcode, operand[0])
 }
 
 func newClosureMeta(metas ...uint8) []uint8 {
@@ -57,7 +64,7 @@ func TestCompiler_CompileExpr(t *testing.T) {
 			name:   "1",
 			source: "1",
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_CONSTANT, 0),
 			),
 			constants: []value.Value{
 				value.NewInt(1),
@@ -68,7 +75,7 @@ func TestCompiler_CompileExpr(t *testing.T) {
 			name:   "1.2",
 			source: "1.2",
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_CONSTANT, 0),
 			),
 			constants: []value.Value{
 				value.NewFloat(1.2),
@@ -79,7 +86,7 @@ func TestCompiler_CompileExpr(t *testing.T) {
 			name:   "(1)",
 			source: "(1)",
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_CONSTANT, 0),
 			),
 			constants: []value.Value{
 				value.NewInt(1),
@@ -90,7 +97,7 @@ func TestCompiler_CompileExpr(t *testing.T) {
 			name:   "-1",
 			source: "-1",
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_CONSTANT, 0),
 				toCode(opcode.OP_NEGATE),
 			),
 			constants: []value.Value{
@@ -102,8 +109,8 @@ func TestCompiler_CompileExpr(t *testing.T) {
 			name:   "1+2",
 			source: "1+2",
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
-				CodeMake(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_CONSTANT, 1),
 				toCode(opcode.OP_ADD),
 			),
 			constants: []value.Value{
@@ -153,8 +160,8 @@ func TestCompiler_CompileExpr(t *testing.T) {
 			name:   "1<2",
 			source: "1<2",
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
-				CodeMake(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_CONSTANT, 1),
 				toCode(opcode.OP_LT),
 			),
 			constants: []value.Value{
@@ -167,7 +174,7 @@ func TestCompiler_CompileExpr(t *testing.T) {
 			name:   `"abc"`,
 			source: `"abc"`,
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_CONSTANT, 0),
 			),
 			constants: []value.Value{
 				value.NewString("abc"),
@@ -218,8 +225,8 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			name:   "expr",
 			source: "1+2;",
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
-				CodeMake(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_CONSTANT, 1),
 				toCode(opcode.OP_ADD),
 				toCode(opcode.OP_POP),
 			),
@@ -232,7 +239,7 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			name:   "print",
 			source: "print 1;",
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_CONSTANT, 0),
 				toCode(opcode.OP_PRINT),
 			),
 			constants: []value.Value{
@@ -244,7 +251,7 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			source: "var a;",
 			code: newCode(
 				toCode(opcode.OP_NIL),
-				CodeMake(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_SET_GLOBAL, 0),
 			),
 			constants: []value.Value{},
 		},
@@ -252,8 +259,8 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			name:   "var 2",
 			source: "var a = 1;",
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
-				CodeMake(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_SET_GLOBAL, 0),
 			),
 			constants: []value.Value{
 				value.NewInt(1),
@@ -266,9 +273,9 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			a;
 			`,
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
-				CodeMake(opcode.OP_SET_GLOBAL, 0),
-				CodeMake(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_GET_GLOBAL, 0),
 				toCode(opcode.OP_POP),
 			),
 			constants: []value.Value{
@@ -282,9 +289,9 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			print a;
 			`,
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
-				CodeMake(opcode.OP_SET_GLOBAL, 0),
-				CodeMake(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_GET_GLOBAL, 0),
 				toCode(opcode.OP_PRINT),
 			),
 			constants: []value.Value{
@@ -303,15 +310,15 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			print a;
 			`,
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
-				CodeMake(opcode.OP_SET_GLOBAL, 0),
-				CodeMake(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_GET_GLOBAL, 0),
 				toCode(opcode.OP_PRINT),
-				CodeMake(opcode.OP_CONSTANT, 1),
-				CodeMake(opcode.OP_SET_LOCAL, 0),
-				CodeMake(opcode.OP_GET_LOCAL, 0),
+				toCode(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_SET_LOCAL, 0),
+				toCode(opcode.OP_GET_LOCAL, 0),
 				toCode(opcode.OP_PRINT),
-				CodeMake(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_GET_GLOBAL, 0),
 				toCode(opcode.OP_PRINT),
 			),
 			constants: []value.Value{
@@ -326,10 +333,10 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			a = 2;
 			`,
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
-				CodeMake(opcode.OP_SET_GLOBAL, 0),
-				CodeMake(opcode.OP_CONSTANT, 1),
-				CodeMake(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_SET_GLOBAL, 0),
 			),
 			constants: []value.Value{
 				value.NewInt(1),
@@ -344,11 +351,11 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			print a;
 			`,
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
-				CodeMake(opcode.OP_SET_GLOBAL, 0),
-				CodeMake(opcode.OP_CONSTANT, 1),
-				CodeMake(opcode.OP_SET_GLOBAL, 0),
-				CodeMake(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_GET_GLOBAL, 0),
 				toCode(opcode.OP_PRINT),
 			),
 			constants: []value.Value{
@@ -365,10 +372,10 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			}
 			`,
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
-				CodeMake(opcode.OP_SET_GLOBAL, 0),
-				CodeMake(opcode.OP_CONSTANT, 1),
-				CodeMake(opcode.OP_SET_LOCAL, 0),
+				toCode(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_SET_LOCAL, 0),
 			),
 			constants: []value.Value{
 				value.NewInt(1),
@@ -380,24 +387,24 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			source: `
 			if (true)
 			{
-				print 10;
+				print 1;
 			}
-			print 20;
+			print 2;
 			`,
 			code: newCode(
 				toCode(opcode.OP_TRUE),
-				CodeMake(opcode.OP_JUMP_FALSE, 9),
+				toCode(opcode.OP_JUMP_FALSE, 9),
 				toCode(opcode.OP_POP),
-				CodeMake(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_CONSTANT, 0),
 				toCode(opcode.OP_PRINT),
-				CodeMake(opcode.OP_JUMP, 1),
+				toCode(opcode.OP_JUMP, 1),
 				toCode(opcode.OP_POP),
-				CodeMake(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_CONSTANT, 1),
 				toCode(opcode.OP_PRINT),
 			),
 			constants: []value.Value{
-				value.NewInt(10),
-				value.NewInt(20),
+				value.NewInt(1),
+				value.NewInt(2),
 			},
 		},
 		{
@@ -405,27 +412,27 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			source: `
 			if (false)
 			{
-				print 10;
+				print 1;
 			}
 			else
 			{
-				print 20;
+				print 2;
 			}
 			`,
 			code: newCode(
 				toCode(opcode.OP_FALSE),
-				CodeMake(opcode.OP_JUMP_FALSE, 9),
+				toCode(opcode.OP_JUMP_FALSE, 9),
 				toCode(opcode.OP_POP),
-				CodeMake(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_CONSTANT, 0),
 				toCode(opcode.OP_PRINT),
-				CodeMake(opcode.OP_JUMP, 4),
+				toCode(opcode.OP_JUMP, 4),
 				toCode(opcode.OP_POP),
-				CodeMake(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_CONSTANT, 1),
 				toCode(opcode.OP_PRINT),
 			),
 			constants: []value.Value{
-				value.NewInt(10),
-				value.NewInt(20),
+				value.NewInt(1),
+				value.NewInt(2),
 			},
 		},
 		{
@@ -435,7 +442,7 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			`,
 			code: newCode(
 				toCode(opcode.OP_TRUE),
-				CodeMake(opcode.OP_JUMP_FALSE, 2),
+				toCode(opcode.OP_JUMP_FALSE, 2),
 				toCode(opcode.OP_POP),
 				toCode(opcode.OP_TRUE),
 				toCode(opcode.OP_POP),
@@ -449,8 +456,8 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			`,
 			code: newCode(
 				toCode(opcode.OP_TRUE),
-				CodeMake(opcode.OP_JUMP_FALSE, 5),
-				CodeMake(opcode.OP_JUMP, 2),
+				toCode(opcode.OP_JUMP_FALSE, 5),
+				toCode(opcode.OP_JUMP, 2),
 				toCode(opcode.OP_POP),
 				toCode(opcode.OP_TRUE),
 				toCode(opcode.OP_POP),
@@ -468,20 +475,20 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 			}
 			`,
 			code: newCode(
-				CodeMake(opcode.OP_CONSTANT, 0),
-				CodeMake(opcode.OP_SET_GLOBAL, 0),
-				CodeMake(opcode.OP_GET_GLOBAL, 0),
-				CodeMake(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_CONSTANT, 0),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 1),
 				toCode(opcode.OP_LT),
-				CodeMake(opcode.OP_JUMP_FALSE, 19),
+				toCode(opcode.OP_JUMP_FALSE, 19),
 				toCode(opcode.OP_POP),
-				CodeMake(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_GET_GLOBAL, 0),
 				toCode(opcode.OP_PRINT),
-				CodeMake(opcode.OP_GET_GLOBAL, 0),
-				CodeMake(opcode.OP_CONSTANT, 2),
+				toCode(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 2),
 				toCode(opcode.OP_ADD),
-				CodeMake(opcode.OP_SET_GLOBAL, 0),
-				CodeMake(opcode.OP_LOOP, 26),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_LOOP, 30),
 				toCode(opcode.OP_POP),
 			),
 			constants: []value.Value{
@@ -490,27 +497,27 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 				value.NewInt(1),
 			},
 		},
-		// {
-		// 	name: "function",
-		// 	source: `
-		// 	fun pt() {
-		// 		print 1;
-		// 	}
-		// 	`,
-		// 	code: newCode(
-		// 		CodeMake(OP_CLOSURE, 1),
-		// 		CodeMake(OP_SET_GLOBAL, 0),
-		// 	),
-		// 	constants: []value.Value{
-		// 		value.NewInt(1),
-		// 		value.NewFunction(newCode(
-		// 			CodeMake(OP_CONSTANT, 0),
-		// 			CodeMake(OP_PRINT),
-		// 			CodeMake(OP_NIL),
-		// 			CodeMake(OP_RETURN),
-		// 		), 0, 0),
-		// 	},
-		// },
+		{
+			name: "function",
+			source: `
+			fun pt() {
+				print 1;
+			}
+			`,
+			code: newCode(
+				toCode(opcode.OP_CLOSURE, 1),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+			),
+			constants: []value.Value{
+				value.NewInt(1),
+				value.NewFunction(newCode(
+					toCode(opcode.OP_CONSTANT, 0),
+					toCode(opcode.OP_PRINT),
+					toCode(opcode.OP_NIL),
+					toCode(opcode.OP_RETURN),
+				), 0, 0),
+			},
+		},
 		// {
 		// 	name: "function return nil",
 		// 	source: `
@@ -520,16 +527,16 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 		// 	}
 		// 	`,
 		// 	code: newCode(
-		// 		CodeMake(OP_CLOSURE, 1),
-		// 		CodeMake(OP_SET_GLOBAL, 0),
+		// 		toCode(OP_CLOSURE, 1),
+		// 		toCode(OP_SET_GLOBAL, 0),
 		// 	),
 		// 	constants: []value.Value{
 		// 		value.NewInt(1),
 		// 		value.NewFunction(newCode(
-		// 			CodeMake(OP_CONSTANT, 0),
-		// 			CodeMake(OP_PRINT),
-		// 			CodeMake(OP_NIL),
-		// 			CodeMake(OP_RETURN),
+		// 			toCode(OP_CONSTANT, 0),
+		// 			toCode(OP_PRINT),
+		// 			toCode(OP_NIL),
+		// 			toCode(OP_RETURN),
 		// 		), 0, 0),
 		// 	},
 		// },
@@ -542,17 +549,17 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 		// 	}
 		// 	`,
 		// 	code: newCode(
-		// 		CodeMake(OP_CLOSURE, 2),
-		// 		CodeMake(OP_SET_GLOBAL, 0),
+		// 		toCode(OP_CLOSURE, 2),
+		// 		toCode(OP_SET_GLOBAL, 0),
 		// 	),
 		// 	constants: []value.Value{
 		// 		value.NewInt(1),
 		// 		value.NewInt(2),
 		// 		value.NewFunction(newCode(
-		// 			CodeMake(OP_CONSTANT, 0),
-		// 			CodeMake(OP_PRINT),
-		// 			CodeMake(OP_CONSTANT, 1),
-		// 			CodeMake(OP_RETURN),
+		// 			toCode(OP_CONSTANT, 0),
+		// 			toCode(OP_PRINT),
+		// 			toCode(OP_CONSTANT, 1),
+		// 			toCode(OP_RETURN),
 		// 		), 0, 0),
 		// 	},
 		// },
@@ -565,19 +572,19 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 		// 	pt();
 		// 	`,
 		// 	code: newCode(
-		// 		CodeMake(OP_CLOSURE, 1),
-		// 		CodeMake(OP_SET_GLOBAL, 0),
-		// 		CodeMake(OP_GET_GLOBAL, 0),
-		// 		CodeMake(OP_CALL, 0),
-		// 		CodeMake(OP_POP),
+		// 		toCode(OP_CLOSURE, 1),
+		// 		toCode(OP_SET_GLOBAL, 0),
+		// 		toCode(OP_GET_GLOBAL, 0),
+		// 		toCode(OP_CALL, 0),
+		// 		toCode(OP_POP),
 		// 	),
 		// 	constants: []value.Value{
 		// 		value.NewInt(1),
 		// 		value.NewFunction(newCode(
-		// 			CodeMake(OP_CONSTANT, 0),
-		// 			CodeMake(OP_PRINT),
-		// 			CodeMake(OP_NIL),
-		// 			CodeMake(OP_RETURN),
+		// 			toCode(OP_CONSTANT, 0),
+		// 			toCode(OP_PRINT),
+		// 			toCode(OP_NIL),
+		// 			toCode(OP_RETURN),
 		// 		), 0, 0),
 		// 	},
 		// },
@@ -590,22 +597,22 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 		// 	pt(1, 2);
 		// 	`,
 		// 	code: newCode(
-		// 		CodeMake(OP_CLOSURE, 0),
-		// 		CodeMake(OP_SET_GLOBAL, 0),
-		// 		CodeMake(OP_GET_GLOBAL, 0),
-		// 		CodeMake(OP_CONSTANT, 1),
-		// 		CodeMake(OP_CONSTANT, 2),
-		// 		CodeMake(OP_CALL, 2),
-		// 		CodeMake(OP_POP),
+		// 		toCode(OP_CLOSURE, 0),
+		// 		toCode(OP_SET_GLOBAL, 0),
+		// 		toCode(OP_GET_GLOBAL, 0),
+		// 		toCode(OP_CONSTANT, 1),
+		// 		toCode(OP_CONSTANT, 2),
+		// 		toCode(OP_CALL, 2),
+		// 		toCode(OP_POP),
 		// 	),
 		// 	constants: []value.Value{
 		// 		value.NewFunction(newCode(
-		// 			CodeMake(OP_GET_LOCAL, 0),
-		// 			CodeMake(OP_GET_LOCAL, 1),
-		// 			CodeMake(OP_ADD),
-		// 			CodeMake(OP_PRINT),
-		// 			CodeMake(OP_NIL),
-		// 			CodeMake(OP_RETURN),
+		// 			toCode(OP_GET_LOCAL, 0),
+		// 			toCode(OP_GET_LOCAL, 1),
+		// 			toCode(OP_ADD),
+		// 			toCode(OP_PRINT),
+		// 			toCode(OP_NIL),
+		// 			toCode(OP_RETURN),
 		// 		), 2, 0),
 		// 		value.NewInt(1),
 		// 		value.NewInt(2),
@@ -620,20 +627,20 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 		// 	print add(1, 2);
 		// 	`,
 		// 	code: newCode(
-		// 		CodeMake(OP_CLOSURE, 0),
-		// 		CodeMake(OP_SET_GLOBAL, 0),
-		// 		CodeMake(OP_GET_GLOBAL, 0),
-		// 		CodeMake(OP_CONSTANT, 1),
-		// 		CodeMake(OP_CONSTANT, 2),
-		// 		CodeMake(OP_CALL, 2),
-		// 		CodeMake(OP_PRINT),
+		// 		toCode(OP_CLOSURE, 0),
+		// 		toCode(OP_SET_GLOBAL, 0),
+		// 		toCode(OP_GET_GLOBAL, 0),
+		// 		toCode(OP_CONSTANT, 1),
+		// 		toCode(OP_CONSTANT, 2),
+		// 		toCode(OP_CALL, 2),
+		// 		toCode(OP_PRINT),
 		// 	),
 		// 	constants: []value.Value{
 		// 		value.NewFunction(newCode(
-		// 			CodeMake(OP_GET_LOCAL, 0),
-		// 			CodeMake(OP_GET_LOCAL, 1),
-		// 			CodeMake(OP_ADD),
-		// 			CodeMake(OP_RETURN),
+		// 			toCode(OP_GET_LOCAL, 0),
+		// 			toCode(OP_GET_LOCAL, 1),
+		// 			toCode(OP_ADD),
+		// 			toCode(OP_RETURN),
 		// 		), 2, 0),
 		// 		value.NewInt(1),
 		// 		value.NewInt(2),
@@ -652,31 +659,31 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 		// 	outer();
 		// 	`,
 		// 	code: newCode(
-		// 		CodeMake(OP_CLOSURE, 2),
-		// 		CodeMake(OP_SET_GLOBAL, 0),
-		// 		CodeMake(OP_GET_GLOBAL, 0),
-		// 		CodeMake(OP_CALL, 0),
-		// 		CodeMake(OP_POP),
+		// 		toCode(OP_CLOSURE, 2),
+		// 		toCode(OP_SET_GLOBAL, 0),
+		// 		toCode(OP_GET_GLOBAL, 0),
+		// 		toCode(OP_CALL, 0),
+		// 		toCode(OP_POP),
 		// 	),
 		// 	constants: []value.Value{
 		// 		value.NewString("outside"),
 		// 		value.NewFunction(newCode(
-		// 			CodeMake(OP_GET_UPVALUE, 0),
-		// 			CodeMake(OP_PRINT),
-		// 			CodeMake(OP_NIL),
-		// 			CodeMake(OP_RETURN),
+		// 			toCode(OP_GET_UPVALUE, 0),
+		// 			toCode(OP_PRINT),
+		// 			toCode(OP_NIL),
+		// 			toCode(OP_RETURN),
 		// 		), 0, 1),
 		// 		value.NewFunction(newCode(
-		// 			CodeMake(OP_CONSTANT, 0),
-		// 			CodeMake(OP_SET_LOCAL, 0),
-		// 			CodeMake(OP_CLOSURE, 1),
+		// 			toCode(OP_CONSTANT, 0),
+		// 			toCode(OP_SET_LOCAL, 0),
+		// 			toCode(OP_CLOSURE, 1),
 		// 			newClosureMeta(1, 0),
-		// 			CodeMake(OP_SET_LOCAL, 1),
-		// 			CodeMake(OP_GET_LOCAL, 1),
-		// 			CodeMake(OP_CALL, 0),
-		// 			CodeMake(OP_POP),
-		// 			CodeMake(OP_NIL),
-		// 			CodeMake(OP_RETURN),
+		// 			toCode(OP_SET_LOCAL, 1),
+		// 			toCode(OP_GET_LOCAL, 1),
+		// 			toCode(OP_CALL, 0),
+		// 			toCode(OP_POP),
+		// 			toCode(OP_NIL),
+		// 			toCode(OP_RETURN),
 		// 		), 0, 0),
 		// 	},
 		// },
@@ -696,8 +703,8 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 		// 	}
 		// 	`,
 		// 	code: newCode(
-		// 		CodeMake(OP_CLOSURE, 6),
-		// 		CodeMake(OP_SET_GLOBAL, 0),
+		// 		toCode(OP_CLOSURE, 6),
+		// 		toCode(OP_SET_GLOBAL, 0),
 		// 	),
 		// 	constants: []value.Value{
 		// 		value.NewInt(1),
@@ -705,38 +712,38 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 		// 		value.NewInt(3),
 		// 		value.NewInt(4),
 		// 		value.NewFunction(newCode(
-		// 			CodeMake(OP_GET_UPVALUE, 0),
-		// 			CodeMake(OP_GET_UPVALUE, 1),
-		// 			CodeMake(OP_ADD),
-		// 			CodeMake(OP_GET_UPVALUE, 2),
-		// 			CodeMake(OP_ADD),
-		// 			CodeMake(OP_GET_UPVALUE, 3),
-		// 			CodeMake(OP_ADD),
-		// 			CodeMake(OP_PRINT),
-		// 			CodeMake(OP_NIL),
-		// 			CodeMake(OP_RETURN),
+		// 			toCode(OP_GET_UPVALUE, 0),
+		// 			toCode(OP_GET_UPVALUE, 1),
+		// 			toCode(OP_ADD),
+		// 			toCode(OP_GET_UPVALUE, 2),
+		// 			toCode(OP_ADD),
+		// 			toCode(OP_GET_UPVALUE, 3),
+		// 			toCode(OP_ADD),
+		// 			toCode(OP_PRINT),
+		// 			toCode(OP_NIL),
+		// 			toCode(OP_RETURN),
 		// 		), 0, 4),
 		// 		value.NewFunction(newCode(
-		// 			CodeMake(OP_CONSTANT, 2),
-		// 			CodeMake(OP_SET_LOCAL, 0),
-		// 			CodeMake(OP_CONSTANT, 3),
-		// 			CodeMake(OP_SET_LOCAL, 1),
-		// 			CodeMake(OP_CLOSURE, 4),
+		// 			toCode(OP_CONSTANT, 2),
+		// 			toCode(OP_SET_LOCAL, 0),
+		// 			toCode(OP_CONSTANT, 3),
+		// 			toCode(OP_SET_LOCAL, 1),
+		// 			toCode(OP_CLOSURE, 4),
 		// 			newClosureMeta(0, 0, 1, 0, 0, 1, 1, 1),
-		// 			CodeMake(OP_SET_LOCAL, 2),
-		// 			CodeMake(OP_NIL),
-		// 			CodeMake(OP_RETURN),
+		// 			toCode(OP_SET_LOCAL, 2),
+		// 			toCode(OP_NIL),
+		// 			toCode(OP_RETURN),
 		// 		), 0, 2),
 		// 		value.NewFunction(newCode(
-		// 			CodeMake(OP_CONSTANT, 0),
-		// 			CodeMake(OP_SET_LOCAL, 0),
-		// 			CodeMake(OP_CONSTANT, 1),
-		// 			CodeMake(OP_SET_LOCAL, 1),
-		// 			CodeMake(OP_CLOSURE, 5),
+		// 			toCode(OP_CONSTANT, 0),
+		// 			toCode(OP_SET_LOCAL, 0),
+		// 			toCode(OP_CONSTANT, 1),
+		// 			toCode(OP_SET_LOCAL, 1),
+		// 			toCode(OP_CLOSURE, 5),
 		// 			newClosureMeta(1, 0, 1, 1),
-		// 			CodeMake(OP_SET_LOCAL, 2),
-		// 			CodeMake(OP_NIL),
-		// 			CodeMake(OP_RETURN),
+		// 			toCode(OP_SET_LOCAL, 2),
+		// 			toCode(OP_NIL),
+		// 			toCode(OP_RETURN),
 		// 		), 0, 0),
 		// 	},
 		// },

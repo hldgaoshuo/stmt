@@ -1,31 +1,35 @@
 package vm
 
 import (
+	"io"
 	"math"
+	"os"
 	"stmt/opcode"
 	"stmt/value"
 )
 
+var Output io.Writer = os.Stdout
+
 type VM struct {
-	Stack     []any
-	Globals   []any
+	Stack     []value.Value
+	Globals   []value.Value
 	Frames    []*Frame
 	Constants []value.Value
 }
 
-func New(code []uint8, constants []value.Value) *VM {
+func New(code []uint8, constants []value.Value, globalCount int) *VM {
 	mainFunction := &value.Function{
 		Code:        code,
 		NumParams:   0,
 		NumUpvalues: 0,
 	}
-	mainClosure := &Closure{
+	mainClosure := &value.Closure{
 		Function: mainFunction,
 	}
 	mainFrame := NewFrame(mainClosure, 0)
 	return &VM{
-		Stack:     []any{},
-		Globals:   []any{},
+		Stack:     []value.Value{},
+		Globals:   make([]value.Value, globalCount),
 		Frames:    []*Frame{mainFrame},
 		Constants: constants,
 	}
@@ -44,90 +48,99 @@ func (vm *VM) FramesPop() *Frame {
 	return vm.FramesBack()
 }
 
-func (vm *VM) StackPush(value any) {
-	vm.Stack = append(vm.Stack, value)
+func (vm *VM) StackPush(value_ value.Value) {
+	vm.Stack = append(vm.Stack, value_)
 }
 
-func (vm *VM) StackPop() any {
+func (vm *VM) StackPop() value.Value {
 	offset := len(vm.Stack) - 1
 	value_ := vm.Stack[offset]
 	vm.Stack = vm.Stack[:offset]
 	return value_
 }
 
-func (vm *VM) StackPeek(num int) any {
-	return vm.Stack[len(vm.Stack)-1-num]
+func (vm *VM) StackPeek(num uint64) value.Value {
+	return vm.Stack[uint64(len(vm.Stack))-1-num]
 }
 
-func (vm *VM) StackSet(index int, value any) {
-	vm.Stack[index] = value
+func (vm *VM) StackSet(index uint64, value_ value.Value) {
+	if vm.StackLen() == index {
+		vm.StackPush(value_)
+	} else {
+		vm.Stack[index] = value_
+	}
 }
 
-func (vm *VM) StackGet(index int) any {
+func (vm *VM) StackGet(index uint64) value.Value {
 	return vm.Stack[index]
 }
 
-func (vm *VM) StackLen() int {
-	return len(vm.Stack)
+func (vm *VM) StackLen() uint64 {
+	return uint64(len(vm.Stack))
+}
+
+func (vm *VM) StackResize(basePointer uint64) {
+	vm.Stack = vm.Stack[:basePointer]
 }
 
 func (vm *VM) StackPushConstant(global value.Value) error {
-	switch _global := global.(type) {
+	switch global.(type) {
+	case *value.Int, *value.Float, *value.String:
+		vm.StackPush(global)
+		return nil
+	default:
+		return ErrInvalidOperandType
+	}
+}
+
+func (vm *VM) StackPushNegate(a value.Value) error {
+	switch _a := a.(type) {
 	case *value.Int:
-		vm.StackPush(_global.Literal)
+		r := value.NewInt(-_a.Literal)
+		vm.StackPush(r)
 		return nil
 	case *value.Float:
-		vm.StackPush(_global.Literal)
+		r := value.NewFloat(-_a.Literal)
+		vm.StackPush(r)
 		return nil
+	default:
+		return ErrInvalidOperandType
+	}
+}
+
+func (vm *VM) StackPushAdd(a value.Value, b value.Value) error {
+	switch _a := a.(type) {
+	case *value.Int:
+		switch _b := b.(type) {
+		case *value.Int:
+			r := value.NewInt(_a.Literal + _b.Literal)
+			vm.StackPush(r)
+			return nil
+		case *value.Float:
+			r := value.NewFloat(float64(_a.Literal) + _b.Literal)
+			vm.StackPush(r)
+			return nil
+		default:
+			return ErrInvalidOperandType
+		}
+	case *value.Float:
+		switch _b := b.(type) {
+		case *value.Int:
+			r := value.NewFloat(_a.Literal + float64(_b.Literal))
+			vm.StackPush(r)
+			return nil
+		case *value.Float:
+			r := value.NewFloat(_a.Literal + _b.Literal)
+			vm.StackPush(r)
+			return nil
+		default:
+			return ErrInvalidOperandType
+		}
 	case *value.String:
-		vm.StackPush(_global.Literal)
-		return nil
-	default:
-		return ErrInvalidOperandType
-	}
-}
-
-func (vm *VM) StackPushNegate(a any) error {
-	switch _a := a.(type) {
-	case int64:
-		vm.StackPush(-_a)
-		return nil
-	case float64:
-		vm.StackPush(-_a)
-		return nil
-	default:
-		return ErrInvalidOperandType
-	}
-}
-
-func (vm *VM) StackPushAdd(a any, b any) error {
-	switch _a := a.(type) {
-	case int64:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a + _b)
-			return nil
-		case float64:
-			vm.StackPush(float64(_a) + _b)
-			return nil
-		default:
-			return ErrInvalidOperandType
-		}
-	case float64:
-		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a + float64(_b))
-			return nil
-		case float64:
-			vm.StackPush(_a + _b)
-			return nil
-		default:
-			return ErrInvalidOperandType
-		}
-	case string:
-		switch _b := b.(type) {
-		case string:
-			vm.StackPush(_a + _b)
+		case *value.String:
+			r := value.NewString(_a.Literal + _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
@@ -137,26 +150,30 @@ func (vm *VM) StackPushAdd(a any, b any) error {
 	}
 }
 
-func (vm *VM) StackPushSubtract(a any, b any) error {
+func (vm *VM) StackPushSubtract(a value.Value, b value.Value) error {
 	switch _a := a.(type) {
-	case int64:
+	case *value.Int:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a - _b)
+		case *value.Int:
+			r := value.NewInt(_a.Literal - _b.Literal)
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(float64(_a) - _b)
+		case *value.Float:
+			r := value.NewFloat(float64(_a.Literal) - _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
 		}
-	case float64:
+	case *value.Float:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a - float64(_b))
+		case *value.Int:
+			r := value.NewFloat(_a.Literal - float64(_b.Literal))
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(_a - _b)
+		case *value.Float:
+			r := value.NewFloat(_a.Literal - _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
@@ -166,26 +183,30 @@ func (vm *VM) StackPushSubtract(a any, b any) error {
 	}
 }
 
-func (vm *VM) StackPushMultiply(a any, b any) error {
+func (vm *VM) StackPushMultiply(a value.Value, b value.Value) error {
 	switch _a := a.(type) {
-	case int64:
+	case *value.Int:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a * _b)
+		case *value.Int:
+			r := value.NewInt(_a.Literal * _b.Literal)
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(float64(_a) * _b)
+		case *value.Float:
+			r := value.NewFloat(float64(_a.Literal) * _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
 		}
-	case float64:
+	case *value.Float:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a * float64(_b))
+		case *value.Int:
+			r := value.NewFloat(_a.Literal * float64(_b.Literal))
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(_a * _b)
+		case *value.Float:
+			r := value.NewFloat(_a.Literal * _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
@@ -195,26 +216,42 @@ func (vm *VM) StackPushMultiply(a any, b any) error {
 	}
 }
 
-func (vm *VM) StackPushDivide(a any, b any) error {
+func (vm *VM) StackPushDivide(a value.Value, b value.Value) error {
 	switch _a := a.(type) {
-	case int64:
+	case *value.Int:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a / _b)
+		case *value.Int:
+			if _b.Literal == 0 {
+				return ErrZeroInDivide
+			}
+			r := value.NewInt(_a.Literal / _b.Literal)
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(float64(_a) / _b)
+		case *value.Float:
+			if _b.Literal == 0 {
+				return ErrZeroInDivide
+			}
+			r := value.NewFloat(float64(_a.Literal) / _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
 		}
-	case float64:
+	case *value.Float:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a / float64(_b))
+		case *value.Int:
+			if _b.Literal == 0 {
+				return ErrZeroInDivide
+			}
+			r := value.NewFloat(_a.Literal / float64(_b.Literal))
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(_a / _b)
+		case *value.Float:
+			if _b.Literal == 0 {
+				return ErrZeroInDivide
+			}
+			r := value.NewFloat(_a.Literal / _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
@@ -224,26 +261,42 @@ func (vm *VM) StackPushDivide(a any, b any) error {
 	}
 }
 
-func (vm *VM) StackPushModulo(a any, b any) error {
+func (vm *VM) StackPushModulo(a value.Value, b value.Value) error {
 	switch _a := a.(type) {
-	case int64:
+	case *value.Int:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a % _b)
+		case *value.Int:
+			if _b.Literal == 0 {
+				return ErrZeroInModulo
+			}
+			r := value.NewInt(_a.Literal % _b.Literal)
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(math.Mod(float64(_a), _b))
+		case *value.Float:
+			if _b.Literal == 0 {
+				return ErrZeroInModulo
+			}
+			r := value.NewFloat(math.Mod(float64(_a.Literal), _b.Literal))
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
 		}
-	case float64:
+	case *value.Float:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(math.Mod(_a, float64(_b)))
+		case *value.Int:
+			if _b.Literal == 0 {
+				return ErrZeroInModulo
+			}
+			r := value.NewFloat(math.Mod(_a.Literal, float64(_b.Literal)))
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(math.Mod(_a, _b))
+		case *value.Float:
+			if _b.Literal == 0 {
+				return ErrZeroInModulo
+			}
+			r := value.NewFloat(math.Mod(_a.Literal, _b.Literal))
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
@@ -255,8 +308,9 @@ func (vm *VM) StackPushModulo(a any, b any) error {
 
 func (vm *VM) StackPushNot(a any) error {
 	switch _a := a.(type) {
-	case bool:
-		vm.StackPush(!_a)
+	case *value.Bool:
+		r := value.NewBool(!_a.Literal)
+		vm.StackPush(r)
 		return nil
 	default:
 		return ErrInvalidOperandType
@@ -265,40 +319,46 @@ func (vm *VM) StackPushNot(a any) error {
 
 func (vm *VM) StackPushEQ(a any, b any) error {
 	switch _a := a.(type) {
-	case int64:
+	case *value.Int:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a == _b)
+		case *value.Int:
+			r := value.NewBool(_a.Literal == _b.Literal)
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(float64(_a) == _b)
+		case *value.Float:
+			r := value.NewBool(float64(_a.Literal) == _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
 		}
-	case float64:
+	case *value.Float:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a == float64(_b))
+		case *value.Int:
+			r := value.NewBool(_a.Literal == float64(_b.Literal))
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(_a == _b)
+		case *value.Float:
+			r := value.NewBool(_a.Literal == _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
 		}
-	case bool:
+	case *value.Bool:
 		switch _b := b.(type) {
-		case bool:
-			vm.StackPush(_a == _b)
+		case *value.Bool:
+			r := value.NewBool(_a.Literal == _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
 		}
-	case nil:
+	case *value.Nil:
 		switch b.(type) {
-		case nil:
-			vm.StackPush(true)
+		case *value.Nil:
+			r := value.NewBool(true)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
@@ -310,24 +370,28 @@ func (vm *VM) StackPushEQ(a any, b any) error {
 
 func (vm *VM) StackPushGT(a any, b any) error {
 	switch _a := a.(type) {
-	case int64:
+	case *value.Int:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a > _b)
+		case *value.Int:
+			r := value.NewBool(_a.Literal > _b.Literal)
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(float64(_a) > _b)
+		case *value.Float:
+			r := value.NewBool(float64(_a.Literal) > _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
 		}
-	case float64:
+	case *value.Float:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a > float64(_b))
+		case *value.Int:
+			r := value.NewBool(_a.Literal > float64(_b.Literal))
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(_a > _b)
+		case *value.Float:
+			r := value.NewBool(_a.Literal > _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
@@ -339,24 +403,28 @@ func (vm *VM) StackPushGT(a any, b any) error {
 
 func (vm *VM) StackPushLT(a any, b any) error {
 	switch _a := a.(type) {
-	case int64:
+	case *value.Int:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a < _b)
+		case *value.Int:
+			r := value.NewBool(_a.Literal < _b.Literal)
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(float64(_a) < _b)
+		case *value.Float:
+			r := value.NewBool(float64(_a.Literal) < _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
 		}
-	case float64:
+	case *value.Float:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a < float64(_b))
+		case *value.Int:
+			r := value.NewBool(_a.Literal < float64(_b.Literal))
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(_a < _b)
+		case *value.Float:
+			r := value.NewBool(_a.Literal < _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
@@ -368,24 +436,28 @@ func (vm *VM) StackPushLT(a any, b any) error {
 
 func (vm *VM) StackPushGE(a any, b any) error {
 	switch _a := a.(type) {
-	case int64:
+	case *value.Int:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a >= _b)
+		case *value.Int:
+			r := value.NewBool(_a.Literal >= _b.Literal)
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(float64(_a) >= _b)
+		case *value.Float:
+			r := value.NewBool(float64(_a.Literal) >= _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
 		}
-	case float64:
+	case *value.Float:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a >= float64(_b))
+		case *value.Int:
+			r := value.NewBool(_a.Literal >= float64(_b.Literal))
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(_a >= _b)
+		case *value.Float:
+			r := value.NewBool(_a.Literal >= _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
@@ -397,24 +469,28 @@ func (vm *VM) StackPushGE(a any, b any) error {
 
 func (vm *VM) StackPushLE(a any, b any) error {
 	switch _a := a.(type) {
-	case int64:
+	case *value.Int:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a <= _b)
+		case *value.Int:
+			r := value.NewBool(_a.Literal <= _b.Literal)
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(float64(_a) <= _b)
+		case *value.Float:
+			r := value.NewBool(float64(_a.Literal) <= _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
 		}
-	case float64:
+	case *value.Float:
 		switch _b := b.(type) {
-		case int64:
-			vm.StackPush(_a <= float64(_b))
+		case *value.Int:
+			r := value.NewBool(_a.Literal <= float64(_b.Literal))
+			vm.StackPush(r)
 			return nil
-		case float64:
-			vm.StackPush(_a <= _b)
+		case *value.Float:
+			r := value.NewBool(_a.Literal <= _b.Literal)
+			vm.StackPush(r)
 			return nil
 		default:
 			return ErrInvalidOperandType
@@ -440,11 +516,14 @@ func (vm *VM) Run() error {
 				return err
 			}
 		case opcode.OP_TRUE:
-			vm.StackPush(true)
+			r := value.NewBool(true)
+			vm.StackPush(r)
 		case opcode.OP_FALSE:
-			vm.StackPush(false)
+			r := value.NewBool(false)
+			vm.StackPush(r)
 		case opcode.OP_NIL:
-			vm.StackPush(nil)
+			r := value.NewNil()
+			vm.StackPush(r)
 		case opcode.OP_NEGATE:
 			a := vm.StackPop()
 			err := vm.StackPushNegate(a)
@@ -529,6 +608,96 @@ func (vm *VM) Run() error {
 			}
 		case opcode.OP_POP:
 			vm.StackPop()
+		case opcode.OP_PRINT:
+			a := vm.StackPop()
+			err := a.Print(Output)
+			if err != nil {
+				return err
+			}
+		case opcode.OP_SET_GLOBAL:
+			globalIndex, err := frame.Operand(op)
+			if err != nil {
+				return err
+			}
+			globalValue := vm.StackPop()
+			vm.Globals[globalIndex] = globalValue
+		case opcode.OP_GET_GLOBAL:
+			globalIndex, err := frame.Operand(op)
+			if err != nil {
+				return err
+			}
+			globalValue := vm.Globals[globalIndex]
+			vm.StackPush(globalValue)
+		case opcode.OP_SET_LOCAL:
+			localIndex, err := frame.Operand(op)
+			if err != nil {
+				return err
+			}
+			localValue := vm.StackPop()
+			vm.StackSet(localIndex, localValue)
+		case opcode.OP_GET_LOCAL:
+			localIndex, err := frame.Operand(op)
+			if err != nil {
+				return err
+			}
+			localValue := vm.StackGet(localIndex)
+			vm.StackPush(localValue)
+		case opcode.OP_JUMP_FALSE:
+			offset, err := frame.Operand(op)
+			if err != nil {
+				return err
+			}
+			cond := vm.StackPeek(0)
+			switch _cond := cond.(type) {
+			case *value.Bool:
+				if !_cond.Literal {
+					frame.MoveIp(offset)
+				}
+			default:
+				return ErrInvalidCondType
+			}
+		case opcode.OP_JUMP:
+			offset, err := frame.Operand(op)
+			if err != nil {
+				return err
+			}
+			frame.MoveIp(offset)
+		case opcode.OP_LOOP:
+			offset, err := frame.Operand(op)
+			if err != nil {
+				return err
+			}
+			frame.MoveIp(-offset)
+		case opcode.OP_CALL:
+			argCount, err := frame.Operand(op)
+			if err != nil {
+				return err
+			}
+			closure := vm.StackPeek(argCount)
+			_closure, ok := closure.(*value.Closure)
+			if !ok {
+				return ErrInvalidCallType
+			}
+			basePointer := vm.StackLen() - argCount
+			frame = NewFrame(_closure, basePointer)
+			vm.FramesPush(frame)
+		case opcode.OP_RETURN:
+			result := vm.StackPop()
+			vm.StackResize(frame.BasePointer)
+			vm.StackPush(result)
+			frame = vm.FramesPop()
+		case opcode.OP_CLOSURE, opcode.OP_CLOSURE_2, opcode.OP_CLOSURE_4, opcode.OP_CLOSURE_8:
+			functionIndex, err := frame.Operand(op)
+			if err != nil {
+				return err
+			}
+			function := vm.Constants[functionIndex]
+			_function, ok := function.(*value.Function)
+			if !ok {
+				return ErrInvalidClosureType
+			}
+			closure := value.NewClosure(_function)
+			vm.StackPush(closure)
 		default:
 			return ErrInvalidOpcodeType
 		}
