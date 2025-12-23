@@ -405,6 +405,54 @@ func TestVM_RunStmtDecl(t *testing.T) {
 			err:    nil,
 			result: "0" + "\n" + "1" + "\n" + "2" + "\n" + "3" + "\n" + "4" + "\n",
 		},
+		{
+			name: "call",
+			source: `
+			fun pt() {
+				print 1;
+			}
+			pt();
+			`,
+			err:    nil,
+			result: "1" + "\n",
+		},
+		{
+			name: "call_arg",
+			source: `
+			fun pt(a, b) {
+				print a + b;
+			}
+			pt(1, 2);
+			`,
+			err:    nil,
+			result: "3" + "\n",
+		},
+		{
+			name: "call_arg_return",
+			source: `
+			fun add(a, b) {
+				return a + b;
+			}
+			print add(1, 2);
+			`,
+			err:    nil,
+			result: "3" + "\n",
+		},
+		{
+			name: "closure",
+			source: `
+			fun outer() {
+				var x = "outside";
+				fun inner() {
+					print x;
+				}
+				inner();
+			}
+			outer();
+			`,
+			err:    nil,
+			result: "outside" + "\n",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

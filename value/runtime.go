@@ -58,11 +58,13 @@ func (n *Nil) WriteTo(w io.Writer) error {
 
 type Closure struct {
 	Function *Function
+	Upvalues []Value
 }
 
 func NewClosure(function *Function) *Closure {
 	return &Closure{
 		Function: function,
+		Upvalues: make([]Value, function.NumUpvalues),
 	}
 }
 

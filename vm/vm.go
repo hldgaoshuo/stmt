@@ -633,15 +633,17 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
-			localValue := vm.StackPop()
-			vm.StackSet(localIndex, localValue)
+			stackIndex := frame.BasePointer + localIndex
+			value_ := vm.StackPop()
+			vm.StackSet(stackIndex, value_)
 		case opcode.OP_GET_LOCAL:
 			localIndex, err := frame.Operand(op)
 			if err != nil {
 				return err
 			}
-			localValue := vm.StackGet(localIndex)
-			vm.StackPush(localValue)
+			stackIndex := frame.BasePointer + localIndex
+			value_ := vm.StackGet(stackIndex)
+			vm.StackPush(value_)
 		case opcode.OP_JUMP_FALSE:
 			offset, err := frame.Operand(op)
 			if err != nil {
@@ -697,7 +699,35 @@ func (vm *VM) Run() error {
 				return ErrInvalidClosureType
 			}
 			closure := value.NewClosure(_function)
+			for i := uint64(0); i < _function.NumUpvalues; i++ {
+				isLocal := frame.CodeNext()
+				index := frame.CodeNext()
+				if isLocal == 1 {
+					localIndex := index
+					stackIndex := frame.BasePointer + uint64(localIndex)
+					upvalue := vm.StackGet(stackIndex)
+					closure.Upvalues[i] = upvalue
+				} else {
+					upvalueIndex := index
+					upvalue := frame.Closure.Upvalues[upvalueIndex]
+					closure.Upvalues[i] = upvalue
+				}
+			}
 			vm.StackPush(closure)
+		case opcode.OP_SET_UPVALUE:
+			upvalueIndex, err := frame.Operand(op)
+			if err != nil {
+				return err
+			}
+			value_ := vm.StackPop()
+			frame.Closure.Upvalues[upvalueIndex] = value_
+		case opcode.OP_GET_UPVALUE:
+			upvalueIndex, err := frame.Operand(op)
+			if err != nil {
+				return err
+			}
+			value_ := frame.Closure.Upvalues[upvalueIndex]
+			vm.StackPush(value_)
 		default:
 			return ErrInvalidOpcodeType
 		}

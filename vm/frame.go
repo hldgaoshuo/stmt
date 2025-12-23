@@ -46,25 +46,31 @@ func (f *Frame) Operand(op uint8) (uint64, error) {
 	}
 	function := f.Closure.Function
 	code := function.Code
-	ip := f.BasePointer + f.Ip
 	switch width {
 	case 1:
-		operand := uint64(code[ip])
+		operand := uint64(code[f.Ip])
 		f.Ip++
 		return operand, nil
 	case 2:
-		operand := uint64(binary.BigEndian.Uint16(code[ip:]))
+		operand := uint64(binary.BigEndian.Uint16(code[f.Ip:]))
 		f.Ip += 2
 		return operand, nil
 	case 4:
-		operand := uint64(binary.BigEndian.Uint32(code[ip:]))
+		operand := uint64(binary.BigEndian.Uint32(code[f.Ip:]))
 		f.Ip += 4
 		return operand, nil
 	case 8:
-		operand := binary.BigEndian.Uint64(code[ip:])
+		operand := binary.BigEndian.Uint64(code[f.Ip:])
 		f.Ip += 8
 		return operand, nil
 	default:
 		return 0, ErrInvalidOperandWidth
 	}
+}
+
+func (f *Frame) CodeNext() uint8 {
+	code := f.Closure.Function.Code
+	char := code[f.Ip]
+	f.Ip++
+	return char
 }

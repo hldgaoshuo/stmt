@@ -518,175 +518,175 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 				), 0, 0),
 			},
 		},
-		// {
-		// 	name: "function return nil",
-		// 	source: `
-		// 	fun pt() {
-		// 		print 1;
-		// 		return;
-		// 	}
-		// 	`,
-		// 	code: newCode(
-		// 		toCode(OP_CLOSURE, 1),
-		// 		toCode(OP_SET_GLOBAL, 0),
-		// 	),
-		// 	constants: []value.Value{
-		// 		value.NewInt(1),
-		// 		value.NewFunction(newCode(
-		// 			toCode(OP_CONSTANT, 0),
-		// 			toCode(OP_PRINT),
-		// 			toCode(OP_NIL),
-		// 			toCode(OP_RETURN),
-		// 		), 0, 0),
-		// 	},
-		// },
-		// {
-		// 	name: "function return value",
-		// 	source: `
-		// 	fun pt() {
-		// 		print 1;
-		// 		return 2;
-		// 	}
-		// 	`,
-		// 	code: newCode(
-		// 		toCode(OP_CLOSURE, 2),
-		// 		toCode(OP_SET_GLOBAL, 0),
-		// 	),
-		// 	constants: []value.Value{
-		// 		value.NewInt(1),
-		// 		value.NewInt(2),
-		// 		value.NewFunction(newCode(
-		// 			toCode(OP_CONSTANT, 0),
-		// 			toCode(OP_PRINT),
-		// 			toCode(OP_CONSTANT, 1),
-		// 			toCode(OP_RETURN),
-		// 		), 0, 0),
-		// 	},
-		// },
-		// {
-		// 	name: "call",
-		// 	source: `
-		// 	fun pt() {
-		// 		print 1;
-		// 	}
-		// 	pt();
-		// 	`,
-		// 	code: newCode(
-		// 		toCode(OP_CLOSURE, 1),
-		// 		toCode(OP_SET_GLOBAL, 0),
-		// 		toCode(OP_GET_GLOBAL, 0),
-		// 		toCode(OP_CALL, 0),
-		// 		toCode(OP_POP),
-		// 	),
-		// 	constants: []value.Value{
-		// 		value.NewInt(1),
-		// 		value.NewFunction(newCode(
-		// 			toCode(OP_CONSTANT, 0),
-		// 			toCode(OP_PRINT),
-		// 			toCode(OP_NIL),
-		// 			toCode(OP_RETURN),
-		// 		), 0, 0),
-		// 	},
-		// },
-		// {
-		// 	name: "call arg",
-		// 	source: `
-		// 	fun pt(a, b) {
-		// 		print a + b;
-		// 	}
-		// 	pt(1, 2);
-		// 	`,
-		// 	code: newCode(
-		// 		toCode(OP_CLOSURE, 0),
-		// 		toCode(OP_SET_GLOBAL, 0),
-		// 		toCode(OP_GET_GLOBAL, 0),
-		// 		toCode(OP_CONSTANT, 1),
-		// 		toCode(OP_CONSTANT, 2),
-		// 		toCode(OP_CALL, 2),
-		// 		toCode(OP_POP),
-		// 	),
-		// 	constants: []value.Value{
-		// 		value.NewFunction(newCode(
-		// 			toCode(OP_GET_LOCAL, 0),
-		// 			toCode(OP_GET_LOCAL, 1),
-		// 			toCode(OP_ADD),
-		// 			toCode(OP_PRINT),
-		// 			toCode(OP_NIL),
-		// 			toCode(OP_RETURN),
-		// 		), 2, 0),
-		// 		value.NewInt(1),
-		// 		value.NewInt(2),
-		// 	},
-		// },
-		// {
-		// 	name: "call arg return",
-		// 	source: `
-		// 	fun add(a, b) {
-		// 		return a + b;
-		// 	}
-		// 	print add(1, 2);
-		// 	`,
-		// 	code: newCode(
-		// 		toCode(OP_CLOSURE, 0),
-		// 		toCode(OP_SET_GLOBAL, 0),
-		// 		toCode(OP_GET_GLOBAL, 0),
-		// 		toCode(OP_CONSTANT, 1),
-		// 		toCode(OP_CONSTANT, 2),
-		// 		toCode(OP_CALL, 2),
-		// 		toCode(OP_PRINT),
-		// 	),
-		// 	constants: []value.Value{
-		// 		value.NewFunction(newCode(
-		// 			toCode(OP_GET_LOCAL, 0),
-		// 			toCode(OP_GET_LOCAL, 1),
-		// 			toCode(OP_ADD),
-		// 			toCode(OP_RETURN),
-		// 		), 2, 0),
-		// 		value.NewInt(1),
-		// 		value.NewInt(2),
-		// 	},
-		// },
-		// {
-		// 	name: "closure",
-		// 	source: `
-		// 	fun outer() {
-		// 		var x = "outside";
-		// 		fun inner() {
-		// 			print x;
-		// 		}
-		// 		inner();
-		// 	}
-		// 	outer();
-		// 	`,
-		// 	code: newCode(
-		// 		toCode(OP_CLOSURE, 2),
-		// 		toCode(OP_SET_GLOBAL, 0),
-		// 		toCode(OP_GET_GLOBAL, 0),
-		// 		toCode(OP_CALL, 0),
-		// 		toCode(OP_POP),
-		// 	),
-		// 	constants: []value.Value{
-		// 		value.NewString("outside"),
-		// 		value.NewFunction(newCode(
-		// 			toCode(OP_GET_UPVALUE, 0),
-		// 			toCode(OP_PRINT),
-		// 			toCode(OP_NIL),
-		// 			toCode(OP_RETURN),
-		// 		), 0, 1),
-		// 		value.NewFunction(newCode(
-		// 			toCode(OP_CONSTANT, 0),
-		// 			toCode(OP_SET_LOCAL, 0),
-		// 			toCode(OP_CLOSURE, 1),
-		// 			newClosureMeta(1, 0),
-		// 			toCode(OP_SET_LOCAL, 1),
-		// 			toCode(OP_GET_LOCAL, 1),
-		// 			toCode(OP_CALL, 0),
-		// 			toCode(OP_POP),
-		// 			toCode(OP_NIL),
-		// 			toCode(OP_RETURN),
-		// 		), 0, 0),
-		// 	},
-		// },
+		{
+			name: "function return nil",
+			source: `
+			fun pt() {
+				print 1;
+				return;
+			}
+			`,
+			code: newCode(
+				toCode(opcode.OP_CLOSURE, 1),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+			),
+			constants: []value.Value{
+				value.NewInt(1),
+				value.NewFunction(newCode(
+					toCode(opcode.OP_CONSTANT, 0),
+					toCode(opcode.OP_PRINT),
+					toCode(opcode.OP_NIL),
+					toCode(opcode.OP_RETURN),
+				), 0, 0),
+			},
+		},
+		{
+			name: "function return value",
+			source: `
+			fun pt() {
+				print 1;
+				return 2;
+			}
+			`,
+			code: newCode(
+				toCode(opcode.OP_CLOSURE, 2),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+			),
+			constants: []value.Value{
+				value.NewInt(1),
+				value.NewInt(2),
+				value.NewFunction(newCode(
+					toCode(opcode.OP_CONSTANT, 0),
+					toCode(opcode.OP_PRINT),
+					toCode(opcode.OP_CONSTANT, 1),
+					toCode(opcode.OP_RETURN),
+				), 0, 0),
+			},
+		},
+		{
+			name: "call",
+			source: `
+			fun pt() {
+				print 1;
+			}
+			pt();
+			`,
+			code: newCode(
+				toCode(opcode.OP_CLOSURE, 1),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_CALL, 0),
+				toCode(opcode.OP_POP),
+			),
+			constants: []value.Value{
+				value.NewInt(1),
+				value.NewFunction(newCode(
+					toCode(opcode.OP_CONSTANT, 0),
+					toCode(opcode.OP_PRINT),
+					toCode(opcode.OP_NIL),
+					toCode(opcode.OP_RETURN),
+				), 0, 0),
+			},
+		},
+		{
+			name: "call arg",
+			source: `
+			fun pt(a, b) {
+				print a + b;
+			}
+			pt(1, 2);
+			`,
+			code: newCode(
+				toCode(opcode.OP_CLOSURE, 0),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_CONSTANT, 2),
+				toCode(opcode.OP_CALL, 2),
+				toCode(opcode.OP_POP),
+			),
+			constants: []value.Value{
+				value.NewFunction(newCode(
+					toCode(opcode.OP_GET_LOCAL, 0),
+					toCode(opcode.OP_GET_LOCAL, 1),
+					toCode(opcode.OP_ADD),
+					toCode(opcode.OP_PRINT),
+					toCode(opcode.OP_NIL),
+					toCode(opcode.OP_RETURN),
+				), 2, 0),
+				value.NewInt(1),
+				value.NewInt(2),
+			},
+		},
+		{
+			name: "call arg return",
+			source: `
+			fun add(a, b) {
+				return a + b;
+			}
+			print add(1, 2);
+			`,
+			code: newCode(
+				toCode(opcode.OP_CLOSURE, 0),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_CONSTANT, 1),
+				toCode(opcode.OP_CONSTANT, 2),
+				toCode(opcode.OP_CALL, 2),
+				toCode(opcode.OP_PRINT),
+			),
+			constants: []value.Value{
+				value.NewFunction(newCode(
+					toCode(opcode.OP_GET_LOCAL, 0),
+					toCode(opcode.OP_GET_LOCAL, 1),
+					toCode(opcode.OP_ADD),
+					toCode(opcode.OP_RETURN),
+				), 2, 0),
+				value.NewInt(1),
+				value.NewInt(2),
+			},
+		},
+		{
+			name: "closure",
+			source: `
+			fun outer() {
+				var x = "outside";
+				fun inner() {
+					print x;
+				}
+				inner();
+			}
+			outer();
+			`,
+			code: newCode(
+				toCode(opcode.OP_CLOSURE, 2),
+				toCode(opcode.OP_SET_GLOBAL, 0),
+				toCode(opcode.OP_GET_GLOBAL, 0),
+				toCode(opcode.OP_CALL, 0),
+				toCode(opcode.OP_POP),
+			),
+			constants: []value.Value{
+				value.NewString("outside"),
+				value.NewFunction(newCode(
+					toCode(opcode.OP_GET_UPVALUE, 0),
+					toCode(opcode.OP_PRINT),
+					toCode(opcode.OP_NIL),
+					toCode(opcode.OP_RETURN),
+				), 0, 1),
+				value.NewFunction(newCode(
+					toCode(opcode.OP_CONSTANT, 0),
+					toCode(opcode.OP_SET_LOCAL, 0),
+					toCode(opcode.OP_CLOSURE, 1),
+					newClosureMeta(1, 0),
+					toCode(opcode.OP_SET_LOCAL, 1),
+					toCode(opcode.OP_GET_LOCAL, 1),
+					toCode(opcode.OP_CALL, 0),
+					toCode(opcode.OP_POP),
+					toCode(opcode.OP_NIL),
+					toCode(opcode.OP_RETURN),
+				), 0, 0),
+			},
+		},
 		// {
 		// 	name: "closure 1",
 		// 	source: `
