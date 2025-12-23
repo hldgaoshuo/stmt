@@ -503,6 +503,28 @@ func TestVM_RunStmtDecl(t *testing.T) {
 			err:    nil,
 			result: "local" + "\n",
 		},
+		{
+			name: "closure_5",
+			source: `
+			fun outer() {
+				var x = "value";
+				fun middle() {
+					fun inner() {
+						print x;
+					}
+					print "create inner closure";
+					return inner;
+				}
+				print "return from outer";
+				return middle;
+			}
+			var mid = outer();
+			var in = mid();
+			in();
+			`,
+			err:    nil,
+			result: "return from outer" + "\n" + "create inner closure" + "\n" + "value" + "\n",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
