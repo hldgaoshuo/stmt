@@ -472,6 +472,21 @@ func TestVM_RunStmtDecl(t *testing.T) {
 		{
 			name: "closure_3",
 			source: `
+			fun outer() {
+				var x = 1;
+				fun middle() {
+					fun inner() {
+						print x;
+					}
+				}
+			}
+			`,
+			err:    nil,
+			result: "1" + "\n",
+		},
+		{
+			name: "closure_4",
+			source: `
 			fun makeClosure() {
 				var local = "local";
 				fun closure() {
