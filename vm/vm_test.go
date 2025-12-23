@@ -453,6 +453,38 @@ func TestVM_RunStmtDecl(t *testing.T) {
 			err:    nil,
 			result: "outside" + "\n",
 		},
+		{
+			name: "closure_2",
+			source: `
+			var x = "global";
+			fun outer() {
+				var x = "outer";
+				fun inner() {
+					print x;
+				}
+				inner();
+			}
+			outer();
+			`,
+			err:    nil,
+			result: "outer" + "\n",
+		},
+		{
+			name: "closure_3",
+			source: `
+			fun makeClosure() {
+				var local = "local";
+				fun closure() {
+					print local;
+				}
+				return closure;
+			}
+			var closure = makeClosure();
+			closure();
+			`,
+			err:    nil,
+			result: "local" + "\n",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
