@@ -11,6 +11,8 @@ type Value interface {
 	Print(w io.Writer) error
 	ValueType() uint8
 	WriteTo(w io.Writer) error
+	GetLiteral() any
+	SetLiteral(literal any)
 }
 
 const (
@@ -54,6 +56,14 @@ func (i *Int) WriteTo(w io.Writer) error {
 	return binary.Write(w, binary.BigEndian, i.Literal)
 }
 
+func (i *Int) GetLiteral() any {
+	return i.Literal
+}
+
+func (i *Int) SetLiteral(literal any) {
+	i.Literal = literal.(int64)
+}
+
 type Float struct {
 	Literal float64
 }
@@ -83,6 +93,14 @@ func (f *Float) WriteTo(w io.Writer) error {
 		return err
 	}
 	return binary.Write(w, binary.BigEndian, f.Literal)
+}
+
+func (f *Float) GetLiteral() any {
+	return f.Literal
+}
+
+func (f *Float) SetLiteral(literal any) {
+	f.Literal = literal.(float64)
 }
 
 type String struct {
@@ -119,4 +137,12 @@ func (s *String) WriteTo(w io.Writer) error {
 	}
 	_, err := w.Write([]byte(s.Literal))
 	return err
+}
+
+func (s *String) GetLiteral() any {
+	return s.Literal
+}
+
+func (s *String) SetLiteral(literal any) {
+	s.Literal = literal.(string)
 }

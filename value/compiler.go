@@ -51,3 +51,11 @@ func (f *Function) WriteTo(w io.Writer) error {
 	_, err := w.Write(f.Code)
 	return err
 }
+
+func (f *Function) GetLiteral() any {
+	panic("function have no literal")
+}
+
+func (f *Function) SetLiteral(literal any) {
+	panic("function have no literal")
+}

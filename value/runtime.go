@@ -32,6 +32,14 @@ func (b *Bool) WriteTo(w io.Writer) error {
 	return nil
 }
 
+func (b *Bool) GetLiteral() any {
+	return b.Literal
+}
+
+func (b *Bool) SetLiteral(literal any) {
+	b.Literal = literal.(bool)
+}
+
 type Nil struct {
 }
 
@@ -54,6 +62,13 @@ func (n *Nil) ValueType() uint8 {
 
 func (n *Nil) WriteTo(w io.Writer) error {
 	return nil
+}
+
+func (n *Nil) GetLiteral() any {
+	return nil
+}
+
+func (n *Nil) SetLiteral(literal any) {
 }
 
 type Closure struct {
@@ -83,4 +98,12 @@ func (c *Closure) ValueType() uint8 {
 
 func (c *Closure) WriteTo(w io.Writer) error {
 	return nil
+}
+
+func (c *Closure) GetLiteral() any {
+	panic("closure have no literal")
+}
+
+func (c *Closure) SetLiteral(literal any) {
+	panic("closure have no literal")
 }

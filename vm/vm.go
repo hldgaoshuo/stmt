@@ -255,7 +255,8 @@ func (vm *VM) Run() error {
 				return err
 			}
 			value_ := vm.StackPop()
-			frame.Closure.Upvalues[upvalueIndex] = value_
+			upvalue := frame.Closure.Upvalues[upvalueIndex]
+			upvalue.SetLiteral(value_.GetLiteral())
 		case opcode.OP_GET_UPVALUE:
 			upvalueIndex, err := frame.Operand(op)
 			if err != nil {

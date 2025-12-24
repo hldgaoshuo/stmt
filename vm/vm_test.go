@@ -525,6 +525,22 @@ func TestVM_RunStmtDecl(t *testing.T) {
 			err:    nil,
 			result: "return from outer" + "\n" + "create inner closure" + "\n" + "value" + "\n",
 		},
+		{
+			name: "closure_6",
+			source: `
+			fun outer() {
+				var x = "before";
+				fun inner() {
+					x = "assigned";
+				}
+				inner();
+				print x;
+			}
+			outer();
+			`,
+			err:    nil,
+			result: "assigned" + "\n",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

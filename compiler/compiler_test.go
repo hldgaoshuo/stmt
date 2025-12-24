@@ -687,66 +687,6 @@ func TestCompiler_CompileStmtDecl(t *testing.T) {
 				), 0, 0),
 			},
 		},
-		// {
-		// 	name: "closure 1",
-		// 	source: `
-		// 	fun outer() {
-		// 		var a = 1;
-		// 		var b = 2;
-		// 		fun middle() {
-		// 			var c = 3;
-		// 			var d = 4;
-		// 			fun inner() {
-		// 				print a + c + b + d;
-		// 			}
-		// 		}
-		// 	}
-		// 	`,
-		// 	code: newCode(
-		// 		toCode(OP_CLOSURE, 6),
-		// 		toCode(OP_SET_GLOBAL, 0),
-		// 	),
-		// 	constants: []value.Value{
-		// 		value.NewInt(1),
-		// 		value.NewInt(2),
-		// 		value.NewInt(3),
-		// 		value.NewInt(4),
-		// 		value.NewFunction(newCode(
-		// 			toCode(OP_GET_UPVALUE, 0),
-		// 			toCode(OP_GET_UPVALUE, 1),
-		// 			toCode(OP_ADD),
-		// 			toCode(OP_GET_UPVALUE, 2),
-		// 			toCode(OP_ADD),
-		// 			toCode(OP_GET_UPVALUE, 3),
-		// 			toCode(OP_ADD),
-		// 			toCode(OP_PRINT),
-		// 			toCode(OP_NIL),
-		// 			toCode(OP_RETURN),
-		// 		), 0, 4),
-		// 		value.NewFunction(newCode(
-		// 			toCode(OP_CONSTANT, 2),
-		// 			toCode(OP_SET_LOCAL, 0),
-		// 			toCode(OP_CONSTANT, 3),
-		// 			toCode(OP_SET_LOCAL, 1),
-		// 			toCode(OP_CLOSURE, 4),
-		// 			newClosureMeta(0, 0, 1, 0, 0, 1, 1, 1),
-		// 			toCode(OP_SET_LOCAL, 2),
-		// 			toCode(OP_NIL),
-		// 			toCode(OP_RETURN),
-		// 		), 0, 2),
-		// 		value.NewFunction(newCode(
-		// 			toCode(OP_CONSTANT, 0),
-		// 			toCode(OP_SET_LOCAL, 0),
-		// 			toCode(OP_CONSTANT, 1),
-		// 			toCode(OP_SET_LOCAL, 1),
-		// 			toCode(OP_CLOSURE, 5),
-		// 			newClosureMeta(1, 0, 1, 1),
-		// 			toCode(OP_SET_LOCAL, 2),
-		// 			toCode(OP_NIL),
-		// 			toCode(OP_RETURN),
-		// 		), 0, 0),
-		// 	},
-		// },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
