@@ -507,6 +507,22 @@ func TestVM_RunStmtDecl(t *testing.T) {
 			name: "closure_5",
 			source: `
 			fun outer() {
+				var x = "outside";
+				fun inner() {
+					print x;
+				}
+				return inner;
+			}
+			var closure = outer();
+			closure();
+			`,
+			err:    nil,
+			result: "outside" + "\n",
+		},
+		{
+			name: "closure_6",
+			source: `
+			fun outer() {
 				var x = "value";
 				fun middle() {
 					fun inner() {
@@ -526,7 +542,7 @@ func TestVM_RunStmtDecl(t *testing.T) {
 			result: "return from outer" + "\n" + "create inner closure" + "\n" + "value" + "\n",
 		},
 		{
-			name: "closure_6",
+			name: "closure_7",
 			source: `
 			fun outer() {
 				var x = "before";
@@ -540,6 +556,25 @@ func TestVM_RunStmtDecl(t *testing.T) {
 			`,
 			err:    nil,
 			result: "assigned" + "\n",
+		},
+		{
+			name: "closure_8",
+			source: `
+			var globalSet;
+			var globalGet;
+			fun main() {
+				var a = "initial";
+				fun set() { a = "updated"; }
+				fun get() { print a; }
+				globalSet = set;
+				globalGet = get;
+			}
+			main();
+			globalSet();
+			globalGet();
+			`,
+			err:    nil,
+			result: "updated" + "\n",
 		},
 	}
 	for _, tt := range tests {
